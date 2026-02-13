@@ -1,0 +1,21 @@
+/* Quasar component overrides */
+
+.q-btn {
+  border-radius: $generic-border-radius;
+  justify-content: center;
+  align-items: center;
+}
+
+.q-btn::before {
+  box-shadow: none;
+}
+.q-card {
+  border-radius: $generic-border-radius;
+}
+.text-body1 {
+  font-size: 16px;
+}
+
+.q-header {
+  background: $primary;
+}

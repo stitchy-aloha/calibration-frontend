@@ -4,9 +4,7 @@
       <q-toolbar>
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+        <q-toolbar-title> ระบบจัดการสอบเทียบเครื่องมือแพทย์</q-toolbar-title>
       </q-toolbar>
     </q-header>
 
@@ -25,8 +23,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+import { ref } from 'vue';
 
 const linksList: EssentialLinkProps[] = [
   {
