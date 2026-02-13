@@ -1,17 +1,26 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
-
-        <q-toolbar-title> ระบบจัดการสอบเทียบเครื่องมือแพทย์</q-toolbar-title>
+        <div class="text-white text-h6 header-title-hover">
+          <div class="text-weight-bold text-subtitle2">ระบบบริหารจัดการสอบเทียบเครื่องมือแพทย์</div>
+        </div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+    <!-- Invisible trigger zone -->
+    <div class="drawer-trigger-zone" @mouseenter="leftDrawerOpen = true"></div>
 
+    <q-drawer
+      v-model="leftDrawerOpen"
+      overlay
+      :width="250"
+      bordered
+      @mouseleave="leftDrawerOpen = false"
+      class="drawer-hover bg-grey-1"
+      :style="{ top: '50px', height: 'calc(100vh - 50px)' }"
+    >
+      <q-list>
         <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
       </q-list>
     </q-drawer>
@@ -72,8 +81,22 @@ const linksList: EssentialLinkProps[] = [
 ];
 
 const leftDrawerOpen = ref(false);
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
-}
 </script>
+<style scoped lang="scss">
+.header-title-hover {
+  transition: opacity 0.2s ease;
+  user-select: none;
+}
+.drawer-hover {
+  transition: width 0.2s;
+  z-index: 1000;
+}
+.drawer-trigger-zone {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 100vh;
+  z-index: 999;
+}
+</style>
