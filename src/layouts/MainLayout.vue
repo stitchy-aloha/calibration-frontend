@@ -1,28 +1,49 @@
 <template>
   <q-layout view="hHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated class="bg-primary text-white">
       <q-toolbar>
-        <div class="text-white text-h6 header-title-hover">
-          <div class="text-weight-bold text-subtitle2">ระบบบริหารจัดการสอบเทียบเครื่องมือแพทย์</div>
-        </div>
+        <q-toolbar-title>
+          <div class="header-app-title">
+            <q-icon
+              name="medical_services"
+              size="28px"
+              class="q-mr-sm"
+              style="margin-right: 25px"
+            />
+            <div class="column">
+              <span class="text-subtitle1 text-weight-bold">
+                ระบบบริหารจัดการสอบเทียบเครื่องมือแพทย์
+              </span>
+              <span class="text-caption text-weight-regular opacity-70">
+                Medical Calibration Management System
+              </span>
+            </div>
+          </div>
+        </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <!-- Invisible trigger zone -->
-    <div class="drawer-trigger-zone" @mouseenter="leftDrawerOpen = true"></div>
-
     <q-drawer
-      v-model="leftDrawerOpen"
+      :model-value="true"
       overlay
-      :width="250"
-      bordered
+      elevated
+      side="left"
+      :width="leftDrawerOpen ? 240 : 60"
+      @mouseenter="leftDrawerOpen = true"
       @mouseleave="leftDrawerOpen = false"
-      class="drawer-hover bg-grey-1"
+      class="app-drawer"
       :style="{ top: '50px', height: 'calc(100vh - 50px)' }"
     >
-      <q-list>
-        <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
-      </q-list>
+      <div class="drawer-inner">
+        <q-list class="drawer-list">
+          <EssentialLink
+            v-for="link in linksList"
+            :key="link.title"
+            v-bind="link"
+            :compact="!leftDrawerOpen"
+          />
+        </q-list>
+      </div>
     </q-drawer>
 
     <q-page-container>
@@ -37,66 +58,110 @@ import { ref } from 'vue';
 
 const linksList: EssentialLinkProps[] = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
+    title: 'หน้าหลัก',
+    caption: 'Home Page',
+    icon: 'app:home',
+    link: '',
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
+    title: 'แผนการสอบเทียบ',
+    caption: 'Calibration Schedule',
+    icon: 'calendar_month',
+    link: '',
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
+    title: 'จัดการวอร์ด',
+    caption: 'Ward Management',
+    icon: 'location_on',
+    link: '',
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
+    title: 'บันทึกการสอบเทียบ',
+    caption: 'Calibration Records',
+    icon: 'app:note',
+    link: '',
   },
   {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
+    title: 'รับรองการสอบเทียบ',
+    caption: 'Calibration Approval',
+    icon: 'app:appr',
+    link: '',
   },
   {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
+    title: 'ข้อมูลเครื่องมือ',
+    caption: 'Tool Management',
+    icon: 'app:syringe',
+    link: '',
   },
   {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
+    title: 'ซ่อมบำรุง',
+    caption: 'Maintenance',
+    icon: 'app:repair',
+    link: '',
+  },
+  {
+    title: 'ประวัติการสอบเทียบ',
+    caption: 'Calibration History',
+    icon: 'app:save',
+    link: '',
+  },
+  {
+    title: 'การทำงานในระบบ',
+    caption: 'Audit Log',
+    icon: 'shield',
+    link: '',
   },
 ];
 
 const leftDrawerOpen = ref(false);
 </script>
 <style scoped lang="scss">
-.header-title-hover {
-  transition: opacity 0.2s ease;
-  user-select: none;
+.header-app-title {
+  display: flex;
+  align-items: center;
 }
-.drawer-hover {
-  transition: width 0.2s;
+
+.header-app-title .opacity-70 {
+  opacity: 0.7;
+}
+
+.app-drawer {
+  background: linear-gradient(180deg, #f5f7fb 0%, #ffffff 40%, #f5f7fb 100%);
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  transition: width 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
   z-index: 1000;
 }
-.drawer-trigger-zone {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 16px;
-  height: 100vh;
-  z-index: 999;
+
+.drawer-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 8px;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 4px;
+}
+
+.drawer-header-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.drawer-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.drawer-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
 }
 </style>
