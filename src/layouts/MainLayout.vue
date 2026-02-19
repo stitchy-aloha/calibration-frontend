@@ -20,12 +20,33 @@
             </div>
           </div>
         </q-toolbar-title>
+
+        <q-space />
+
+        <q-btn flat round dense icon="notifications" class="q-mr-sm">
+          <q-badge floating color="red" rounded />
+        </q-btn>
+
+        <div
+          class="q-separator-vertical q-my-sm bg-white opacity-20 q-mr-md"
+          style="width: 1px"
+        ></div>
+
+        <div class="row items-center cursor-pointer">
+          <div class="column text-right q-mr-sm">
+            <span class="text-weight-bold text-caption">เฟอร์รารี่ ใจดี</span>
+            <span class="text-caption" style="font-size: 10px; opacity: 0.8">ช่างเทคนิค</span>
+          </div>
+          <q-avatar size="36px">
+            <img src="public/image/profile.png" alt="User Avatar" />
+          </q-avatar>
+        </div>
       </q-toolbar>
     </q-header>
 
     <q-drawer
       :model-value="true"
-      overlay
+      show-if-above
       elevated
       side="left"
       :width="leftDrawerOpen ? 240 : 60"
@@ -115,6 +136,7 @@ const linksList: EssentialLinkProps[] = [
 
 const leftDrawerOpen = ref(false);
 </script>
+
 <style scoped lang="scss">
 .header-app-title {
   display: flex;
