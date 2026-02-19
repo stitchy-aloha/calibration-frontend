@@ -99,19 +99,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+type UrgentWorkItem = {
+  id: string;
+  name: string;
+  model: string;
+  dept: string;
+  deptColor: string;
+  deptTextColor: string;
+  status: string;
+  statusColor: string;
+  dueDate: string;
+};
 
 const props = defineProps<{
-  items: any[];
+  items: UrgentWorkItem[];
 }>();
 
-const columns = [
+const { items } = props;
+
+const columns: Array<{
+  name: string;
+  required: boolean;
+  label: string;
+  align: 'left' | 'right' | 'center';
+  field: string;
+}> = [
   { name: 'id', required: true, label: 'รหัสครุภัณฑ์', align: 'left', field: 'id' },
   { name: 'name', required: true, label: 'ชื่อเครื่องมือ', align: 'left', field: 'name' },
   { name: 'dept', required: true, label: 'แผนก', align: 'left', field: 'dept' },
   { name: 'status', required: true, label: 'สถานะ', align: 'left', field: 'status' },
   { name: 'dueDate', required: true, label: 'กำหนดส่ง', align: 'right', field: 'dueDate' },
-] as any;
+];
 </script>
 
 <style scoped>
