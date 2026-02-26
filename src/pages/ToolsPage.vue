@@ -21,12 +21,21 @@
         class="type-select"
         bg-color="white"
       />
+
+      <!-- Admin: manage button -->
+      <q-btn
+        v-if="isAdmin"
+        unelevated
+        label="จัดการเครื่องมือแพทย์"
+        class="btn-manage q-ml-auto"
+        @click="router.push('/tools/manage')"
+      />
     </div>
 
     <!-- q-table -->
     <q-table
       :rows="store.filteredTools"
-      :columns="columns"
+      :columns="tableColumns"
       row-key="id"
       flat
       bordered
@@ -60,20 +69,100 @@
               {{ props.row.status }}
             </span>
           </q-td>
+          <!-- Admin actions column -->
+          <q-td v-if="isAdmin" key="actions" :props="props" class="text-center">
+            <q-btn
+              flat
+              round
+              dense
+              icon="edit"
+              size="sm"
+              color="grey-7"
+              @click="openEdit(props.row)"
+            />
+            <q-btn
+              flat
+              round
+              dense
+              icon="delete"
+              size="sm"
+              color="red-5"
+              @click="confirmDelete(props.row)"
+            />
+          </q-td>
         </q-tr>
       </template>
     </q-table>
+
+    <!-- Edit Dialog -->
+    <q-dialog v-model="editDialog" persistent>
+      <ToolFormDialog
+        :tool="editingTool"
+        mode="dialog"
+        @close="editDialog = false"
+        @saved="editDialog = false"
+      />
+    </q-dialog>
+
+    <!-- Delete Confirm Dialog -->
+    <q-dialog v-model="deleteDialog">
+      <q-card style="min-width: 340px; border-radius: 16px">
+        <q-card-section class="text-h6">ยืนยันการลบ</q-card-section>
+        <q-card-section class="q-pt-none">
+          ต้องการลบเครื่องมือ <b>{{ deletingTool?.name }}</b> ({{ deletingTool?.id }}) หรือไม่?
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="ยกเลิก" v-close-popup />
+          <q-btn flat label="ลบ" color="red" @click="doDelete" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import SearchBar from 'src/components/SearchBar.vue';
+import ToolFormDialog from 'src/components/tools/ToolFormDialog.vue';
 import type { QTableProps } from 'quasar';
-import { useToolsStore, type ToolStatus } from 'src/stores/tools';
+import { useToolsStore, type ToolStatus, type MedicalTool } from 'src/stores/tools';
+import { useAuthStore } from 'src/stores/auth';
 
 const store = useToolsStore();
+const auth = useAuthStore();
+const router = useRouter();
 
-const columns: QTableProps['columns'] = [
+const isAdmin = computed(() => auth.user?.role === 'ผู้ดูแลระบบ');
+
+/* ── Edit ──────────────── */
+const editDialog = ref(false);
+const editingTool = ref<MedicalTool | null>(null);
+
+function openEdit(tool: MedicalTool) {
+  editingTool.value = { ...tool };
+  editDialog.value = true;
+}
+
+/* ── Delete ─────────────── */
+const deleteDialog = ref(false);
+const deletingTool = ref<MedicalTool | null>(null);
+
+function confirmDelete(tool: MedicalTool) {
+  deletingTool.value = tool;
+  deleteDialog.value = true;
+}
+
+function doDelete() {
+  if (deletingTool.value) {
+    store.deleteTool(deletingTool.value.id);
+  }
+  deleteDialog.value = false;
+  deletingTool.value = null;
+}
+
+/* ── Columns ────────────── */
+const baseColumns: QTableProps['columns'] = [
   {
     name: 'id',
     label: 'รหัสเครื่องมือ',
@@ -140,6 +229,14 @@ const columns: QTableProps['columns'] = [
   },
 ];
 
+const tableColumns = computed<QTableProps['columns']>(() => {
+  if (!isAdmin.value) return baseColumns;
+  return [
+    ...baseColumns,
+    { name: 'actions', label: '', field: 'id', align: 'center', style: 'width: 90px' },
+  ];
+});
+
 function statusClass(status: ToolStatus): string {
   const map: Record<ToolStatus, string> = {
     พร้อมใช้งาน: 'status--ready',
@@ -157,14 +254,19 @@ function statusClass(status: ToolStatus): string {
 .filters-row {
   display: flex;
   gap: 12px;
-}
-
-.search-input {
-  width: 260px;
+  align-items: center;
 }
 
 .type-select {
   width: 180px;
+}
+
+.btn-manage {
+  background: $primary !important;
+  color: #fff !important;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 8px 24px;
 }
 
 /* ── Table ───────────────────────────────────── */
@@ -172,7 +274,6 @@ function statusClass(status: ToolStatus): string {
   border-radius: 16px !important;
   overflow: hidden;
 
-  /* Header */
   :deep(.table-header-row) {
     background: $secondary;
   }
@@ -186,7 +287,6 @@ function statusClass(status: ToolStatus): string {
     padding: 13px 16px;
   }
 
-  /* Body rows */
   :deep(.table-body-row) {
     transition: background 0.12s ease;
 
@@ -219,7 +319,7 @@ function statusClass(status: ToolStatus): string {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
-  width: 70%;
+  width: 80%;
 }
 
 .status--ready {
