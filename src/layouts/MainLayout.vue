@@ -32,15 +32,17 @@
           style="width: 1px"
         ></div>
 
-        <div class="row items-center cursor-pointer">
-          <div class="column text-right q-mr-sm">
-            <span class="text-weight-bold text-caption">เฟอร์รารี่ ใจดี</span>
-            <span class="text-caption" style="font-size: 10px; opacity: 0.8">ช่างเทคนิค</span>
+        <ProfileCard name="เฟอร์รารี่ ใจดี" role="ช่างเทคนิค">
+          <div class="row items-center">
+            <div class="column text-right q-mr-sm">
+              <span class="text-weight-bold text-caption">เฟอร์รารี่ ใจดี</span>
+              <span class="text-caption" style="font-size: 10px; opacity: 0.8">ช่างเทคนิค</span>
+            </div>
+            <q-avatar size="36px" class="header-avatar">
+              <img src="/image/profile.png" alt="User Avatar" />
+            </q-avatar>
           </div>
-          <q-avatar size="36px">
-            <img src="public/image/profile.png" alt="User Avatar" />
-          </q-avatar>
-        </div>
+        </ProfileCard>
       </q-toolbar>
     </q-header>
 
@@ -75,6 +77,7 @@
 
 <script setup lang="ts">
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+import ProfileCard from 'components/ProfileCard.vue';
 import { ref } from 'vue';
 
 const linksList: EssentialLinkProps[] = [
@@ -185,5 +188,17 @@ const leftDrawerOpen = ref(false);
 .drawer-list::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.12);
   border-radius: 4px;
+}
+
+.header-avatar {
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+
+  &:hover {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+    transform: scale(1.06);
+  }
 }
 </style>
