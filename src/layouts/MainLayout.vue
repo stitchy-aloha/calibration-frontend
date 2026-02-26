@@ -108,7 +108,6 @@ const allLinks: EssentialLinkProps[] = [
   },
   { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'vaccines', link: '/tools' },
   { title: 'หน่วยงาน', caption: 'Departments', icon: 'business', link: '/departments' },
-  { title: 'ซ่อมบำรุง', caption: 'Maintenance', icon: 'app:repair', link: '/maintenance' },
   {
     title: 'ประวัติการสอบเทียบ',
     caption: 'Calibration History',

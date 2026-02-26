@@ -20,23 +20,28 @@
         label="ประเภท"
         class="type-select"
         bg-color="white"
+        style="width: 250px"
       />
 
       <!-- View Toggle Buttons -->
-      <div class="view-toggle q-ml-auto">
+      <q-space />
+
+      <div class="col-auto row q-gutter-sm">
         <q-btn
           flat
-          dense
-          :icon="'format_list_bulleted'"
-          :class="['toggle-btn', viewMode === 'table' ? 'toggle-btn--active' : '']"
+          round
+          icon="list"
+          :class="viewMode === 'table' ? 'bg-grey-3' : 'bg-white'"
           @click="viewMode = 'table'"
+          class="border-grey"
         />
         <q-btn
           flat
-          dense
-          icon="grid_view"
-          :class="['toggle-btn', viewMode === 'card' ? 'toggle-btn--active' : '']"
+          round
+          icon="apps"
+          :class="viewMode === 'card' ? 'bg-grey-3' : 'bg-white'"
           @click="viewMode = 'card'"
+          class="border-grey"
         />
       </div>
     </div>
@@ -50,7 +55,7 @@
         flat
         bordered
         class="cal-table"
-        :rows-per-page-options="[10, 20, 50]"
+        :rows-per-page-options="[15, 20, 50]"
         no-data-label="ไม่พบข้อมูล"
       >
         <!-- Custom header -->
@@ -75,7 +80,8 @@
             <q-td key="action" :props="props" class="text-center">
               <q-btn
                 unelevated
-                size="sm"
+                class="q-px-md shadow-1 text-weight-medium"
+                style="font-size: 14px"
                 :class="[
                   'action-btn',
                   isOwner(props.row.responsible) ? 'action-btn--active' : 'action-btn--disabled',
@@ -207,36 +213,6 @@ const columns: QTableProps['columns'] = [
 }
 
 /* ── Table ───────────────────────────────── */
-.cal-table {
-  border-radius: 16px !important;
-  overflow: hidden;
-
-  :deep(.table-header-row) {
-    background: $secondary;
-  }
-
-  :deep(.table-th) {
-    color: #fff !important;
-    font-weight: 600;
-    font-size: 14px;
-    padding: 13px 16px;
-    white-space: nowrap;
-  }
-
-  :deep(.table-body-row) {
-    transition: background 0.12s ease;
-
-    td {
-      padding: 12px 16px;
-      font-size: 13.5px;
-    }
-
-    &:hover td {
-      background: #fafbff !important;
-    }
-  }
-}
-
 .col-id {
   font-weight: 600;
   color: #1a1a2e;
@@ -244,7 +220,6 @@ const columns: QTableProps['columns'] = [
 
 /* ── Action button in table ───────────────── */
 .action-btn {
-  border-radius: 999px;
   padding: 6px 18px;
   font-size: 13px;
   font-weight: 600;
@@ -273,5 +248,8 @@ const columns: QTableProps['columns'] = [
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
+}
+.border-grey {
+  border: 1px solid #e0e0e0;
 }
 </style>
