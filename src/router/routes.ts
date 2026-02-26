@@ -2,7 +2,7 @@ import type { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/login',
+    path: '/',
     component: () => import('layouts/FullScreen.vue'),
     children: [{ path: '', component: () => import('pages/LoginPage.vue') }],
   },
@@ -10,6 +10,11 @@ const routes: RouteRecordRaw[] = [
     path: '/dashboard',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/HomePage.vue') }],
+  },
+  {
+    path: '/tools',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('pages/ToolsPage.vue') }],
   },
 
   // Always leave this as last one,
