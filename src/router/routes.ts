@@ -22,6 +22,11 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/ToolManagementPage.vue') }],
   },
   {
+    path: '/tools/config/:name',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('pages/ToolConfigPage.vue') }],
+  },
+  {
     path: '/calibration',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/CalibrationPage.vue') }],
