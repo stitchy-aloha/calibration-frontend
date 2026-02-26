@@ -103,7 +103,7 @@ const linksList: EssentialLinkProps[] = [
     title: 'บันทึกการสอบเทียบ',
     caption: 'Calibration Records',
     icon: 'app:note',
-    link: '/records',
+    link: '/calibration',
   },
   {
     title: 'รับรองการสอบเทียบ',

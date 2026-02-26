@@ -8,6 +8,7 @@ export const useUserStore = defineStore('user', {
         username: 'admin',
         password: '123',
         name: 'Admin User',
+        fullName: 'นายนันนะพัด รุจิพูนพงศ์',
         email: 'admin@example.com',
       },
       {
@@ -15,6 +16,7 @@ export const useUserStore = defineStore('user', {
         username: 'user',
         password: 'password123',
         name: 'Normal User',
+        fullName: 'นายสมโชค ขัยเกษม',
         email: 'user@example.com',
       },
     ],
@@ -25,7 +27,7 @@ export const useUserStore = defineStore('user', {
       return this.users.find(
         (u) =>
           (u.username === usernameOrEmail || u.email === usernameOrEmail) &&
-          u.password === password
+          u.password === password,
       );
     },
   },

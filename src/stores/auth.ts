@@ -3,7 +3,7 @@ import { useUserStore } from './user';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null as null | { id: string; email: string; name: string },
+    user: null as null | { id: string; email: string; name: string; fullName: string },
     isAuthenticated: false,
     token: null as null | string,
   }),
@@ -15,7 +15,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(usernameOrEmail: string, password: string) {
       const userStore = useUserStore();
-      
+
       // Mock login delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -26,12 +26,13 @@ export const useAuthStore = defineStore('auth', {
           id: validUser.id,
           email: validUser.email,
           name: validUser.name,
+          fullName: validUser.fullName,
         };
         this.isAuthenticated = true;
         this.token = 'mock-jwt-token';
         return true;
       }
-      
+
       return false;
     },
 
