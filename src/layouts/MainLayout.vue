@@ -80,30 +80,20 @@
 <script setup lang="ts">
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
 import ProfileCard from 'components/ProfileCard.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useAuthStore } from 'src/stores/auth';
 
 const auth = useAuthStore();
 
-const linksList: EssentialLinkProps[] = [
-  {
-    title: 'หน้าหลัก',
-    caption: 'Home Page',
-    icon: 'app:home',
-    link: '/dashboard',
-  },
+const allLinks: EssentialLinkProps[] = [
+  { title: 'หน้าหลัก', caption: 'Home Page', icon: 'app:home', link: '/dashboard' },
   {
     title: 'แผนการสอบเทียบ',
     caption: 'Calibration Schedule',
     icon: 'calendar_month',
     link: '/schedule',
   },
-  {
-    title: 'จัดการวอร์ด',
-    caption: 'Ward Management',
-    icon: 'location_on',
-    link: '/ward',
-  },
+  { title: 'จัดการวอร์ด', caption: 'Ward Management', icon: 'location_on', link: '/ward' },
   {
     title: 'บันทึกการสอบเทียบ',
     caption: 'Calibration Records',
@@ -116,31 +106,22 @@ const linksList: EssentialLinkProps[] = [
     icon: 'app:appr',
     link: '/approval',
   },
-  {
-    title: 'ข้อมูลเครื่องมือ',
-    caption: 'Tool Management',
-    icon: 'app:syringe',
-    link: '/tools',
-  },
-  {
-    title: 'ซ่อมบำรุง',
-    caption: 'Maintenance',
-    icon: 'app:repair',
-    link: '/maintenance',
-  },
+  { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'vaccines', link: '/tools' },
+  { title: 'หน่วยงาน', caption: 'Departments', icon: 'business', link: '/departments' },
+  { title: 'ซ่อมบำรุง', caption: 'Maintenance', icon: 'app:repair', link: '/maintenance' },
   {
     title: 'ประวัติการสอบเทียบ',
     caption: 'Calibration History',
     icon: 'app:save',
     link: '/history',
   },
-  {
-    title: 'การทำงานในระบบ',
-    caption: 'Audit Log',
-    icon: 'shield',
-    link: '/audit',
-  },
+  { title: 'การทำงานในระบบ', caption: 'Audit Log', icon: 'shield', link: '/audit' },
 ];
+
+const linksList = computed<EssentialLinkProps[]>(() => {
+  const allowed = auth.permissions?.allowedMenus || [];
+  return allLinks.filter((link) => allowed.includes(link.link || ''));
+});
 
 const leftDrawerOpen = ref(false);
 </script>

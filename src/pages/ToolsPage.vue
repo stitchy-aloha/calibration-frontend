@@ -133,7 +133,7 @@ const store = useToolsStore();
 const auth = useAuthStore();
 const router = useRouter();
 
-const isAdmin = computed(() => auth.user?.role === 'ผู้ดูแลระบบ');
+const isAdmin = computed(() => auth.permissions?.canManageTools ?? false);
 
 /* ── Edit ──────────────── */
 const editDialog = ref(false);

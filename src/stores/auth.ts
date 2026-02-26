@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import { useUserStore } from './user';
 
+import type { AppRole } from './roles';
+import { RolePermissionsMap, type RolePermissions } from './roles';
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as null | {
@@ -8,7 +11,7 @@ export const useAuthStore = defineStore('auth', {
       email: string;
       name: string;
       fullName: string;
-      role: string;
+      role: AppRole;
     },
     isAuthenticated: false,
     token: null as null | string,
@@ -16,6 +19,10 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     getUser: (state) => state.user,
+    permissions: (state): RolePermissions | null => {
+      if (!state.user) return null;
+      return RolePermissionsMap[state.user.role] || null;
+    },
   },
 
   actions: {

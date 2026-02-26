@@ -1,25 +1,44 @@
 import { defineStore } from 'pinia';
+import { AppRole } from './roles';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     users: [
       {
         id: '1',
-        username: 'user',
+        username: 'tech',
         password: '123',
-        name: 'Normal User',
+        name: 'Tech User',
         fullName: 'นายสมโชค ขัยเกษม',
-        role: 'ช่างเทคนิค',
-        email: 'user@example.com',
+        role: AppRole.TECHNICIAN,
+        email: 'tech@example.com',
       },
       {
         id: '2',
+        username: 'head',
+        password: '123',
+        name: 'Head Dept',
+        fullName: 'นางสมศรี ดีใจ',
+        role: AppRole.HEAD_OF_DEPT,
+        email: 'head@example.com',
+      },
+      {
+        id: '3',
         username: 'admin',
         password: '123',
         name: 'Admin User',
         fullName: 'นายนันท์นภัส รุจิพูนพงศ์',
-        role: 'ผู้ดูแลระบบ',
+        role: AppRole.ADMIN,
         email: 'admin@example.com',
+      },
+      {
+        id: '4',
+        username: 'director',
+        password: '123',
+        name: 'Director User',
+        fullName: 'นพ. วิทยา ทองสว่าง',
+        role: AppRole.DIRECTOR,
+        email: 'director@example.com',
       },
     ],
   }),
