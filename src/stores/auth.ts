@@ -3,7 +3,13 @@ import { useUserStore } from './user';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null as null | { id: string; email: string; name: string; fullName: string },
+    user: null as null | {
+      id: string;
+      email: string;
+      name: string;
+      fullName: string;
+      role: string;
+    },
     isAuthenticated: false,
     token: null as null | string,
   }),
@@ -27,6 +33,7 @@ export const useAuthStore = defineStore('auth', {
           email: validUser.email,
           name: validUser.name,
           fullName: validUser.fullName,
+          role: validUser.role,
         };
         this.isAuthenticated = true;
         this.token = 'mock-jwt-token';

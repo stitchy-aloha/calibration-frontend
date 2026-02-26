@@ -21,8 +21,8 @@
 
           <!-- User info -->
           <div class="profile-card__info">
-            <p class="profile-card__name">{{ name }}</p>
-            <p class="profile-card__role">{{ role }}</p>
+            <p class="profile-card__name">{{ authStore.user?.fullName }}</p>
+            <p class="profile-card__role">{{ authStore.user?.role }}</p>
           </div>
 
           <q-separator class="q-my-md opacity-30" />

@@ -32,11 +32,13 @@
           style="width: 1px"
         ></div>
 
-        <ProfileCard name="เฟอร์รารี่ ใจดี" role="ช่างเทคนิค">
+        <ProfileCard :name="auth.user?.fullName ?? ''" :role="auth.user?.role ?? ''">
           <div class="row items-center">
             <div class="column text-right q-mr-sm">
-              <span class="text-weight-bold text-caption">เฟอร์รารี่ ใจดี</span>
-              <span class="text-caption" style="font-size: 10px; opacity: 0.8">ช่างเทคนิค</span>
+              <span class="text-weight-bold text-caption">{{ auth.user?.fullName }}</span>
+              <span class="text-caption" style="font-size: 10px; opacity: 0.8">{{
+                auth.user?.role
+              }}</span>
             </div>
             <q-avatar size="36px" class="header-avatar">
               <img src="/image/profile.png" alt="User Avatar" />
@@ -79,6 +81,9 @@
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
 import ProfileCard from 'components/ProfileCard.vue';
 import { ref } from 'vue';
+import { useAuthStore } from 'src/stores/auth';
+
+const auth = useAuthStore();
 
 const linksList: EssentialLinkProps[] = [
   {

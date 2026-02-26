@@ -8,7 +8,8 @@ export const useUserStore = defineStore('user', {
         username: 'admin',
         password: '123',
         name: 'Admin User',
-        fullName: 'นายนันนะพัด รุจิพูนพงศ์',
+        fullName: 'นายนันท์นภัส รุจิพูนพงศ์',
+        role: 'ช่างเทคนิค',
         email: 'admin@example.com',
       },
       {
@@ -17,6 +18,7 @@ export const useUserStore = defineStore('user', {
         password: 'password123',
         name: 'Normal User',
         fullName: 'นายสมโชค ขัยเกษม',
+        role: 'ช่างเทคนิค',
         email: 'user@example.com',
       },
     ],

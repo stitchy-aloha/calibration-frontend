@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-export type CalibrationStatus = 'pending' | 'done' | 'overdue';
-
 export interface CalibrationRecord {
   id: string; // รหัสสอบเทียบ  e.g. CAL-01
   deviceName: string; // ชื่อเครื่องมือ
@@ -11,7 +9,6 @@ export interface CalibrationRecord {
   type: string; // ประเภท       e.g. Medical
   dueDate: string; // ครบกำหนด    YYYY-MM-DD
   responsible: string; // ผู้รับผิดชอบ
-  status: CalibrationStatus;
 }
 
 const RESPONSIBLE_A = 'นายนันนะพัด รุจิพูนพงศ์';
@@ -26,7 +23,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-02',
@@ -36,7 +32,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Dimension',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_B,
-    status: 'pending',
   },
   {
     id: 'CAL-03',
@@ -46,7 +41,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'done',
   },
   {
     id: 'CAL-04',
@@ -56,7 +50,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-05',
@@ -66,7 +59,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_B,
-    status: 'done',
   },
   {
     id: 'CAL-06',
@@ -76,7 +68,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_B,
-    status: 'done',
   },
   {
     id: 'CAL-07',
@@ -86,7 +77,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'done',
   },
   {
     id: 'CAL-08',
@@ -96,7 +86,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-09',
@@ -106,7 +95,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-10',
@@ -116,7 +104,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-11',
@@ -126,7 +113,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-12',
@@ -136,7 +122,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-13',
@@ -146,7 +131,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-14',
@@ -156,7 +140,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-15',
@@ -166,7 +149,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-16',
@@ -176,7 +158,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_B,
-    status: 'pending',
   },
   {
     id: 'CAL-17',
@@ -186,7 +167,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-18',
@@ -196,7 +176,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_B,
-    status: 'done',
   },
   {
     id: 'CAL-19',
@@ -206,7 +185,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
   {
     id: 'CAL-20',
@@ -216,7 +194,6 @@ const mockCalibrations: CalibrationRecord[] = [
     type: 'Medical',
     dueDate: '2025-12-28',
     responsible: RESPONSIBLE_A,
-    status: 'pending',
   },
 ];
 
