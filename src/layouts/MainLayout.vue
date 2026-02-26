@@ -88,6 +88,12 @@ const auth = useAuthStore();
 const allLinks: EssentialLinkProps[] = [
   { title: 'หน้าหลัก', caption: 'Home Page', icon: 'app:home', link: '/dashboard' },
   {
+    title: 'แดชบอร์ดผู้บริหาร',
+    caption: 'Executive Dashboard',
+    icon: 'app:home',
+    link: '/director-dashboard',
+  },
+  {
     title: 'แผนการสอบเทียบ',
     caption: 'Calibration Schedule',
     icon: 'calendar_month',

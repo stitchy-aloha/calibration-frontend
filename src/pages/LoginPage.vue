@@ -105,6 +105,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from 'stores/auth';
+import { AppRole } from 'stores/roles';
 import { useQuasar } from 'quasar';
 
 const $q = useQuasar();
@@ -127,7 +128,11 @@ const onSubmit = async () => {
         message: 'Login Successful',
         icon: 'check_circle',
       });
-      await router.push('/dashboard');
+      if (authStore.user?.role === AppRole.DIRECTOR) {
+        await router.push('/director-dashboard');
+      } else {
+        await router.push('/dashboard');
+      }
     } else {
       $q.notify({
         color: 'negative',

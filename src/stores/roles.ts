@@ -48,7 +48,7 @@ export const RolePermissionsMap: Record<AppRole, RolePermissions> = {
     canManageTools: false,
     canManageDepartments: false,
     canApproveCalibration: true,
-    // Director mostly sees dashboard, approvals, history
-    allowedMenus: ['/dashboard', '/schedule', '/approval', '/history'],
+    // Director mostly sees specialized dashboard, approvals, history
+    allowedMenus: ['/director-dashboard', '/schedule', '/approval', '/history'],
   },
 };
