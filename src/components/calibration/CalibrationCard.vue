@@ -31,7 +31,6 @@
       :class="['cal-card__btn', isOwner ? 'cal-card__btn--active' : 'cal-card__btn--disabled']"
       :disable="!isOwner"
       label="เริ่มการสอบเทียบ"
-      @click="$emit('start', record.id)"
     />
   </div>
 </template>
@@ -40,7 +39,6 @@
 import type { CalibrationRecord } from 'src/stores/calibration';
 
 defineProps<{ record: CalibrationRecord; isOwner: boolean }>();
-defineEmits<{ (e: 'start', id: string): void }>();
 </script>
 
 <style scoped lang="scss">

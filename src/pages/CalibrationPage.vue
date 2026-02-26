@@ -82,7 +82,6 @@
                 ]"
                 label="เริ่มการสอบเทียบ"
                 :disable="!isOwner(props.row.responsible)"
-                @click="store.startCalibration(props.row.id)"
               />
             </q-td>
           </q-tr>
@@ -98,7 +97,6 @@
           :key="record.id"
           :record="record"
           :is-owner="isOwner(record.responsible)"
-          @start="store.startCalibration"
         />
       </div>
     </template>
@@ -198,7 +196,7 @@ const columns: QTableProps['columns'] = [
     color 0.15s ease;
 
   &--active {
-    background: $secondary !important;
+    background: $primary !important;
     color: #fff !important;
   }
 
@@ -253,7 +251,7 @@ const columns: QTableProps['columns'] = [
 }
 
 .action-btn--active {
-  background: $secondary !important;
+  background: $primary !important;
   color: #fff !important;
 }
 

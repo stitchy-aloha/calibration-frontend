@@ -11,7 +11,7 @@ export interface CalibrationRecord {
   responsible: string; // ผู้รับผิดชอบ
 }
 
-const RESPONSIBLE_A = 'นายนันนะพัด รุจิพูนพงศ์';
+const RESPONSIBLE_A = 'นายนันท์นภัส รุจิพูนพงศ์';
 const RESPONSIBLE_B = 'นายสมโชค ขัยเกษม';
 
 const mockCalibrations: CalibrationRecord[] = [
@@ -224,12 +224,5 @@ export const useCalibrationStore = defineStore('calibration', () => {
     }),
   );
 
-  function startCalibration(id: string) {
-    const record = records.value.find((r) => r.id === id);
-    if (record && record.status === 'pending') {
-      record.status = 'done';
-    }
-  }
-
-  return { records, searchQuery, selectedType, typeOptions, filteredRecords, startCalibration };
+  return { records, searchQuery, selectedType, typeOptions, filteredRecords };
 });

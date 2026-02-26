@@ -99,7 +99,7 @@ function onEditProfile() {
 async function onLogout() {
   open.value = false;
   authStore.logout();
-  await router.push('/login');
+  await router.push('/');
 }
 </script>
 
