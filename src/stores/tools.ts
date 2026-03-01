@@ -1,7 +1,14 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-export type ToolStatus = 'พร้อมใช้งาน' | 'รอดำเนินการ' | 'ใกล้ครบกำหนด' | 'จำหน่ายแล้ว' | 'ซ่อมรุด';
+export type ToolStatus =
+  | 'พร้อมใช้งาน'
+  | 'กำลังสอบเทียบ'
+  | 'รอดำเนินการ'
+  | 'จำหน่ายแล้ว'
+  | 'กำลังใช้งาน'
+  | 'ส่งซ่อม'
+  | 'ปิดใช้งาน';
 export type ToolType = 'Medical' | 'Dimension';
 
 export interface MedicalTool {
@@ -46,7 +53,7 @@ const mockTools: MedicalTool[] = [
     lastCalibrationDate: '2025-06-26',
     location: 'ICU-03',
     department: 'Pulmonary',
-    status: 'ซ่อมรุด',
+    status: 'ส่งซ่อม',
   },
   {
     id: 'BME-003',
@@ -60,7 +67,7 @@ const mockTools: MedicalTool[] = [
     lastCalibrationDate: '2025-06-26',
     location: 'Ward-1A',
     department: 'Pediatrics',
-    status: 'ใกล้ครบกำหนด',
+    status: 'กำลังใช้งาน',
   },
   {
     id: 'BME-004',
@@ -130,7 +137,7 @@ const mockTools: MedicalTool[] = [
     lastCalibrationDate: '2025-06-26',
     location: 'Lab-3',
     department: 'Engineering',
-    status: 'ใกล้ครบกำหนด',
+    status: 'กำลังใช้งาน',
   },
   {
     id: 'BME-009',
@@ -228,7 +235,7 @@ const mockTools: MedicalTool[] = [
     lastCalibrationDate: '2025-05-30',
     location: 'OPD',
     department: 'General',
-    status: 'ใกล้ครบกำหนด',
+    status: 'กำลังใช้งาน',
   },
 ];
 
@@ -244,11 +251,13 @@ export const useToolsStore = defineStore('tools', () => {
   ];
 
   const statusOptions = [
-    { label: 'พร้อมใช้งาน (Available)', value: 'พร้อมใช้งาน' },
-    { label: 'รอดำเนินการ (Pending)', value: 'รอดำเนินการ' },
-    { label: 'ใกล้ครบกำหนด (Due Soon)', value: 'ใกล้ครบกำหนด' },
-    { label: 'จำหน่ายแล้ว (Disposed)', value: 'จำหน่ายแล้ว' },
-    { label: 'ซ่อมรุด (Under Repair)', value: 'ซ่อมรุด' },
+    { label: 'พร้อมใช้งาน', value: 'พร้อมใช้งาน' },
+    { label: 'กำลังสอบเทียบ', value: 'กำลังสอบเทียบ' },
+    { label: 'รอดำเนินการ', value: 'รอดำเนินการ' },
+    { label: 'จำหน่ายแล้ว', value: 'จำหน่ายแล้ว' },
+    { label: 'กำลังใช้งาน', value: 'กำลังใช้งาน' },
+    { label: 'ส่งซ่อม', value: 'ส่งซ่อม' },
+    { label: 'ปิดใช้งาน', value: 'ปิดใช้งาน' },
   ];
 
   const locationOptions = [

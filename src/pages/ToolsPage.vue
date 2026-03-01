@@ -240,10 +240,12 @@ const tableColumns = computed<QTableProps['columns']>(() => {
 function statusClass(status: ToolStatus): string {
   const map: Record<ToolStatus, string> = {
     พร้อมใช้งาน: 'status--ready',
+    กำลังสอบเทียบ: 'status--calibrating',
     รอดำเนินการ: 'status--pending',
-    ใกล้ครบกำหนด: 'status--warning',
     จำหน่ายแล้ว: 'status--sold',
-    ซ่อมรุด: 'status--repair',
+    กำลังใช้งาน: 'status--active',
+    ส่งซ่อม: 'status--repair',
+    ปิดใช้งาน: 'status--disabled',
   };
   return map[status] ?? '';
 }
@@ -327,12 +329,12 @@ function statusClass(status: ToolStatus): string {
   color: #14a001;
 }
 
-.status--pending {
-  background: rgba($secondary, 0.15);
+.status--calibrating {
+  background: rgba($primary, 0.15);
   color: $primary;
 }
 
-.status--warning {
+.status--pending {
   background: rgba(255, 152, 0, 0.14);
   color: #e65100;
 }
@@ -342,8 +344,18 @@ function statusClass(status: ToolStatus): string {
   color: #6b7280;
 }
 
+.status--active {
+  background: rgba(33, 150, 243, 0.15);
+  color: #1976d2;
+}
+
 .status--repair {
   background: rgba(255, 1, 1, 0.1);
   color: #ff0101;
+}
+
+.status--disabled {
+  background: #f5f5f5;
+  color: #9e9e9e;
 }
 </style>
