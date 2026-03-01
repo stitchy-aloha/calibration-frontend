@@ -119,7 +119,7 @@ defineEmits<{
 
 .inspection-buttons {
   display: flex;
-  gap: 4px;
+  gap: 15px;
   flex-shrink: 0;
 }
 
@@ -128,7 +128,7 @@ defineEmits<{
   min-width: 58px;
   min-height: 28px;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-weight: 600;
   letter-spacing: 0;
   border: 1px solid #d9d9d9;

@@ -37,7 +37,7 @@
 
     <div class="calendar-footer">
       <div class="event-legend-dot"></div>
-      <span class="text-caption text-grey-7">กำหนดสอบเทียบ</span>
+      <span class="text-caption text-black">กำหนดสอบเทียบ</span>
     </div>
   </div>
 </template>

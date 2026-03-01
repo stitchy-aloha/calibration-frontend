@@ -36,7 +36,6 @@ const store = useWardsStore();
 .timeline-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 .timeline-list {
