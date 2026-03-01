@@ -1,55 +1,82 @@
 import { defineStore } from 'pinia';
-import { AppRole } from './roles';
+import { api } from 'src/boot/axios';
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  name: string;
+  tel: string;
+  imageUrl: string;
+  roleId: number;
+  role: {
+    id: number;
+    name: string;
+    description: string;
+  };
+}
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    users: [
-      {
-        id: '1',
-        username: 'tech',
-        password: '123',
-        name: 'Tech User',
-        fullName: 'นายสมโชค ขัยเกษม',
-        role: AppRole.TECHNICIAN,
-        email: 'tech@example.com',
-      },
-      {
-        id: '2',
-        username: 'head',
-        password: '123',
-        name: 'Head Dept',
-        fullName: 'นางสมศรี ดีใจ',
-        role: AppRole.HEAD_OF_DEPT,
-        email: 'head@example.com',
-      },
-      {
-        id: '3',
-        username: 'admin',
-        password: '123',
-        name: 'Admin User',
-        fullName: 'นายนันท์นภัส รุจิพูนพงศ์',
-        role: AppRole.ADMIN,
-        email: 'admin@example.com',
-      },
-      {
-        id: '4',
-        username: 'director',
-        password: '123',
-        name: 'Director User',
-        fullName: 'นพ. วิทยา ทองสว่าง',
-        role: AppRole.DIRECTOR,
-        email: 'director@example.com',
-      },
-    ],
+    users: [] as User[],
+    loading: false,
+    searchQuery: '',
+    roleFilter: '',
   }),
 
+  getters: {
+    filteredUsers(state): User[] {
+      let result = state.users;
+
+      if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        result = result.filter(
+          (u) =>
+            u.name.toLowerCase().includes(q) ||
+            u.email.toLowerCase().includes(q) ||
+            u.username.toLowerCase().includes(q) ||
+            u.tel.includes(q),
+        );
+      }
+
+      if (state.roleFilter) {
+        result = result.filter((u) => u.role.description === state.roleFilter);
+      }
+
+      return result;
+    },
+
+    availableRoles(state): string[] {
+      const roles = new Set(state.users.map((u) => u.role.description));
+      return Array.from(roles);
+    },
+  },
+
   actions: {
-    validateUser(usernameOrEmail: string, password: string) {
-      return this.users.find(
-        (u) =>
-          (u.username === usernameOrEmail || u.email === usernameOrEmail) &&
-          u.password === password,
-      );
+    async fetchUsers() {
+      this.loading = true;
+      try {
+        const res = await api.get<User[]>('/users');
+        this.users = res.data;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async deleteUser(id: number) {
+      await api.delete(`/users/${id}`);
+      this.users = this.users.filter((u) => u.id !== id);
+    },
+
+    async createUser(data: Partial<User> & { password: string }) {
+      const res = await api.post<User>('/users', data);
+      this.users.push(res.data);
+    },
+
+    async updateUser(id: number, data: Partial<User>) {
+      const res = await api.patch<User>(`/users/${id}`, data);
+      const idx = this.users.findIndex((u) => u.id === id);
+      if (idx !== -1) this.users[idx] = res.data;
     },
   },
 });

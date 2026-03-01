@@ -41,7 +41,7 @@
               }}</span>
             </div>
             <q-avatar size="36px" class="header-avatar">
-              <img src="/image/profile.png" alt="User Avatar" />
+              <img :src="profileImage" alt="User Avatar" />
             </q-avatar>
           </div>
         </ProfileCard>
@@ -84,6 +84,14 @@ import { ref, computed } from 'vue';
 import { useAuthStore } from 'src/stores/auth';
 
 const auth = useAuthStore();
+const apiBase = import.meta.env.VITE_API_BASE_URL as string;
+
+const profileImage = computed(() => {
+  const img = auth.user?.imageUrl;
+  if (!img) return '/image/profile.png';
+  if (img.startsWith('http')) return img;
+  return `${apiBase}${img}`;
+});
 
 const allLinks: EssentialLinkProps[] = [
   { title: 'หน้าหลัก', caption: 'Home Page', icon: 'app:home', link: '/dashboard' },
@@ -114,6 +122,7 @@ const allLinks: EssentialLinkProps[] = [
   },
   { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'vaccines', link: '/tools' },
   { title: 'หน่วยงาน', caption: 'Departments', icon: 'business', link: '/departments' },
+  { title: 'จัดการผู้ใช้งาน', caption: 'User Management', icon: 'group', link: '/users' },
   {
     title: 'ประวัติการสอบเทียบ',
     caption: 'Calibration History',

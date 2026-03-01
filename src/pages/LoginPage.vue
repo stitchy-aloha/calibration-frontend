@@ -121,30 +121,24 @@ const loading = ref(false);
 const onSubmit = async () => {
   loading.value = true;
   try {
-    const success = await authStore.login(email.value, password.value);
-    if (success) {
-      $q.notify({
-        color: 'positive',
-        message: 'Login Successful',
-        icon: 'check_circle',
-      });
-      if (authStore.user?.role === AppRole.DIRECTOR) {
-        await router.push('/director-dashboard');
-      } else {
-        await router.push('/dashboard');
-      }
+    await authStore.login(email.value, password.value);
+    $q.notify({
+      color: 'positive',
+      message: 'Login Successful',
+      icon: 'check_circle',
+    });
+    if (authStore.user?.role === AppRole.DIRECTOR) {
+      await router.push('/director-dashboard');
     } else {
-      $q.notify({
-        color: 'negative',
-        message: 'Invalid User ID/Email or Password',
-        icon: 'error',
-      });
+      await router.push('/dashboard');
     }
-  } catch (error) {
-    console.error('Login error:', error);
+  } catch (error: unknown) {
+    const msg =
+      (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+      'Invalid User ID/Email or Password';
     $q.notify({
       color: 'negative',
-      message: 'Login Failed. Please try again.',
+      message: msg,
       icon: 'error',
     });
   } finally {
