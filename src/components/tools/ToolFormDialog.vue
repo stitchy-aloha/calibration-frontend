@@ -171,12 +171,15 @@ function emptyForm() {
   return {
     id: toolsStore.nextId,
     name: '',
+    company: '',
     model: '',
     type: 'Medical' as ToolType,
     serialNumber: '',
     calibrationCycle: '6',
     dueDate: '',
+    lastCalibrationDate: '',
     location: 'Ward-1A',
+    department: '',
     status: 'พร้อมใช้งาน' as ToolStatus,
   };
 }
@@ -208,12 +211,15 @@ watch(
 function onSave() {
   const data: Omit<MedicalTool, 'id'> = {
     name: form.name,
+    company: form.company,
     model: form.model,
     type: form.type,
     serialNumber: form.serialNumber,
     calibrationCycle: `${form.calibrationCycle} เดือน`,
     dueDate: form.dueDate,
+    lastCalibrationDate: form.lastCalibrationDate,
     location: form.location,
+    department: form.department,
     status: form.status,
   };
 

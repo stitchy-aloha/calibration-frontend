@@ -31,14 +31,21 @@
       :class="['cal-card__btn', isOwner ? 'cal-card__btn--active' : 'cal-card__btn--disabled']"
       :disable="!isOwner"
       label="เริ่มการสอบเทียบ"
+      @click="goToInspection"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import type { CalibrationRecord } from 'src/stores/calibration';
 
-defineProps<{ record: CalibrationRecord; isOwner: boolean }>();
+const props = defineProps<{ record: CalibrationRecord; isOwner: boolean }>();
+const router = useRouter();
+
+function goToInspection() {
+  void router.push('/calibration/inspection/' + props.record.id);
+}
 </script>
 
 <style scoped lang="scss">
