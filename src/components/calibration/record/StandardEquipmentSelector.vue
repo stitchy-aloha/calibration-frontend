@@ -23,7 +23,7 @@
             <q-card-section class="q-pa-md">
               <!-- Icon + type name centered -->
               <div class="column items-center q-mb-md">
-                <q-icon name="monitor_heart" size="42px" color="secondary" class="q-mb-xs" />
+                <q-icon name="app:med" size="42px" color="secondary" class="q-mb-xs" />
                 <div class="text-weight-bold text-subtitle1">{{ equip.type }}</div>
               </div>
 

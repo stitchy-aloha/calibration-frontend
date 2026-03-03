@@ -82,8 +82,8 @@ defineEmits<{
 }
 
 .section-header {
-  background: $primary;
-  border-bottom: 2px solid $primary;
+  background: $secondary;
+  border-bottom: 2px solid $secondary;
 }
 
 .section-title {

@@ -115,7 +115,8 @@ import { ref, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ToolFormDialog from 'src/components/tools/ToolFormDialog.vue';
 import SearchBar from 'src/components/SearchBar.vue';
-import { useToolsStore, type MedicalTool } from 'src/stores/tools';
+import { useToolsStore } from 'src/stores/tools';
+import type { MedicalTool } from 'src/types';
 
 const router = useRouter();
 const route = useRoute();

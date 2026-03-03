@@ -148,7 +148,8 @@
 
 <script setup lang="ts">
 import { reactive, watch, computed } from 'vue';
-import { useToolsStore, type MedicalTool, type ToolType, type ToolStatus } from 'src/stores/tools';
+import { useToolsStore } from 'src/stores/tools';
+import type { MedicalTool, ToolType, ToolStatus } from 'src/types';
 
 const props = withDefaults(
   defineProps<{

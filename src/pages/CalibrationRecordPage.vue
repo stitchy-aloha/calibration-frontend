@@ -38,7 +38,7 @@
                 : 'tab-btn tab-btn--inactive'
             "
             label="ข้อมูลทั่วไป"
-            @click="store.activeTab = 'general'"
+            @click="switchTab('general')"
             no-caps
           />
           <q-btn
@@ -49,7 +49,7 @@
                 : 'tab-btn tab-btn--inactive'
             "
             label="บันทึกผลทดสอบ"
-            @click="store.activeTab = 'test_results'"
+            @click="switchTab('test_results')"
             no-caps
           />
         </div>
@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCalibrationRecordStore } from 'stores/calibrationRecord';
 import TabGeneralInfo from 'components/calibration/record/TabGeneralInfo.vue';
@@ -112,12 +112,35 @@ const router = useRouter();
 const store = useCalibrationRecordStore();
 const $q = useQuasar();
 
+type TabKey = 'general' | 'test_results';
+
+/** Update URL query param without adding to history stack */
+const switchTab = (tab: TabKey) => {
+  store.activeTab = tab;
+  void router.replace({ query: { ...route.query, tab } });
+};
+
 onMounted(() => {
   const id = route.params.id as string;
   if (id) {
     void store.fetchCalibrationRecord(id);
   }
+  // Restore tab from URL if present
+  const tabParam = route.query.tab as TabKey | undefined;
+  if (tabParam === 'general' || tabParam === 'test_results') {
+    store.activeTab = tabParam;
+  }
 });
+
+// Sync tab if user uses browser back/forward buttons
+watch(
+  () => route.query.tab,
+  (tab) => {
+    if (tab === 'general' || tab === 'test_results') {
+      store.activeTab = tab;
+    }
+  },
+);
 
 const goBack = () => {
   router.back();
@@ -125,15 +148,13 @@ const goBack = () => {
 
 const handleNext = () => {
   if (store.activeTab === 'general') {
-    store.activeTab = 'test_results';
+    switchTab('test_results');
   } else {
-    // Implement save logic here
     $q.notify({
       type: 'positive',
       message: 'บันทึกผลการสอบเทียบสำเร็จ!',
       position: 'top-right',
     });
-    // Route to somewhere else after
     setTimeout(() => {
       void router.push('/dashboard');
     }, 1500);

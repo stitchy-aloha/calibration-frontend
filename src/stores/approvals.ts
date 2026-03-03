@@ -1,15 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-
-export interface ApprovalEvent {
-  id: string; // e.g., CAL-200
-  toolCode: string; // e.g., BME-101
-  toolName: string; // e.g., Infusion Pump
-  location: string; // e.g., ER-01
-  calDate: string; // e.g., 2025-06-26
-  result: string; // e.g., 'ผ่าน'
-  status: 'pending' | 'approved' | 'rejected';
-}
+import type { ApprovalEvent } from 'src/types';
 
 export const useApprovalsStore = defineStore('approvals', () => {
   // Generate mock data for approvals based on the mockup image

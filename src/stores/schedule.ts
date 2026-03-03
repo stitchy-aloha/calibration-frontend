@@ -1,17 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useAuthStore } from './auth';
-
-export interface CalibrationEvent {
-  id: string; // Event ID
-  toolCode: string; // e.g., 'BME-003'
-  toolName: string; // e.g., 'Infusion Pump'
-  location: string; // e.g., 'ICU / เตียง 2'
-  frequency: string; // e.g., 'ทุก 6 เดือน'
-  assignedTo: string; // Name of the person, e.g., 'นายสมโชค ขัยเกษม'
-  dueDate: string; // format 'YYYY-MM-DD'
-  isCompleted: boolean;
-}
+import type { CalibrationEvent } from 'src/types';
 
 export const useScheduleStore = defineStore('schedule', () => {
   const authStore = useAuthStore();

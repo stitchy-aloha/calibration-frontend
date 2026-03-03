@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ApprovalEvent } from 'src/stores/approvals';
+import type { ApprovalEvent } from 'src/types';
 
 defineProps<{ item: ApprovalEvent }>();
 const emit = defineEmits<{ (e: 'approve', id: string): void }>();

@@ -126,7 +126,9 @@ import { useRouter } from 'vue-router';
 import SearchBar from 'src/components/SearchBar.vue';
 import ToolFormDialog from 'src/components/tools/ToolFormDialog.vue';
 import type { QTableProps } from 'quasar';
-import { useToolsStore, type ToolStatus, type MedicalTool } from 'src/stores/tools';
+import { useToolsStore } from 'src/stores/tools';
+import type { ToolStatus, MedicalTool } from 'src/types';
+
 import { useAuthStore } from 'src/stores/auth';
 
 const store = useToolsStore();
