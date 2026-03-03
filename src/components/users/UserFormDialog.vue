@@ -1,76 +1,117 @@
 <template>
   <q-card class="dialog-card">
+    <!-- Header -->
     <q-card-section class="dialog-header">
-      <div class="text-h6 text-weight-bold">{{ isEdit ? 'แก้ไขผู้ใช้งาน' : 'เพิ่มผู้ใช้งาน' }}</div>
-      <q-btn flat round dense icon="close" @click="$emit('close')" />
+      <div class="row items-center">
+        <q-icon name="edit_note" size="24px" class="q-mr-sm" />
+        <span class="text-subtitle1 text-weight-bold">
+          {{ isEdit ? 'แก้ไขข้อมูลผู้ใช้งาน' : 'เพิ่มข้อมูลผู้ใช้งาน' }}
+        </span>
+      </div>
+      <q-btn flat round dense icon="close" color="white" @click="$emit('close')" />
     </q-card-section>
 
-    <q-separator />
+    <!-- Form -->
+    <q-card-section class="q-pa-lg">
+      <q-form @submit.prevent="onSubmit" class="form-grid">
+        <!-- Row 1 -->
+        <div class="form-field">
+          <label class="field-label">รหัสพนักงาน <span class="required">*</span></label>
+          <q-input
+            v-model="form.username"
+            outlined
+            dense
+            placeholder="ระบุรหัสพนักงาน"
+            :rules="[(v) => !!v || 'กรุณากรอกรหัสพนักงาน']"
+          />
+        </div>
+        <div class="form-field">
+          <label class="field-label">ชื่อ-นามสกุล <span class="required">*</span></label>
+          <q-input
+            v-model="form.name"
+            outlined
+            dense
+            placeholder="ระบุชื่อ-นามสกุล"
+            :rules="[(v) => !!v || 'กรุณากรอกชื่อ-นามสกุล']"
+          />
+        </div>
 
-    <q-card-section class="q-pt-lg">
-      <q-form @submit.prevent="onSubmit" class="q-gutter-md">
-        <q-input
-          v-model="form.username"
-          outlined
-          dense
-          label="ชื่อผู้ใช้งาน (Username)"
-          :rules="[(v) => !!v || 'กรุณากรอกชื่อผู้ใช้']"
-        />
+        <!-- Row 2 -->
+        <div class="form-field">
+          <label class="field-label">อีเมล <span class="required">*</span></label>
+          <q-input
+            v-model="form.email"
+            outlined
+            dense
+            placeholder="ระบุอีเมล"
+            type="email"
+            :rules="[(v) => !!v || 'กรุณากรอกอีเมล']"
+          />
+        </div>
+        <div class="form-field">
+          <label class="field-label">รหัสผ่าน <span v-if="!isEdit" class="required">*</span></label>
+          <q-input
+            v-model="form.password"
+            outlined
+            dense
+            placeholder="ระบุรหัสผ่าน"
+            :type="showPwd ? 'text' : 'password'"
+            :rules="[(v) => isEdit || !!v || 'กรุณากรอกรหัสผ่าน']"
+          >
+            <template #append>
+              <q-icon
+                :name="showPwd ? 'visibility' : 'visibility_off'"
+                class="cursor-pointer text-grey-5"
+                @click="showPwd = !showPwd"
+              />
+            </template>
+          </q-input>
+        </div>
 
-        <q-input
-          v-model="form.name"
-          outlined
-          dense
-          label="ชื่อ-นามสกุล"
-          :rules="[(v) => !!v || 'กรุณากรอกชื่อ-นามสกุล']"
-        />
+        <!-- Row 3 -->
+        <div class="form-field">
+          <label class="field-label">เบอร์โทรศัพท์ <span class="required">*</span></label>
+          <q-input
+            v-model="form.tel"
+            outlined
+            dense
+            placeholder="ระบุเบอร์โทรศัพท์"
+            mask="##########"
+            :rules="[(v) => !!v || 'กรุณากรอกเบอร์โทรศัพท์']"
+          />
+        </div>
+        <div class="form-field">
+          <label class="field-label">ตำแหน่ง <span class="required">*</span></label>
+          <q-select
+            v-model="form.roleId"
+            :options="roleOptions"
+            outlined
+            dense
+            emit-value
+            map-options
+            placeholder="เลือกตำแหน่ง"
+            :rules="[(v) => !!v || 'กรุณาเลือกตำแหน่ง']"
+          />
+        </div>
 
-        <q-input
-          v-model="form.email"
-          outlined
-          dense
-          label="อีเมล"
-          type="email"
-          :rules="[(v) => !!v || 'กรุณากรอกอีเมล']"
-        />
+        <!-- Row 4 — Image Upload (full width) -->
+        <div class="form-field full-width">
+          <label class="field-label">รูปภาพ</label>
+          <q-file v-model="form.image" outlined dense accept="image/*" label="อัปโหลดรูป">
+            <template #prepend>
+              <q-icon name="cloud_upload" color="grey-5" />
+            </template>
+          </q-file>
+        </div>
 
-        <q-input v-model="form.tel" outlined dense label="เบอร์โทรศัพท์" mask="##########" />
-
-        <q-select
-          v-model="form.roleId"
-          :options="roleOptions"
-          outlined
-          dense
-          emit-value
-          map-options
-          label="ตำแหน่ง"
-          :rules="[(v) => !!v || 'กรุณาเลือกตำแหน่ง']"
-        />
-
-        <q-input
-          v-if="!isEdit"
-          v-model="form.password"
-          outlined
-          dense
-          label="รหัสผ่าน"
-          :type="showPwd ? 'text' : 'password'"
-          :rules="[(v) => isEdit || !!v || 'กรุณากรอกรหัสผ่าน']"
-        >
-          <template #append>
-            <q-icon
-              :name="showPwd ? 'visibility' : 'visibility_off'"
-              class="cursor-pointer"
-              @click="showPwd = !showPwd"
-            />
-          </template>
-        </q-input>
-
-        <div class="row justify-end q-gutter-sm q-mt-md">
-          <q-btn flat label="ยกเลิก" @click="$emit('close')" />
+        <!-- Actions -->
+        <div class="form-actions full-width">
+          <q-btn flat label="ยกเลิก" class="btn-cancel" @click="$emit('close')" />
           <q-btn
             unelevated
             type="submit"
-            :label="isEdit ? 'บันทึก' : 'เพิ่ม'"
+            icon="save"
+            label="บันทึก"
             class="btn-save"
             :loading="saving"
           />
@@ -102,9 +143,9 @@ const form = ref({
   tel: '',
   roleId: null as number | null,
   password: '',
+  image: null as File | null,
 });
 
-// Prefill form when editing
 watch(
   () => props.user,
   (u) => {
@@ -116,9 +157,18 @@ watch(
         tel: u.tel,
         roleId: u.roleId,
         password: '',
+        image: null,
       };
     } else {
-      form.value = { username: '', name: '', email: '', tel: '', roleId: null, password: '' };
+      form.value = {
+        username: '',
+        name: '',
+        email: '',
+        tel: '',
+        roleId: null,
+        password: '',
+        image: null,
+      };
     }
   },
   { immediate: true },
@@ -126,32 +176,32 @@ watch(
 
 const roleOptions = [
   { label: 'ผู้ดูแลระบบ', value: 1 },
-  { label: 'ช่างเทคนิค', value: 2 },
+  { label: 'เจ้าหน้าที่สอบเทียบ', value: 2 },
   { label: 'หัวหน้าแผนก', value: 3 },
   { label: 'ผู้อำนวยการ', value: 4 },
 ];
 
+function buildFormData(): FormData {
+  const fd = new FormData();
+  fd.append('username', form.value.username);
+  fd.append('name', form.value.name);
+  fd.append('email', form.value.email);
+  fd.append('tel', form.value.tel);
+  if (form.value.roleId) fd.append('roleId', String(form.value.roleId));
+  if (form.value.password) fd.append('password', form.value.password);
+  if (form.value.image) fd.append('image', form.value.image);
+  return fd;
+}
+
 async function onSubmit() {
   saving.value = true;
   try {
+    const fd = buildFormData();
     if (isEdit.value && props.user) {
-      await store.updateUser(props.user.id, {
-        username: form.value.username,
-        name: form.value.name,
-        email: form.value.email,
-        tel: form.value.tel,
-        roleId: form.value.roleId!,
-      } as Partial<User>);
+      await store.updateUser(props.user.id, fd);
       $q.notify({ color: 'positive', message: 'แก้ไขสำเร็จ', icon: 'check_circle' });
     } else {
-      await store.createUser({
-        username: form.value.username,
-        name: form.value.name,
-        email: form.value.email,
-        tel: form.value.tel,
-        roleId: form.value.roleId!,
-        password: form.value.password,
-      } as Partial<User> & { password: string });
+      await store.createUser(fd);
       $q.notify({ color: 'positive', message: 'เพิ่มผู้ใช้งานสำเร็จ', icon: 'check_circle' });
     }
     emit('saved');
@@ -166,12 +216,59 @@ async function onSubmit() {
 <style scoped lang="scss">
 .dialog-card {
   border-radius: 16px;
+  overflow: hidden;
 }
 
 .dialog-header {
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 14px 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 4px;
+}
+
+.required {
+  color: $negative;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn-cancel {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  color: #666;
+  font-weight: 500;
+  padding: 6px 20px;
 }
 
 .btn-save {

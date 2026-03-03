@@ -68,13 +68,17 @@ export const useUserStore = defineStore('user', {
       this.users = this.users.filter((u) => u.id !== id);
     },
 
-    async createUser(data: Partial<User> & { password: string }) {
-      const res = await api.post<User>('/users', data);
+    async createUser(data: FormData) {
+      const res = await api.post<User>('/users', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       this.users.push(res.data);
     },
 
-    async updateUser(id: number, data: Partial<User>) {
-      const res = await api.patch<User>(`/users/${id}`, data);
+    async updateUser(id: number, data: FormData) {
+      const res = await api.patch<User>(`/users/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       const idx = this.users.findIndex((u) => u.id === id);
       if (idx !== -1) this.users[idx] = res.data;
     },
