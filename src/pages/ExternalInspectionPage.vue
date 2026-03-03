@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import DeviceInfoCard from 'src/components/inspection/DeviceInfoCard.vue';
 import InspectionSection from 'src/components/inspection/InspectionSection.vue';
@@ -78,6 +78,7 @@ import { useInspectionStore, type InspectionValue } from 'src/stores/inspection'
 
 const store = useInspectionStore();
 const route = useRoute();
+const router = useRouter();
 const $q = useQuasar();
 
 onMounted(() => {
@@ -94,6 +95,11 @@ function onSubmit() {
     position: 'top',
     timeout: 3000,
   });
+
+  if (store.pmResult !== 'ไม่ผ่าน') {
+    const calId = route.params.id as string;
+    void router.push(`/calibration/record/${calId}`);
+  }
 }
 </script>
 

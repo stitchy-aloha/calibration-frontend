@@ -12,6 +12,7 @@ const customSvgIcons: Record<string, string> = {
   'app:save': 'img:/svg/save.svg',
   'app:syringe': 'img:/svg/syringe.svg',
   'app:settings_heart': 'img:/svg/settingh.svg',
+  'app:med': 'img:/svg/med.svg',
 };
 
 export default boot(({ app }) => {
