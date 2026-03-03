@@ -63,7 +63,7 @@
           </q-tab-panel>
 
           <q-tab-panel name="test_results" class="q-pa-lg">
-            <TabTestResults />
+            <TabTestResults @save="handleSave" />
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -150,15 +150,19 @@ const handleNext = () => {
   if (store.activeTab === 'general') {
     switchTab('test_results');
   } else {
-    $q.notify({
-      type: 'positive',
-      message: 'บันทึกผลการสอบเทียบสำเร็จ!',
-      position: 'top-right',
-    });
-    setTimeout(() => {
-      void router.push('/dashboard');
-    }, 1500);
+    void handleSave();
   }
+};
+
+const handleSave = () => {
+  $q.notify({
+    type: 'positive',
+    message: 'บันทึกผลการสอบเทียบสำเร็จ!',
+    position: 'top-right',
+  });
+  setTimeout(() => {
+    void router.push('/calibration');
+  }, 1000);
 };
 </script>
 

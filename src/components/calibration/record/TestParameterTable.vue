@@ -7,7 +7,7 @@
 
   <q-table
     :rows="rows"
-    :columns="columns"
+    :columns="visibleColumns"
     row-key="range"
     flat
     bordered
@@ -27,14 +27,22 @@
         >
           {{ col.label }}
         </q-th>
+        <!-- Trash column header placeholder -->
+        <q-th class="text-white text-center" style="width: 48px"></q-th>
       </q-tr>
     </template>
 
     <!-- Custom body cells -->
     <template #body="props">
-      <q-tr :props="props">
-        <!-- ช่วง: double-click to edit inline -->
-        <q-td key="range" :props="props" class="text-center" @dblclick="startEdit(props.rowIndex)">
+      <q-tr :props="props" class="param-row" @click="toggleActiveRow(props.rowIndex)">
+        <!-- ช่วง: double-click to edit inline (only shown when showRange is true) -->
+        <q-td
+          v-if="showRange"
+          key="range"
+          :props="props"
+          class="text-center"
+          @dblclick.stop="startEdit(props.rowIndex)"
+        >
           <q-input
             v-if="editingRowIndex === props.rowIndex"
             v-model="props.row.range"
@@ -45,6 +53,7 @@
             style="min-width: 80px"
             @blur="editingRowIndex = null"
             @keyup.enter="editingRowIndex = null"
+            @click.stop
           />
           <span v-else class="cursor-pointer" style="user-select: none">
             {{ props.row.range }}
@@ -67,6 +76,7 @@
             bg-color="white"
             input-class="text-center"
             style="min-width: 70px"
+            @click.stop
             @update:model-value="calculate(props.rowIndex)"
           />
         </q-td>
@@ -81,6 +91,7 @@
             bg-color="white"
             input-class="text-center"
             style="min-width: 70px"
+            @click.stop
             @update:model-value="calculate(props.rowIndex)"
           />
         </q-td>
@@ -95,6 +106,7 @@
             bg-color="white"
             input-class="text-center"
             style="min-width: 70px"
+            @click.stop
             @update:model-value="calculate(props.rowIndex)"
           />
         </q-td>
@@ -123,9 +135,29 @@
             <q-icon name="schedule" size="14px" class="q-mr-xs" />รอดำเนินการ
           </span>
         </q-td>
+
+        <!-- Trash icon column -->
+        <q-td class="text-center" style="width: 48px">
+          <transition name="fade">
+            <q-btn
+              v-if="activeRowIndex === props.rowIndex"
+              flat
+              round
+              dense
+              icon="delete"
+              color="negative"
+              size="md"
+              @click.stop="openDeleteDialog(props.rowIndex)"
+            >
+              <q-tooltip>ลบแถวนี้</q-tooltip>
+            </q-btn>
+          </transition>
+        </q-td>
       </q-tr>
     </template>
   </q-table>
+
+  <DeleteConfirmDialog v-model="showDeleteDialog" @confirm="confirmDelete" />
 </template>
 
 <script lang="ts">
@@ -142,19 +174,23 @@ export interface TestRow {
 </script>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import type { QTableProps } from 'quasar';
+import DeleteConfirmDialog from './DeleteConfirmDialog.vue';
 
 const props = defineProps<{
   title: string;
   modelValue: TestRow[];
+  showRange?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: TestRow[]): void;
 }>();
 
-const columns: QTableProps['columns'] = [
+const showRange = computed(() => props.showRange !== false);
+
+const allColumns: QTableProps['columns'] = [
   { name: 'range', label: 'ช่วง', field: 'range', align: 'center' },
   { name: 'standard', label: 'ค่ามาตรฐาน', field: 'standard', align: 'center' },
   { name: 'val1', label: 'ครั้งที่ 1', field: 'val1', align: 'center' },
@@ -165,11 +201,39 @@ const columns: QTableProps['columns'] = [
   { name: 'status', label: 'ผลการทดสอบ', field: 'status', align: 'center' },
 ];
 
+const visibleColumns = computed(() =>
+  showRange.value ? allColumns : allColumns.filter((c) => c.name !== 'range'),
+);
+
 const rows = ref<TestRow[]>([]);
 const editingRowIndex = ref<number | null>(null);
+const activeRowIndex = ref<number | null>(null);
+const showDeleteDialog = ref(false);
+const rowToDeleteIndex = ref<number | null>(null);
 
 const startEdit = (index: number) => {
   editingRowIndex.value = index;
+};
+
+const toggleActiveRow = (index: number) => {
+  activeRowIndex.value = activeRowIndex.value === index ? null : index;
+};
+
+const openDeleteDialog = (index: number) => {
+  rowToDeleteIndex.value = index;
+  showDeleteDialog.value = true;
+};
+
+const confirmDelete = () => {
+  if (rowToDeleteIndex.value !== null) {
+    deleteRow(rowToDeleteIndex.value);
+    rowToDeleteIndex.value = null;
+  }
+};
+
+const deleteRow = (index: number) => {
+  rows.value.splice(index, 1);
+  activeRowIndex.value = null;
 };
 
 onMounted(() => {
@@ -260,10 +324,19 @@ const formatError = (error: number | null): string => {
   background-color: $secondary !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
+
 .btn {
   background-color: $secondary;
   color: #412c67;
   width: 150px;
+}
+
+.param-row {
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover {
+    background: rgba($secondary, 0.06);
+  }
 }
 
 .status-badge {
@@ -296,5 +369,15 @@ const formatError = (error: number | null): string => {
     color: #999;
     border-color: #ccc;
   }
+}
+
+// Fade transition for trash icon
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

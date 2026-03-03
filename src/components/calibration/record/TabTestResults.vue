@@ -20,17 +20,28 @@
     </q-card>
 
     <!-- Detailed Tests -->
-    <EkgTestCard />
+    <EkgTestCard :ekg-items="ekgItems" />
 
-    <TestParameterTable title="Systolic Pressure" v-model="systolicData" />
+    <TestParameterTable title="Systolic Pressure" v-model="systolicData" :show-range="true" />
 
-    <TestParameterTable title="Diastolic Pressure" v-model="diastolicData" />
+    <TestParameterTable title="Diastolic Pressure" v-model="diastolicData" :show-range="true" />
 
-    <TestParameterTable title="Temp" v-model="tempData" />
+    <TestParameterTable title="Temp" v-model="tempData" :show-range="false" />
 
-    <TestParameterTable title="Heart Rate" v-model="heartRateData" />
+    <TestParameterTable title="Heart Rate" v-model="heartRateData" :show-range="false" />
 
-    <TestParameterTable title="Spo2" v-model="spo2Data" />
+    <TestParameterTable title="Spo2" v-model="spo2Data" :show-range="false" />
+
+    <!-- Summary Component -->
+    <CalibrationSummary
+      :ekg-items="ekgItems"
+      :systolic-data="systolicData"
+      :diastolic-data="diastolicData"
+      :temp-data="tempData"
+      :heart-rate-data="heartRateData"
+      :spo2-data="spo2Data"
+      @save="emit('save')"
+    />
   </div>
 </template>
 
@@ -40,39 +51,56 @@ import EnvironmentCard from './EnvironmentCard.vue';
 import StandardEquipmentSelector from './StandardEquipmentSelector.vue';
 import EkgTestCard from './EkgTestCard.vue';
 import TestParameterTable from './TestParameterTable.vue';
+import CalibrationSummary from './CalibrationSummary.vue';
 import type { TestRow } from './TestParameterTable.vue';
 
-// Mock data structures corresponding to UI Mockup
+const emit = defineEmits<{
+  (e: 'save'): void;
+}>();
+
+// EKG — all blank, user selects pass/fail per lead
+const ekgItems = ref([
+  { id: 'i', label: 'I', status: null as 'pass' | 'fail' | null },
+  { id: 'ii', label: 'II', status: null as 'pass' | 'fail' | null },
+  { id: 'iii', label: 'III', status: null as 'pass' | 'fail' | null },
+  { id: 'alarm', label: 'Alarm', status: null as 'pass' | 'fail' | null },
+  { id: 'avr', label: 'aVR', status: null as 'pass' | 'fail' | null },
+  { id: 'avl', label: 'aVL', status: null as 'pass' | 'fail' | null },
+  { id: 'avf', label: 'aVF', status: null as 'pass' | 'fail' | null },
+  { id: '1mv', label: '1mV', status: null as 'pass' | 'fail' | null },
+]);
+
+// Pressure tables: keep range + standard, user fills val1/val2/val3
 const systolicData: Ref<TestRow[]> = ref([
   {
     range: 'ต่ำ',
     standard: 80,
-    val1: 80,
-    val2: 80,
-    val3: 80,
-    average: 80,
-    error: 0,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
   {
     range: 'สูง',
     standard: 120,
-    val1: 121,
-    val2: 120,
-    val3: 120,
-    average: 120.3,
-    error: 0.3,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
   {
     range: 'กลาง',
     standard: 160,
-    val1: 160,
-    val2: 160,
-    val3: 163,
-    average: 161,
-    error: 1,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
 ]);
 
@@ -80,59 +108,50 @@ const diastolicData: Ref<TestRow[]> = ref([
   {
     range: 'ต่ำ',
     standard: 50,
-    val1: 50,
-    val2: 50,
-    val3: 50,
-    average: 50,
-    error: 0,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
   {
     range: 'สูง',
     standard: 80,
-    val1: 81,
-    val2: 81,
-    val3: 81,
-    average: 81,
-    error: 1,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
   {
     range: 'กลาง',
     standard: 100,
-    val1: 99,
-    val2: 99,
-    val3: 99,
-    average: 99,
-    error: -1,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
 ]);
 
+// Non-pressure tables: no range column, user fills values
 const tempData: Ref<TestRow[]> = ref([
   {
-    range: '35',
+    range: '',
     standard: 35,
-    val1: 35,
-    val2: 35,
-    val3: 35,
-    average: 35,
-    error: 0,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
   {
-    range: '40',
+    range: '',
     standard: 40,
-    val1: 41,
-    val2: 40,
-    val3: 41,
-    average: 41,
-    error: 1,
-    status: 'pass',
-  },
-  {
-    range: 'กำหนดเอง',
-    standard: null,
     val1: null,
     val2: null,
     val3: null,
@@ -144,28 +163,18 @@ const tempData: Ref<TestRow[]> = ref([
 
 const heartRateData: Ref<TestRow[]> = ref([
   {
-    range: '60',
+    range: '',
     standard: 60,
-    val1: 60,
-    val2: 61,
-    val3: 60,
-    average: 60.3,
-    error: 0.3,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
   {
-    range: '80',
+    range: '',
     standard: 80,
-    val1: 80,
-    val2: 81,
-    val3: 79,
-    average: 80,
-    error: 0,
-    status: 'pass',
-  },
-  {
-    range: 'กำหนดเอง',
-    standard: null,
     val1: null,
     val2: null,
     val3: null,
@@ -177,28 +186,18 @@ const heartRateData: Ref<TestRow[]> = ref([
 
 const spo2Data: Ref<TestRow[]> = ref([
   {
-    range: '80',
+    range: '',
     standard: 85,
-    val1: 84,
-    val2: 84,
-    val3: 84,
-    average: 84,
-    error: -1,
-    status: 'pass',
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
   },
   {
-    range: '100',
+    range: '',
     standard: 100,
-    val1: 98,
-    val2: 97,
-    val3: 96,
-    average: 97,
-    error: -3,
-    status: 'fail',
-  }, // Modified to show fail
-  {
-    range: 'กำหนดเอง',
-    standard: null,
     val1: null,
     val2: null,
     val3: null,

@@ -47,18 +47,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+export interface EkgItem {
+  id: string;
+  label: string;
+  status: 'pass' | 'fail' | null;
+}
 
-const ekgItems = ref([
-  { id: 'i', label: 'I', status: 'pass' as 'pass' | 'fail' | null },
-  { id: 'ii', label: 'II', status: 'pass' as 'pass' | 'fail' | null },
-  { id: 'iii', label: 'III', status: 'pass' as 'pass' | 'fail' | null },
-  { id: 'alarm', label: 'Alarm', status: 'fail' as 'pass' | 'fail' | null },
-  { id: 'avr', label: 'aVR', status: null as 'pass' | 'fail' | null },
-  { id: 'avl', label: 'aVL', status: null as 'pass' | 'fail' | null },
-  { id: 'avf', label: 'aVF', status: null as 'pass' | 'fail' | null },
-  { id: '1mv', label: '1mV', status: null as 'pass' | 'fail' | null },
-]);
+defineProps<{
+  ekgItems: EkgItem[];
+}>();
 </script>
 
 <style scoped lang="scss">
@@ -91,8 +88,8 @@ const ekgItems = ref([
 
   &--pass-idle {
     background: #fff;
-    color: $positive;
-    border-color: $positive;
+    color: #aaa;
+    border-color: #ccc;
   }
 
   &--fail-active {

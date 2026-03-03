@@ -73,8 +73,8 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
   });
 
   const environment = ref<EnvironmentDetails>({
-    temperature: 25,
-    humidity: 40,
+    temperature: null,
+    humidity: null,
   });
 
   const standardEquipments = ref<StandardEquipment[]>([]);
