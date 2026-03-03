@@ -13,7 +13,7 @@
     <div class="row q-col-gutter-xl items-start">
       <!-- LEFT: Inspector card + Confirm button -->
       <div class="col-12 col-md-5">
-        <InspectorCard />
+        <InspectorCard v-bind="inspectorName ? { inspectorName, inspectorRole } : {}" />
 
         <!-- Big confirm/save button -->
         <template v-if="allPassed">
@@ -76,6 +76,8 @@ const props = defineProps<{
   tempData: TestRow[];
   heartRateData: TestRow[];
   spo2Data: TestRow[];
+  inspectorName?: string;
+  inspectorRole?: string;
 }>();
 
 const emit = defineEmits<{

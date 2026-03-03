@@ -32,6 +32,11 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/ApprovalsPage.vue') }],
   },
   {
+    path: '/approval/:id',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('pages/ApprovalDetailPage.vue') }],
+  },
+  {
     path: '/tools',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/ToolsPage.vue') }],

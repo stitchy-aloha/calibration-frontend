@@ -130,6 +130,11 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
           certificateNumber: 'PC-EVT-6587',
         },
       ];
+
+      environment.value = {
+        temperature: 24.5,
+        humidity: 42,
+      };
     } catch (error) {
       console.error('Failed to fetch calibration record', error);
     } finally {

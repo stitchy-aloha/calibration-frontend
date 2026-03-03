@@ -1,5 +1,5 @@
 <template>
-  <div class="cal-card">
+  <div class="cal-card" @click="goToDetail">
     <!-- Card Header -->
     <div class="cal-card__header">
       <div class="cal-card__header-left">
@@ -33,16 +33,21 @@
       unelevated
       class="cal-card__btn cal-card__btn--active q-mt-md"
       label="รับรองการสอบเทียบ"
-      @click="emit('approve', item.id)"
+      @click.stop="goToDetail"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import type { ApprovalEvent } from 'src/types';
 
-defineProps<{ item: ApprovalEvent }>();
-const emit = defineEmits<{ (e: 'approve', id: string): void }>();
+const props = defineProps<{ item: ApprovalEvent }>();
+const router = useRouter();
+
+function goToDetail() {
+  void router.push('/approval/' + props.item.id);
+}
 </script>
 
 <style scoped lang="scss">
@@ -55,10 +60,18 @@ const emit = defineEmits<{ (e: 'approve', id: string): void }>();
   flex-direction: column;
   height: 100%;
   gap: 12px;
-  transition: box-shadow 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+  cursor: pointer;
 
   &:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   /* Header */

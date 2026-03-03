@@ -7,7 +7,7 @@
       <div class="row q-col-gutter-lg">
         <div v-for="equip in store.standardEquipments" :key="equip.id" class="col-12 col-md-6">
           <!-- Dropdown ABOVE the inner card, aligned right -->
-          <div class="row justify-end q-mb-sm">
+          <div v-if="!readonly" class="row justify-end q-mb-sm">
             <q-select
               v-model="equip.name"
               :options="['ProSim4', 'SPOT Light', 'Other']"
@@ -57,6 +57,8 @@
 
 <script setup lang="ts">
 import { useCalibrationRecordStore } from 'stores/calibrationRecord';
+
+withDefaults(defineProps<{ readonly?: boolean }>(), { readonly: false });
 
 const store = useCalibrationRecordStore();
 </script>

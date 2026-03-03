@@ -12,11 +12,11 @@
     <q-card-section class="q-pt-sm q-pb-lg">
       <div class="info-row">
         <span class="info-key">ชื่อ</span>
-        <span class="info-val">{{ user?.name ?? '-' }}</span>
+        <span class="info-val">{{ displayName }}</span>
       </div>
       <div class="info-row q-mt-xs">
         <span class="info-key">ตำแหน่ง</span>
-        <span class="info-val">{{ roleLabel }}</span>
+        <span class="info-val">{{ displayRole }}</span>
       </div>
     </q-card-section>
   </q-card>
@@ -26,6 +26,11 @@
 import { computed } from 'vue';
 import { useAuthStore } from 'stores/auth';
 import { AppRole } from 'stores/roles';
+
+const props = defineProps<{
+  inspectorName?: string;
+  inspectorRole?: string;
+}>();
 
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
@@ -37,9 +42,12 @@ const roleLabelMap: Record<string, string> = {
   [AppRole.DIRECTOR]: 'ผู้อำนวยการ',
 };
 
-const roleLabel = computed(() =>
-  user.value?.role ? (roleLabelMap[user.value.role] ?? user.value.role) : '-',
-);
+const displayName = computed(() => props.inspectorName ?? user.value?.name ?? '-');
+
+const displayRole = computed(() => {
+  if (props.inspectorRole) return props.inspectorRole;
+  return user.value?.role ? (roleLabelMap[user.value.role] ?? user.value.role) : '-';
+});
 </script>
 
 <style scoped lang="scss">

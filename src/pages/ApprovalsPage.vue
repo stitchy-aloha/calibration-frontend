@@ -88,7 +88,7 @@
                 unelevated
                 class="q-px-md shadow-1 text-weight-medium"
                 style="font-size: 14px"
-                @click="store.approveEvent(props.row.id)"
+                @click="router.push('/approval/' + props.row.id)"
               />
             </q-td>
           </q-tr>
@@ -111,12 +111,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import type { QTableProps } from 'quasar';
 import { useApprovalsStore } from 'src/stores/approvals';
 import SearchBar from 'src/components/SearchBar.vue';
 import ApprovalCard from 'src/components/approval/ApprovalCard.vue';
 
 const store = useApprovalsStore();
+const router = useRouter();
 const viewMode = ref<'list' | 'grid'>('list');
 
 const columns: QTableProps['columns'] = [

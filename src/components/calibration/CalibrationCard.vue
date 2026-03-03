@@ -1,5 +1,5 @@
 <template>
-  <div class="cal-card">
+  <div class="cal-card" @click="goToInspection">
     <!-- Card Header -->
     <div class="cal-card__header">
       <div class="cal-card__header-left">
@@ -31,7 +31,7 @@
       :class="['cal-card__btn', isOwner ? 'cal-card__btn--active' : 'cal-card__btn--disabled']"
       :disable="!isOwner"
       label="เริ่มการสอบเทียบ"
-      @click="goToInspection"
+      @click.stop="goToInspection"
     />
   </div>
 </template>
@@ -57,10 +57,18 @@ function goToInspection() {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: box-shadow 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+  cursor: pointer;
 
   &:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   /* Header */
