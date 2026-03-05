@@ -1,5 +1,5 @@
 <template>
-  <div class="schedule-calendar bg-white rounded-borders border-grey flex column">
+  <div class="schedule-calendar bg-white rounded-borders border-grey flex column overflow-hidden">
     <!-- Header -->
     <div class="calendar-header">
       <q-btn flat round dense icon="chevron_left" @click="prevMonth" />
@@ -11,7 +11,7 @@
     <q-separator />
 
     <!-- Grid -->
-    <div class="calendar-grid col-grow flex column">
+    <div class="calendar-grid">
       <!-- Weekdays -->
       <div class="weekdays-row">
         <div
@@ -207,7 +207,7 @@ function nextMonth() {
 .days-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 90px;
+  grid-auto-rows: 87px;
   row-gap: 4px;
 }
 
