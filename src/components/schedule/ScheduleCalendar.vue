@@ -207,20 +207,15 @@ function nextMonth() {
 .days-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 1fr;
-  row-gap: 8px;
-  flex: 1;
-  align-content: stretch;
+  grid-auto-rows: 90px;
+  row-gap: 4px;
 }
 
 .day-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 80px;
-  height: 100%;
-  padding: 8px 4px;
-  border-bottom: 1px solid transparent; /* or grey-2 if borders wanted */
+  padding: 6px 4px;
   transition: background 0.2s;
   border-radius: 8px;
 
@@ -241,7 +236,7 @@ function nextMonth() {
 }
 
 .date-number-wrapper {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -264,12 +259,13 @@ function nextMonth() {
 
 .date-badge {
   font-size: 11px;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 12px;
   font-weight: 500;
-  width: 90%;
+  width: 92%;
   text-align: center;
   white-space: nowrap;
+  line-height: 1.6;
 }
 
 .calendar-footer {
