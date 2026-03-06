@@ -72,8 +72,16 @@
       <!-- Actions column custom slot -->
       <template #body-cell-actions>
         <q-td class="text-center">
-          <q-btn flat round dense icon="description" color="grey-6" size="md">
-            <q-tooltip>ดูรายงาน</q-tooltip>
+          <q-btn
+            flat
+            round
+            dense
+            icon="description"
+            color="primary"
+            size="md"
+            @click="showCer = true"
+          >
+            <q-tooltip>ดูใบรับรอง (CER)</q-tooltip>
           </q-btn>
           <q-btn flat round dense icon="qr_code_2" color="grey-6" size="md">
             <q-tooltip>QR Code</q-tooltip>
@@ -96,6 +104,21 @@
       :device-options="store.deviceOptions"
       :result-options="store.resultOptions"
     />
+
+    <!-- CER Certificate Dialog -->
+    <q-dialog v-model="showCer" maximized>
+      <q-card class="column no-wrap">
+        <q-bar class="bg-primary text-white">
+          <q-icon name="description" />
+          <div class="q-ml-sm text-weight-bold">ใบรับรองการตรวจสภาพภายนอก (CER)</div>
+          <q-space />
+          <q-btn dense flat icon="close" v-close-popup />
+        </q-bar>
+        <q-card-section class="col overflow-auto q-pa-none">
+          <CerCertificate />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -104,10 +127,12 @@ import { ref } from 'vue';
 import type { QTableProps } from 'quasar';
 import { useHistoryStore } from 'src/stores/history';
 import ExportDialog from 'src/components/history/ExportDialog.vue';
+import CerCertificate from 'src/components/history/CerCertificate.vue';
 import SearchBar from 'src/components/SearchBar.vue';
 
 const store = useHistoryStore();
 const showExport = ref(false);
+const showCer = ref(false);
 
 const columns: QTableProps['columns'] = [
   { name: 'date', label: 'วันที่', field: 'date', align: 'center', sortable: true },
