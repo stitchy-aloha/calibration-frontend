@@ -88,7 +88,7 @@
                 unelevated
                 class="q-px-md shadow-1 text-weight-medium"
                 style="font-size: 14px"
-                @click="router.push('/approval/' + props.row.id)"
+                @click="handleOpenApproval(props.row)"
               />
             </q-td>
           </q-tr>
@@ -113,13 +113,34 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { QTableProps } from 'quasar';
+import type { ApprovalEvent } from 'src/types';
 import { useApprovalsStore } from 'src/stores/approvals';
+import { useCalibrationRecordStore } from 'src/stores/calibrationRecord';
+import { useInspectionStore } from 'src/stores/inspection';
 import SearchBar from 'src/components/SearchBar.vue';
 import ApprovalCard from 'src/components/approval/ApprovalCard.vue';
 
 const store = useApprovalsStore();
+const calStore = useCalibrationRecordStore();
+const inspectionStore = useInspectionStore();
 const router = useRouter();
 const viewMode = ref<'list' | 'grid'>('list');
+
+/** Pre-populate stores with the clicked row's data BEFORE navigating */
+function handleOpenApproval(row: ApprovalEvent) {
+  calStore.equipmentDetails.name = row.toolName;
+  calStore.equipmentDetails.code = row.toolCode;
+  calStore.locationDetails.hospital = row.location;
+
+  inspectionStore.deviceInfo = {
+    ...inspectionStore.deviceInfo,
+    deviceName: row.toolName,
+    assetCode: row.toolCode,
+    location: row.location,
+  };
+
+  void router.push('/approval/' + row.id);
+}
 
 const columns: QTableProps['columns'] = [
   { name: 'id', label: 'รหัสสอบเทียบ', field: 'id', align: 'left', sortable: true },

@@ -72,10 +72,10 @@
       <!-- Actions column custom slot -->
       <template #body-cell-actions>
         <q-td class="text-center">
-          <q-btn flat round dense icon="description" color="grey-6" size="sm">
+          <q-btn flat round dense icon="description" color="grey-6" size="md">
             <q-tooltip>ดูรายงาน</q-tooltip>
           </q-btn>
-          <q-btn flat round dense icon="qr_code_2" color="grey-6" size="sm">
+          <q-btn flat round dense icon="qr_code_2" color="grey-6" size="md">
             <q-tooltip>QR Code</q-tooltip>
           </q-btn>
         </q-td>

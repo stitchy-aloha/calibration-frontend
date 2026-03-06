@@ -189,6 +189,9 @@ function nextMonth() {
 
 .calendar-grid {
   padding: 16px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .weekdays-row {
@@ -207,8 +210,9 @@ function nextMonth() {
 .days-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 87px;
+  grid-auto-rows: 110px;
   row-gap: 4px;
+  flex: 1;
 }
 
 .day-cell {
@@ -269,7 +273,7 @@ function nextMonth() {
 }
 
 .calendar-footer {
-  padding: 16px 20px;
+  padding: 10px 20px;
 }
 
 .legend-item {

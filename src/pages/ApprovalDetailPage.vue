@@ -45,7 +45,7 @@
             :class="
               activeTab === 'test_results' ? 'tab-btn tab-btn--active' : 'tab-btn tab-btn--inactive'
             "
-            label="บันทึกผลทดสอบ"
+            label="รับรองผลการสอบเทียบ"
             @click="switchTab('test_results')"
             no-caps
           />
@@ -164,6 +164,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { QInput } from 'quasar';
 import { useCalibrationRecordStore } from 'stores/calibrationRecord';
+import { useInspectionStore } from 'stores/inspection';
 import ApprovalTabGeneralInfo from 'components/calibration/approval/ApprovalTabGeneralInfo.vue';
 import ApprovalTabTestResults from 'components/calibration/approval/ApprovalTabTestResults.vue';
 
@@ -171,6 +172,7 @@ const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 const calStore = useCalibrationRecordStore();
+const inspectionStore = useInspectionStore();
 
 type TabKey = 'general' | 'test_results';
 
@@ -191,7 +193,39 @@ onMounted(async () => {
   if (tabParam === 'general' || tabParam === 'test_results') {
     activeTab.value = tabParam;
   }
+
+  // Save the identity fields already set by ApprovalsPage before navigating
+  const presetName = calStore.equipmentDetails.name;
+  const presetCode = calStore.equipmentDetails.code;
+  const presetHospital = calStore.locationDetails.hospital;
+  const presetDeviceName = inspectionStore.deviceInfo.deviceName;
+  const presetAssetCode = inspectionStore.deviceInfo.assetCode;
+  const presetLocation = inspectionStore.deviceInfo.location;
+
+  // Fetch mock to backfill supplementary fields (company, model, serialNumber, riskLevel, etc.)
   await calStore.fetchCalibrationRecord(approvalId);
+
+  // Restore identity fields so the real approval row data is shown
+  if (presetName) calStore.equipmentDetails.name = presetName;
+  if (presetCode) calStore.equipmentDetails.code = presetCode;
+  if (presetHospital) calStore.locationDetails.hospital = presetHospital;
+
+  // Sync final state into inspectionStore
+  const eq = calStore.equipmentDetails;
+  const loc = calStore.locationDetails;
+  inspectionStore.deviceInfo = {
+    deviceName: presetDeviceName || eq.name,
+    company: eq.company,
+    model: eq.model,
+    serialNumber: eq.serialNumber,
+    assetCode: presetAssetCode || eq.code,
+    category: eq.type,
+    department: loc.department,
+    location: presetLocation || loc.district,
+    calibrationInterval: eq.calibrationCycle,
+    lastCalibrationDate: eq.lastCalibrationDate,
+    dueDate: eq.nextCalibrationDate,
+  };
 });
 
 watch(
