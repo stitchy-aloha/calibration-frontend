@@ -79,7 +79,7 @@
             icon="description"
             color="primary"
             size="md"
-            @click="showCer = true"
+            @click="router.push('/cer-view')"
           >
             <q-tooltip>ดูใบรับรอง (CER)</q-tooltip>
           </q-btn>
@@ -105,28 +105,25 @@
       :result-options="store.resultOptions"
     />
 
-    <!-- CER Certificate Dialog -->
-    <q-dialog v-model="showCer" maximized>
-      <q-card class="column no-wrap">
-        <q-card-section class="col overflow-auto q-pa-none">
-          <CerCertificate />
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+    <ExportDialog
+      v-model="showExport"
+      :device-options="store.deviceOptions"
+      :result-options="store.resultOptions"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import type { QTableProps } from 'quasar';
 import { useHistoryStore } from 'src/stores/history';
 import ExportDialog from 'src/components/history/ExportDialog.vue';
-import CerCertificate from 'src/components/history/CerCertificate.vue';
 import SearchBar from 'src/components/SearchBar.vue';
 
+const router = useRouter();
 const store = useHistoryStore();
 const showExport = ref(false);
-const showCer = ref(false);
 
 const columns: QTableProps['columns'] = [
   { name: 'date', label: 'วันที่', field: 'date', align: 'center', sortable: true },

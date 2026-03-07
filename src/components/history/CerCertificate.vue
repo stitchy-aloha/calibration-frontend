@@ -315,17 +315,19 @@ const section3Items: MaintenanceItem[] = [
   flex-direction: column;
   align-items: center;
   background: #f0f0f0;
-  padding: 24px;
-  min-height: 100vh;
+  padding: 0;
+  min-height: auto;
 }
 
 /* ===== A4 Page ===== */
 .a4-size {
   width: 210mm;
-  min-height: 297mm;
+  height: 296mm;
   background: #fff;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
   position: relative;
+  overflow: hidden;
+  page-break-after: avoid;
 }
 
 .cer-page {
@@ -536,7 +538,7 @@ const section3Items: MaintenanceItem[] = [
   gap: 4px;
   font-size: 9pt;
   padding: 1px 4px;
-  margin-bottom: 18px;
+  margin-bottom: 4px;
 }
 
 .item-code {
