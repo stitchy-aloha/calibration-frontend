@@ -81,8 +81,8 @@
           <!-- Section 1: ตรวจสภาพทั่วไป -->
           <div class="check-section">
             <div class="section-title">
-              <span class="section-num">1</span>
-              <span class="section-name">ตรวจสภาพทั่วไป</span>
+              <span class="section-name">1. ตรวจสภาพทั่วไป</span>
+
               <div class="check-header-cols">
                 <span>ปกติ</span>
                 <span>ไม่ปกติ</span>
@@ -115,8 +115,7 @@
           <!-- Section 2: การปลอดภัย -->
           <div class="check-section">
             <div class="section-title">
-              <span class="section-num">2</span>
-              <span class="section-name">การปลอดภัย</span>
+              <span class="section-name">2. การปลอดภัย</span>
               <div class="check-header-cols">
                 <span>ปกติ</span>
                 <span>ไม่ปกติ</span>
@@ -146,8 +145,7 @@
           <!-- Section 3: การบำรุงรักษา -->
           <div class="check-section">
             <div class="section-title section-title--no-header">
-              <span class="section-num">3</span>
-              <span class="section-name">การบำรุงรักษา</span>
+              <span class="section-name">3. การบำรุงรักษา</span>
             </div>
             <div
               v-for="(item, idx) in section3Items"
@@ -188,15 +186,13 @@
 
           <!-- Repair Note -->
           <div class="repair-note">
-            <span>ปรับปรุงแก้ไข:</span>
-            <span class="repair-line"
-              >......................................................................</span
-            >
+            <span>บำรุงรักษาโดย :</span>
+            <span class="repair-line">....................................................</span>
           </div>
 
           <!-- Signature -->
           <div class="signature-area">
-            <div class="signature-line">(.นายวินทะชัย ช่อมณฑา.)</div>
+            <div class="signature-line">(นายวินทะชัย ช่อมณฑา)</div>
             <div class="signature-title">นายช่างไฟฟ้า</div>
           </div>
         </div>
@@ -210,16 +206,6 @@
     </div>
 
     <!-- Print Button (hidden in print) -->
-    <div class="print-actions no-print">
-      <q-btn
-        unelevated
-        color="primary"
-        icon="print"
-        label="พิมพ์"
-        class="q-mt-md"
-        @click="handlePrint"
-      />
-    </div>
   </div>
 </template>
 
@@ -281,26 +267,26 @@ withDefaults(defineProps<Props>(), {
 const section1Items: CheckItem[] = [
   { code: '1.1', name: 'สภาพภายนอก /โครงสร้าง', status: 'normal' },
   { code: '1.2', name: 'ฝีมือการติดตั้ง/ยึดโยง', status: 'normal' },
-  { code: '1.3', name: 'การรับและมัดตัวน', status: 'normal' },
+  { code: '1.3', name: 'การขับเคลื่อน/เบรค', status: 'normal' },
   { code: '1.4', name: 'สายไฟ AC ปลั๊ก', status: 'normal' },
   { code: '1.5', name: 'สายสัญญาณ', status: 'normal' },
-  { code: '1.6', name: 'ความสะอาดของน/ความแห้งน้ำ', status: 'normal' },
+  { code: '1.6', name: 'ความตึงหย่อน/ความหนาแน่น', status: 'normal' },
   { code: '1.7', name: 'เบรกเกอร์/ฟิวส์', status: 'normal' },
-  { code: '1.8', name: 'หลอด หม้อ/วัสดุหลอ่น', status: 'normal' },
+  { code: '1.8', name: 'หลอด ท่อ/วัสดุห่อหุ้ม', status: 'normal' },
   { code: '1.9', name: 'สายเคเบิล', status: 'normal' },
-  { code: '1.10', name: 'ช่อดค/จุดต่อต่างๆ', status: 'normal' },
+  { code: '1.10', name: 'ข้อต่อ/จุดต่อต่างๆ', status: 'normal' },
   { code: '1.11', name: 'Electrodes/Transducers', status: 'normal' },
   { code: '1.12', name: 'ฟิลเตอร์', status: 'normal' },
   { code: '1.13', name: 'สวิทช์/การควบคุม', status: 'normal' },
-  { code: '1.14', name: 'อิ็นเตอร์', status: 'normal' },
+  { code: '1.14', name: 'อินเตอร์', status: 'normal' },
   { code: '1.15', name: 'มอเตอร์/ปั๊ม/พัดลม', status: 'normal' },
-  { code: '1.16', name: 'รถเข็น/รถงเกลว', status: 'normal' },
+  { code: '1.16', name: 'ระดับ/ของเหลว', status: 'normal' },
   { code: '1.17', name: 'แบตเตอรี/การชาร์จประจุ', status: 'normal' },
   { code: '1.18', name: 'การแสดงผล', status: 'normal' },
   { code: '1.19', name: 'Self Test', status: 'normal' },
   { code: '1.20', name: 'สัญญาณเตือน', status: 'normal' },
-  { code: '1.21', name: 'สัญญาณแสดงสถานการทำงาน', status: 'normal' },
-  { code: '1.22', name: 'อุปกรณ์/เครื่องขาย', status: 'normal' },
+  { code: '1.21', name: 'สัญญาณแสดงการทำงาน', status: 'normal' },
+  { code: '1.22', name: 'ฉลาก/เครื่องหมาย', status: 'normal' },
   { code: '1.23', name: 'อุปกรณ์ประกอบ', status: 'normal' },
 ];
 
@@ -313,16 +299,13 @@ const section2Items: CheckItem[] = [
 // ---------- Section 3 items ----------
 const section3Items: MaintenanceItem[] = [
   { code: '3.1', name: 'ทำความสะอาดตัวเครื่อง,สายประกอบภายนอกและภายใน', done: true },
-  { code: '3.2', name: 'การหล่อลื่นจุดสัมผัสกลกไต่ต่างๆ', done: true },
-  { code: '3.3', name: 'ปรับเทียบค่าสารฐาน/ปรับรุตนแก้ไข กลกไต่ต่างๆ', done: true },
-  { code: '3.4', name: 'เปลี่ยนวัสดุสิ้นเปลืองก้าวหน้า  ฟิลเตอร์/แปล่งก้าน', done: true },
-  { code: '3.5', name: 'เปลี่ยนน้ำยาของเหลวในกระปุก', done: true },
+  { code: '3.2', name: 'การหล่อลื่นจุดสัมผัสกลไกต่างๆ', done: true },
+  { code: '3.3', name: 'ปรับเทียบค่ามาตรฐาน/ปรับจูนแก้ไข กลไกต่างๆ', done: true },
+  { code: '3.4', name: 'เปลี่ยนวัสดุตามอายุงาน ฟิลเตอร์/แปงถ่าน', done: true },
+  { code: '3.5', name: 'เปลี่ยนถ่ายของเหลวในกระเปาะ', done: true },
 ];
 
 // ---------- Print ----------
-function handlePrint() {
-  window.print();
-}
 </script>
 
 <style scoped lang="scss">
@@ -435,6 +418,7 @@ function handlePrint() {
   gap: 0;
   margin-bottom: 8px;
   border-radius: 2px;
+  border-bottom: 1px solid #ccc;
 }
 
 .info-col {
@@ -447,7 +431,7 @@ function handlePrint() {
 
 .info-divider {
   width: 1px;
-  background: #555;
+  background: #ccc;
 }
 
 .info-row {
@@ -528,6 +512,7 @@ function handlePrint() {
 
 .section-name {
   flex: 1;
+  text-decoration: underline;
 }
 
 .check-header-cols {
@@ -551,11 +536,7 @@ function handlePrint() {
   gap: 4px;
   font-size: 9pt;
   padding: 1px 4px;
-  border-bottom: 1px dotted #ccc;
-
-  &:last-child {
-    border-bottom: none;
-  }
+  margin-bottom: 18px;
 }
 
 .item-code {
@@ -632,11 +613,12 @@ function handlePrint() {
 
 .remark-box {
   flex: 1;
-  border: 1.5px solid #000;
+  border: 1.5px solid #ccc;
   border-radius: 2px;
-  min-height: 40px;
+  height: 80px;
   padding: 4px;
   font-size: 8.5pt;
+  margin-top: 20px;
 }
 
 .remark-box--sm {
@@ -649,12 +631,14 @@ function handlePrint() {
   align-items: center;
   gap: 8px;
   margin-top: 4px;
-  border-top: 1px solid #555;
   padding-top: 4px;
 
   .result-label {
     font-weight: 700;
-    font-size: 9.5pt;
+    font-size: 10pt;
+    margin-left: 50px;
+    margin-right: 40px;
+    text-decoration: underline;
   }
 
   .result-check {
@@ -664,30 +648,25 @@ function handlePrint() {
   }
 
   .result-text {
-    font-size: 9pt;
+    font-size: 10pt;
+    margin-right: 20px;
   }
 }
 
 /* ===== REPAIR NOTE ===== */
 .repair-note {
-  font-size: 9pt;
+  font-size: 10pt;
   margin-top: 4px;
   display: flex;
   align-items: center;
   gap: 4px;
-
-  .repair-line {
-    flex: 1;
-    border-bottom: 1px solid #333;
-    min-height: 14px;
-  }
+  margin-left: 65px;
 }
 
 /* ===== SIGNATURE ===== */
 .signature-area {
   margin-top: 8px;
   text-align: center;
-  border-top: 1px solid #555;
   padding-top: 4px;
 
   .signature-line {

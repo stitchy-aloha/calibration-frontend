@@ -108,12 +108,6 @@
     <!-- CER Certificate Dialog -->
     <q-dialog v-model="showCer" maximized>
       <q-card class="column no-wrap">
-        <q-bar class="bg-primary text-white">
-          <q-icon name="description" />
-          <div class="q-ml-sm text-weight-bold">ใบรับรองการตรวจสภาพภายนอก (CER)</div>
-          <q-space />
-          <q-btn dense flat icon="close" v-close-popup />
-        </q-bar>
         <q-card-section class="col overflow-auto q-pa-none">
           <CerCertificate />
         </q-card-section>
