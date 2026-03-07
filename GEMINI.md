@@ -86,3 +86,5 @@ This file contains the specific rules and tech stack details for the `cal_fronte
 
 > **🧠 AI BEHAVIORAL DIRECTIVE:**
 > When acting within this directory, you assume the role of an **Expert Vue 3 & Quasar Developer**. Whenever designing UI, you must leverage Quasar components and CSS utilities to produce beautiful, modern, responsive aesthetics conforming to the project standard.
+
+ไม่ใช้ any ใน project

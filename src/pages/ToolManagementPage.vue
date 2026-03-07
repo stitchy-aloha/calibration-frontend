@@ -9,15 +9,15 @@
       <!-- Left Sidebar -->
       <div class="manage-sidebar">
         <q-btn
-          :unelevated="activeTab === 'add'"
-          :outline="activeTab !== 'add'"
-          icon="add"
-          label="เพิ่มเครื่องมือ"
+          :unelevated="activeTab === 'calibration'"
+          :outline="activeTab !== 'calibration'"
+          icon="app:container"
+          label="กระบวนการสอบเทียบ"
           :class="[
             'sidebar-btn',
-            activeTab === 'add' ? 'sidebar-btn--primary' : 'sidebar-btn--outline',
+            activeTab === 'calibration' ? 'sidebar-btn--primary' : 'sidebar-btn--outline',
           ]"
-          @click="resetForm"
+          @click="activeTab = 'calibration'"
         />
 
         <q-btn
@@ -31,25 +31,86 @@
           ]"
           @click="activeTab = 'settings'"
         />
+
+        <q-btn
+          :unelevated="activeTab === 'cost'"
+          :outline="activeTab !== 'cost'"
+          icon="app:expense"
+          label="ค่าใช้จ่ายในการสอบเทียบ"
+          :class="[
+            'sidebar-btn',
+            activeTab === 'cost' ? 'sidebar-btn--primary' : 'sidebar-btn--outline',
+          ]"
+          @click="activeTab = 'cost'"
+        />
       </div>
 
       <!-- Right: Content Area -->
-      <div class="manage-form-area" :class="{ 'settings-area': activeTab === 'settings' }">
-        <!-- Add/Edit Form -->
-        <template v-if="activeTab === 'add'">
-          <ToolFormDialog
-            :key="formKey"
-            :tool="editingTool"
-            mode="inline"
-            @close="goBack"
-            @saved="goBack"
-          />
+      <div class="manage-content-area">
+        <!-- ── Tab: กระบวนการสอบเทียบ ── -->
+        <template v-if="activeTab === 'calibration'">
+          <div class="content-top-bar q-mb-md">
+            <SearchBar v-model="processSearch" placeholder="ค้นหา..." />
+            <q-space />
+            <q-btn unelevated round icon="add" class="btn-add" @click="showAddProcess = true" />
+          </div>
+
+          <q-table
+            :rows="filteredProcesses"
+            :columns="processColumns"
+            row-key="id"
+            flat
+            bordered
+            class="data-table"
+            :rows-per-page-options="[0]"
+            hide-pagination
+            no-data-label="ไม่พบข้อมูล"
+          >
+            <template #header="props">
+              <q-tr :props="props" class="table-header-row">
+                <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th">
+                  {{ col.label }}
+                </q-th>
+              </q-tr>
+            </template>
+
+            <template #body="props">
+              <q-tr :props="props" class="table-body-row">
+                <q-td key="index" :props="props" class="text-center">{{ props.rowIndex + 1 }}</q-td>
+                <q-td key="parameter" :props="props">{{ props.row.parameter }}</q-td>
+                <q-td key="procedure" :props="props" class="text-truncate-cell">{{
+                  props.row.procedure
+                }}</q-td>
+                <q-td key="unit" :props="props" class="text-center">{{ props.row.unit }}</q-td>
+                <q-td key="standardEquipment" :props="props">{{
+                  props.row.standardEquipment
+                }}</q-td>
+                <q-td key="actions" :props="props" class="text-center">
+                  <q-btn
+                    flat
+                    round
+                    icon="edit"
+                    size="sm"
+                    color="secondary"
+                    @click="openEditProcess(props.row)"
+                  />
+                  <q-btn
+                    flat
+                    round
+                    icon="delete"
+                    size="sm"
+                    color="negative"
+                    @click="confirmDeleteProcess(props.row.id, props.row.parameter)"
+                  />
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
         </template>
 
-        <!-- Settings List -->
-        <template v-else>
+        <!-- ── Tab: ตั้งค่าเครื่องมือแพทย์ (unchanged) ── -->
+        <template v-else-if="activeTab === 'settings'">
           <div class="settings-content">
-            <!-- Filters -->
             <div class="filters-row q-mb-md">
               <SearchBar v-model="searchQuery" placeholder="ค้นหา..." />
               <q-select
@@ -67,14 +128,13 @@
               />
             </div>
 
-            <!-- Table -->
             <q-table
               :rows="filteredUniqueTools"
-              :columns="columns"
+              :columns="settingsColumns"
               row-key="name"
               flat
               bordered
-              class="settings-table"
+              class="data-table"
               :rows-per-page-options="[0]"
               hide-pagination
               no-data-label="ไม่พบข้อมูล"
@@ -105,50 +165,216 @@
             </q-table>
           </div>
         </template>
+
+        <!-- ── Tab: ค่าใช้จ่ายในการสอบเทียบ ── -->
+        <template v-else>
+          <div class="content-top-bar q-mb-md">
+            <SearchBar v-model="costSearch" placeholder="ค้นหา..." />
+            <q-space />
+            <q-btn unelevated round icon="add" class="btn-add" @click="showAddCost = true" />
+          </div>
+
+          <q-table
+            :rows="filteredCosts"
+            :columns="costColumns"
+            row-key="id"
+            flat
+            bordered
+            class="data-table"
+            :rows-per-page-options="[0]"
+            hide-pagination
+            no-data-label="ไม่พบข้อมูล"
+          >
+            <template #header="props">
+              <q-tr :props="props" class="table-header-row">
+                <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th">
+                  {{ col.label }}
+                </q-th>
+              </q-tr>
+            </template>
+
+            <template #body="props">
+              <q-tr :props="props" class="table-body-row">
+                <q-td key="index" :props="props" class="text-center">{{ props.rowIndex + 1 }}</q-td>
+                <q-td key="toolName" :props="props">{{ props.row.toolName }}</q-td>
+                <q-td key="description" :props="props">{{ props.row.description }}</q-td>
+                <q-td key="price" :props="props" class="text-center">
+                  {{ props.row.price.toLocaleString() }} บาท
+                </q-td>
+                <q-td key="actions" :props="props" class="text-center">
+                  <q-btn
+                    flat
+                    round
+                    icon="edit"
+                    size="sm"
+                    color="secondary"
+                    @click="openEditCost(props.row)"
+                  />
+                  <q-btn
+                    flat
+                    round
+                    icon="delete"
+                    size="sm"
+                    color="negative"
+                    @click="confirmDeleteCost(props.row.id, props.row.toolName)"
+                  />
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+        </template>
       </div>
     </div>
+
+    <!-- Dialogs -->
+    <CalibrationProcessDialog
+      v-if="showAddProcess"
+      :process="editingProcess"
+      @saved="handleProcessSaved"
+      @close="closeProcessDialog"
+    />
+
+    <CalibrationCostDialog
+      v-if="showAddCost"
+      :cost="editingCost"
+      @saved="handleCostSaved"
+      @close="closeCostDialog"
+    />
+
+    <ConfirmDeleteDialog
+      v-model="deleteProcessDialog"
+      message="ต้องการลบกระบวนการนี้ใช่หรือไม่?"
+      :item-name="pendingDeleteProcessName"
+      @confirm="handleDeleteProcess"
+      @cancel="deleteProcessDialog = false"
+    />
+
+    <ConfirmDeleteDialog
+      v-model="deleteCostDialog"
+      message="ต้องการลบค่าใช้จ่ายนี้ใช่หรือไม่?"
+      :item-name="pendingDeleteCostName"
+      @confirm="handleDeleteCost"
+      @cancel="deleteCostDialog = false"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import ToolFormDialog from 'src/components/tools/ToolFormDialog.vue';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import SearchBar from 'src/components/SearchBar.vue';
+import CalibrationProcessDialog from 'src/components/tools/CalibrationProcessDialog.vue';
+import CalibrationCostDialog from 'src/components/tools/CalibrationCostDialog.vue';
+import ConfirmDeleteDialog from 'src/components/common/ConfirmDeleteDialog.vue';
 import { useToolsStore } from 'src/stores/tools';
-import type { MedicalTool } from 'src/types';
+import type { CalibrationProcess, CalibrationCost } from 'src/types';
 
 const router = useRouter();
-const route = useRoute();
 const store = useToolsStore();
 
-/* ── Tabs ── */
-const activeTab = ref<'add' | 'settings'>((route.query.tab as 'add' | 'settings') || 'add');
+/* ── Tab ── */
+const activeTab = ref<'calibration' | 'settings' | 'cost'>('calibration');
 
-watch(
-  () => route.query.tab,
-  (newTab) => {
-    if (newTab === 'settings' || newTab === 'add') {
-      activeTab.value = newTab;
-    }
-  },
-);
+/* ── Calibration Process ── */
+const processSearch = ref('');
+const showAddProcess = ref(false);
+const editingProcess = ref<CalibrationProcess | null>(null);
 
-/* ── Add/Edit Mode ── */
-const editingTool = ref<MedicalTool | null>(null);
-const formKey = ref(0);
+const filteredProcesses = computed(() => {
+  const q = processSearch.value.toLowerCase();
+  if (!q) return store.calibrationProcesses;
+  return store.calibrationProcesses.filter(
+    (p) =>
+      p.parameter.toLowerCase().includes(q) ||
+      p.standardEquipment.toLowerCase().includes(q) ||
+      p.unit.toLowerCase().includes(q),
+  );
+});
 
-function resetForm() {
-  activeTab.value = 'add';
-  editingTool.value = null;
-  formKey.value++;
+function openEditProcess(process: CalibrationProcess) {
+  editingProcess.value = process;
+  showAddProcess.value = true;
 }
 
-async function goBack() {
-  await router.push('/tools');
+function handleProcessSaved(data: Omit<CalibrationProcess, 'id'>) {
+  if (editingProcess.value) {
+    store.updateCalibrationProcess(editingProcess.value.id, data);
+  } else {
+    store.addCalibrationProcess(data);
+  }
+  closeProcessDialog();
 }
 
-/* ── Settings Mode ── */
+function closeProcessDialog() {
+  showAddProcess.value = false;
+  editingProcess.value = null;
+}
+
+/* ── Delete Process Confirm ── */
+const deleteProcessDialog = ref(false);
+const pendingDeleteProcessId = ref('');
+const pendingDeleteProcessName = ref('');
+
+function confirmDeleteProcess(id: string, name: string) {
+  pendingDeleteProcessId.value = id;
+  pendingDeleteProcessName.value = name;
+  deleteProcessDialog.value = true;
+}
+
+function handleDeleteProcess() {
+  store.deleteCalibrationProcess(pendingDeleteProcessId.value);
+  deleteProcessDialog.value = false;
+}
+
+/* ── Calibration Cost ── */
+const costSearch = ref('');
+const showAddCost = ref(false);
+const editingCost = ref<CalibrationCost | null>(null);
+
+const filteredCosts = computed(() => {
+  const q = costSearch.value.toLowerCase();
+  if (!q) return store.calibrationCosts;
+  return store.calibrationCosts.filter(
+    (c) => c.toolName.toLowerCase().includes(q) || c.description.toLowerCase().includes(q),
+  );
+});
+
+function openEditCost(cost: CalibrationCost) {
+  editingCost.value = cost;
+  showAddCost.value = true;
+}
+
+function handleCostSaved(data: Omit<CalibrationCost, 'id'>) {
+  if (editingCost.value) {
+    store.updateCalibrationCost(editingCost.value.id, data);
+  } else {
+    store.addCalibrationCost(data);
+  }
+  closeCostDialog();
+}
+
+function closeCostDialog() {
+  showAddCost.value = false;
+  editingCost.value = null;
+}
+
+/* ── Delete Cost Confirm ── */
+const deleteCostDialog = ref(false);
+const pendingDeleteCostId = ref('');
+const pendingDeleteCostName = ref('');
+
+function confirmDeleteCost(id: string, toolName: string) {
+  pendingDeleteCostId.value = id;
+  pendingDeleteCostName.value = toolName;
+  deleteCostDialog.value = true;
+}
+
+function handleDeleteCost() {
+  store.deleteCalibrationCost(pendingDeleteCostId.value);
+  deleteCostDialog.value = false;
+}
+
+/* ── Settings Tab (unchanged logic) ── */
 const searchQuery = ref('');
 const selectedType = ref('');
 
@@ -172,7 +398,28 @@ const filteredUniqueTools = computed(() =>
   }),
 );
 
-const columns = [
+/* ── Column Definitions ── */
+const processColumns = [
+  { name: 'index', label: 'ลำดับ', field: 'id', align: 'center' as const, style: 'width: 70px' },
+  { name: 'parameter', label: 'รายการ', field: 'parameter', align: 'left' as const },
+  { name: 'procedure', label: 'กระบวนการสอบเทียบ', field: 'procedure', align: 'left' as const },
+  {
+    name: 'unit',
+    label: 'หน่วยวัด',
+    field: 'unit',
+    align: 'center' as const,
+    style: 'width: 100px',
+  },
+  {
+    name: 'standardEquipment',
+    label: 'เครื่องมือมาตรฐาน',
+    field: 'standardEquipment',
+    align: 'left' as const,
+  },
+  { name: 'actions', label: '', field: 'id', align: 'center' as const, style: 'width: 90px' },
+];
+
+const settingsColumns = [
   {
     name: 'name',
     label: 'ชื่อเครื่องมือ',
@@ -183,13 +430,21 @@ const columns = [
   { name: 'type', label: 'ประเภท', field: 'type', align: 'center' as const, style: 'width: 25%' },
   { name: 'action', label: '', field: 'name', align: 'center' as const, style: 'width: 25%' },
 ];
+
+const costColumns = [
+  { name: 'index', label: 'ลำดับ', field: 'id', align: 'center' as const, style: 'width: 70px' },
+  { name: 'toolName', label: 'ชื่อเครื่องมือ', field: 'toolName', align: 'left' as const },
+  { name: 'description', label: 'รายการ', field: 'description', align: 'left' as const },
+  { name: 'price', label: 'ราคา', field: 'price', align: 'center' as const, style: 'width: 130px' },
+  { name: 'actions', label: '', field: 'id', align: 'center' as const, style: 'width: 90px' },
+];
 </script>
 
 <style scoped lang="scss">
 .manage-layout {
   display: flex;
   gap: 24px;
-  align-items: stretch;
+  align-items: flex-start;
   min-height: calc(100vh - 200px);
 }
 
@@ -226,27 +481,32 @@ const columns = [
 }
 
 /* Content Area */
-.manage-form-area {
+.manage-content-area {
   flex: 1;
-  border-radius: 20px;
-  border: 1px solid #ececec;
-  overflow: hidden;
   background: #fff;
+  border-radius: 16px;
+  border: 1px solid #ececec;
+  padding: 24px;
   min-height: calc(100vh - 200px);
 }
 
-.settings-area {
-  padding: 24px;
-  border: none;
-  background: transparent;
-  overflow: visible;
-  min-height: unset;
+/* Top bar with search + add button */
+.content-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.settings-content {
-  width: 100%;
+.btn-add {
+  background: $secondary !important;
+  color: #fff !important;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex-shrink: 0;
 }
 
+/* Settings */
 .filters-row {
   display: flex;
   gap: 12px;
@@ -257,7 +517,7 @@ const columns = [
 }
 
 /* Table */
-.settings-table {
+.data-table {
   border-radius: 16px !important;
   overflow: hidden;
 
@@ -284,6 +544,13 @@ const columns = [
       background: #fafbff !important;
     }
   }
+}
+
+.text-truncate-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .col-name {

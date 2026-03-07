@@ -13,6 +13,21 @@ export type ToolStatus =
 
 export type ToolType = 'Medical' | 'Dimension';
 
+export interface CalibrationProcess {
+  id: string;
+  parameter: string;
+  procedure: string;
+  unit: string;
+  standardEquipment: string;
+}
+
+export interface CalibrationCost {
+  id: string;
+  toolName: string;
+  description: string;
+  price: number;
+}
+
 export interface MedicalTool {
   id: string;
   name: string;

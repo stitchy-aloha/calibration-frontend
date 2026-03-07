@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { MedicalTool, ToolType } from 'src/types';
+import type { MedicalTool, ToolType, CalibrationProcess, CalibrationCost } from 'src/types';
 
 const mockTools: MedicalTool[] = [
   {
@@ -215,8 +215,155 @@ const mockTools: MedicalTool[] = [
   },
 ];
 
+const mockCalibrationProcesses: CalibrationProcess[] = [
+  {
+    id: 'CP-001',
+    parameter: 'Temp',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'mmHg',
+    standardEquipment: 'Temp - Alpha Technics',
+  },
+  {
+    id: 'CP-002',
+    parameter: 'Temp-Bath',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'BPM',
+    standardEquipment: 'Temp - Alpha Technics',
+  },
+  {
+    id: 'CP-003',
+    parameter: 'BP analog',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: '%',
+    standardEquipment: 'Pressure - ADDITEL',
+  },
+  {
+    id: 'CP-004',
+    parameter: 'Suc-additel',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'mmHg',
+    standardEquipment: 'Pressure - ADDITEL',
+  },
+  {
+    id: 'CP-005',
+    parameter: 'Flow',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'LPM',
+    standardEquipment: 'Flow - BIOS',
+  },
+  {
+    id: 'CP-006',
+    parameter: 'We-PD',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'Kg',
+    standardEquipment: 'Weight M1 - LS',
+  },
+  {
+    id: 'CP-007',
+    parameter: 'We-NEO',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'gram',
+    standardEquipment: 'Weight F1 10kg - LS',
+  },
+  {
+    id: 'CP-008',
+    parameter: 'We-BAL',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'gram',
+    standardEquipment: 'Weight F1 110g - LS',
+  },
+  {
+    id: 'CP-009',
+    parameter: 'Hema',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'mmHg',
+    standardEquipment: 'Speed - Tachometer',
+  },
+  {
+    id: 'CP-010',
+    parameter: 'EKG',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'mmHg',
+    standardEquipment: 'NIBP EKG - FLUKE',
+  },
+  {
+    id: 'CP-011',
+    parameter: 'Ala-Casio',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'Sec',
+    standardEquipment: 'Time - CASIO',
+  },
+  {
+    id: 'CP-012',
+    parameter: 'Patient BP/EKG',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'BPM',
+    standardEquipment: 'NIBP EKG - FLUKE',
+  },
+  {
+    id: 'CP-013',
+    parameter: 'Nibp',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'BPM',
+    standardEquipment: 'NIBP EKG - FLUKE',
+  },
+  {
+    id: 'CP-014',
+    parameter: 'SPO2',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: 'BPM',
+    standardEquipment: 'SPO2 EKG - FLUKE',
+  },
+  {
+    id: 'CP-015',
+    parameter: 'Temp-Incubator',
+    procedure: 'โดยการนำเครื่องมือที่ต้องการ...',
+    unit: '°C',
+    standardEquipment: 'Temp - Alpha Technics',
+  },
+];
+
+const mockCalibrationCosts: CalibrationCost[] = [
+  { id: 'CC-001', toolName: 'Alarm Clock', description: 'นาฬิกาจับเวลา', price: 300 },
+  { id: 'CC-002', toolName: 'Amalgamator', description: 'เครื่องปั่นผสมสารอุดฟัน', price: 600 },
+  {
+    id: 'CC-003',
+    toolName: 'Ambient Thermometer',
+    description: 'เทอร์โมมิเตอร์วัดอุณหภูมิภายในห้อง',
+    price: 300,
+  },
+  { id: 'CC-004', toolName: 'Anaesthesia', description: 'เครื่องเปอร์เซ็นต์สารดมสลบ', price: 1800 },
+  {
+    id: 'CC-005',
+    toolName: 'Anaesthesia (Machine)',
+    description: 'เครื่องให้สารดมสลบ (ส่วนควบคุม)',
+    price: 1200,
+  },
+  {
+    id: 'CC-006',
+    toolName: 'Anaesthesia (Vapourizer)',
+    description: 'เครื่องให้สารดมสลบ (ส่วนไอระเหย)',
+    price: 1200,
+  },
+  { id: 'CC-007', toolName: 'Analytical Balance', description: 'เครื่องชั่งสาร', price: 350 },
+  { id: 'CC-008', toolName: 'Blood Bank', description: 'ตู้เย็นเก็บเลือด', price: 300 },
+  { id: 'CC-009', toolName: 'Blood Pressure', description: 'เครื่องวัดความดันโลหิต', price: 600 },
+  { id: 'CC-010', toolName: 'Centrifuge', description: 'เครื่องปั่นปสสาวะ', price: 800 },
+  { id: 'CC-011', toolName: 'Defiblillator', description: 'เครื่องกระตุกหัวใจ', price: 800 },
+  { id: 'CC-012', toolName: 'ECG Machine', description: 'เครื่องวัดคลื่นไฟฟ้าหัวใจ', price: 700 },
+  {
+    id: 'CC-013',
+    toolName: 'Infusion Pump',
+    description: 'เครื่องให้สารน้ำทางหลอดเลือด',
+    price: 500,
+  },
+  { id: 'CC-014', toolName: 'Ventilator', description: 'เครื่องช่วยหายใจ', price: 2000 },
+];
+
 export const useToolsStore = defineStore('tools', () => {
   const tools = ref<MedicalTool[]>(mockTools);
+  const calibrationProcesses = ref<CalibrationProcess[]>(mockCalibrationProcesses);
+  const calibrationCosts = ref<CalibrationCost[]>(mockCalibrationCosts);
   const searchQuery = ref('');
   const selectedType = ref<ToolType | ''>('');
 
@@ -284,8 +431,42 @@ export const useToolsStore = defineStore('tools', () => {
     tools.value = tools.value.filter((t) => t.id !== id);
   }
 
+  function addCalibrationProcess(item: Omit<CalibrationProcess, 'id'>) {
+    const nextNum = calibrationProcesses.value.length + 1;
+    calibrationProcesses.value.push({ ...item, id: `CP-${String(nextNum).padStart(3, '0')}` });
+  }
+
+  function updateCalibrationProcess(id: string, data: Partial<CalibrationProcess>) {
+    const idx = calibrationProcesses.value.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      calibrationProcesses.value[idx] = { ...calibrationProcesses.value[idx]!, ...data, id };
+    }
+  }
+
+  function deleteCalibrationProcess(id: string) {
+    calibrationProcesses.value = calibrationProcesses.value.filter((p) => p.id !== id);
+  }
+
+  function addCalibrationCost(item: Omit<CalibrationCost, 'id'>) {
+    const nextNum = calibrationCosts.value.length + 1;
+    calibrationCosts.value.push({ ...item, id: `CC-${String(nextNum).padStart(3, '0')}` });
+  }
+
+  function updateCalibrationCost(id: string, data: Partial<CalibrationCost>) {
+    const idx = calibrationCosts.value.findIndex((c) => c.id === id);
+    if (idx !== -1) {
+      calibrationCosts.value[idx] = { ...calibrationCosts.value[idx]!, ...data, id };
+    }
+  }
+
+  function deleteCalibrationCost(id: string) {
+    calibrationCosts.value = calibrationCosts.value.filter((c) => c.id !== id);
+  }
+
   return {
     tools,
+    calibrationProcesses,
+    calibrationCosts,
     searchQuery,
     selectedType,
     typeOptions,
@@ -296,5 +477,11 @@ export const useToolsStore = defineStore('tools', () => {
     addTool,
     updateTool,
     deleteTool,
+    addCalibrationProcess,
+    updateCalibrationProcess,
+    deleteCalibrationProcess,
+    addCalibrationCost,
+    updateCalibrationCost,
+    deleteCalibrationCost,
   };
 });
