@@ -111,18 +111,14 @@
     </q-dialog>
 
     <!-- Delete Confirm Dialog -->
-    <q-dialog v-model="deleteDialog">
-      <q-card style="min-width: 340px; border-radius: 16px">
-        <q-card-section class="text-h6">ยืนยันการลบ</q-card-section>
-        <q-card-section class="q-pt-none">
-          ต้องการลบผู้ใช้งาน <b>{{ deletingUser?.name }}</b> หรือไม่?
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="ยกเลิก" v-close-popup />
-          <q-btn flat label="ลบ" color="red" :loading="deleting" @click="doDelete" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <ConfirmDeleteDialog
+      v-model="deleteDialog"
+      title="ยืนยันการลบผู้ใช้งาน"
+      message="ต้องการลบผู้ใช้งานออกจากระบบหรือไม่?"
+      :item-name="deletingUser?.name"
+      :loading="deleting"
+      @confirm="doDelete"
+    />
   </q-page>
 </template>
 
@@ -131,6 +127,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useQuasar, type QTableProps } from 'quasar';
 import SearchBar from 'src/components/SearchBar.vue';
 import UserFormDialog from 'src/components/users/UserFormDialog.vue';
+import ConfirmDeleteDialog from 'src/components/common/ConfirmDeleteDialog.vue';
 import { useUserStore, type User } from 'src/stores/user';
 
 const $q = useQuasar();

@@ -43,6 +43,7 @@ export const RolePermissionsMap: Record<AppRole, RolePermissions> = {
       '/maintenance',
       '/history',
       '/audit',
+      '/tools/manage',
     ],
   },
   [AppRole.DIRECTOR]: {

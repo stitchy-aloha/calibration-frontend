@@ -81,18 +81,13 @@
     </q-dialog>
 
     <!-- Delete Confirm Dialog -->
-    <q-dialog v-model="deleteDialog">
-      <q-card style="min-width: 340px; border-radius: 16px">
-        <q-card-section class="text-h6">ยืนยันการลบ</q-card-section>
-        <q-card-section class="q-pt-none">
-          ต้องการลบหน่วยงาน <b>{{ deletingDept?.name }}</b> ({{ deletingDept?.code }}) หรือไม่?
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="ยกเลิก" v-close-popup />
-          <q-btn flat label="ลบ" color="red" @click="doDelete" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <ConfirmDeleteDialog
+      v-model="deleteDialog"
+      title="ยืนยันการลบหน่วยงาน"
+      message="ต้องการลบหน่วยงานออกจากระบบหรือไม่?"
+      :item-name="deletingDept?.name"
+      @confirm="doDelete"
+    />
   </q-page>
 </template>
 
@@ -100,6 +95,7 @@
 import { ref } from 'vue';
 import SearchBar from 'src/components/SearchBar.vue';
 import DepartmentFormDialog from 'src/components/departments/DepartmentFormDialog.vue';
+import ConfirmDeleteDialog from 'src/components/common/ConfirmDeleteDialog.vue';
 import type { QTableProps } from 'quasar';
 import { useDepartmentsStore, type Department } from 'src/stores/departments';
 import { useAuthStore } from 'src/stores/auth';

@@ -121,6 +121,7 @@ const allLinks: EssentialLinkProps[] = [
     link: '/approval',
   },
   { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'vaccines', link: '/tools' },
+  { title: 'จัดการเครื่องมือ', caption: 'Config Tools', icon: 'app:config', link: '/tools/manage' },
   { title: 'หน่วยงาน', caption: 'Departments', icon: 'business', link: '/departments' },
   { title: 'จัดการผู้ใช้งาน', caption: 'User Management', icon: 'group', link: '/users' },
   {

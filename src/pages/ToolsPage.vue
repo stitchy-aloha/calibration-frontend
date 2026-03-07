@@ -22,13 +22,14 @@
         bg-color="white"
       />
 
-      <!-- Admin: manage button -->
+      <!-- Admin: add button -->
       <q-btn
         v-if="isAdmin"
         unelevated
-        label="จัดการเครื่องมือแพทย์"
-        class="btn-manage q-ml-auto"
-        @click="router.push('/tools/manage')"
+        label="เพิ่มเครื่องมือ"
+        icon="add"
+        class="btn-add q-ml-auto"
+        @click="openAdd"
       />
     </div>
 
@@ -105,26 +106,21 @@
     </q-dialog>
 
     <!-- Delete Confirm Dialog -->
-    <q-dialog v-model="deleteDialog">
-      <q-card style="min-width: 340px; border-radius: 16px">
-        <q-card-section class="text-h6">ยืนยันการลบ</q-card-section>
-        <q-card-section class="q-pt-none">
-          ต้องการลบเครื่องมือ <b>{{ deletingTool?.name }}</b> ({{ deletingTool?.id }}) หรือไม่?
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="ยกเลิก" v-close-popup />
-          <q-btn flat label="ลบ" color="red" @click="doDelete" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <ConfirmDeleteDialog
+      v-model="deleteDialog"
+      title="ยืนยันการลบเครื่องมือ"
+      :message="`ต้องการลบเครื่องมือแพทย์หรือไม่?`"
+      :item-name="deletingTool?.name"
+      @confirm="doDelete"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import SearchBar from 'src/components/SearchBar.vue';
 import ToolFormDialog from 'src/components/tools/ToolFormDialog.vue';
+import ConfirmDeleteDialog from 'src/components/common/ConfirmDeleteDialog.vue';
 import type { QTableProps } from 'quasar';
 import { useToolsStore } from 'src/stores/tools';
 import type { ToolStatus, MedicalTool } from 'src/types';
@@ -133,13 +129,17 @@ import { useAuthStore } from 'src/stores/auth';
 
 const store = useToolsStore();
 const auth = useAuthStore();
-const router = useRouter();
 
 const isAdmin = computed(() => auth.permissions?.canManageTools ?? false);
 
-/* ── Edit ──────────────── */
+/* ── Add / Edit ──────────────── */
 const editDialog = ref(false);
 const editingTool = ref<MedicalTool | null>(null);
+
+function openAdd() {
+  editingTool.value = null;
+  editDialog.value = true;
+}
 
 function openEdit(tool: MedicalTool) {
   editingTool.value = { ...tool };
@@ -265,7 +265,7 @@ function statusClass(status: ToolStatus): string {
   width: 180px;
 }
 
-.btn-manage {
+.btn-add {
   background: $primary !important;
   color: #fff !important;
   border-radius: 12px;
