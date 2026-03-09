@@ -41,6 +41,7 @@ export interface TaskApi {
     name: string;
     position: string;
   };
+  equipment?: EquipmentApi;
 }
 
 export interface SavePmPayload {

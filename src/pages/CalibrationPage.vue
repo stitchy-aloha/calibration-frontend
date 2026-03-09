@@ -174,7 +174,7 @@ const columns: QTableProps['columns'] = [
   {
     name: 'dueDate',
     label: 'ครบกำหนด',
-    field: 'calibration_due_date',
+    field: 'dueDate',
     align: 'center',
     sortable: true,
     style: 'width: 120px',
