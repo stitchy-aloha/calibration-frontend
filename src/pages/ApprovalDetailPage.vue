@@ -216,6 +216,7 @@ onMounted(async () => {
   inspectionStore.deviceInfo = {
     deviceName: presetDeviceName || eq.name,
     company: eq.company,
+    manufacturer: eq.company,
     model: eq.model,
     serialNumber: eq.serialNumber,
     assetCode: presetAssetCode || eq.code,

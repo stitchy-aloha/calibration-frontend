@@ -1,5 +1,10 @@
 <template>
   <q-page padding>
+    <!-- Loading overlay -->
+    <q-inner-loading :showing="store.isLoading">
+      <q-spinner-gears size="50px" color="primary" />
+    </q-inner-loading>
+
     <!-- Page Header -->
     <div class="text-h6 q-mb-xs text-weight-bold">การตรวจสอบสภาพภายนอก</div>
     <div class="text-caption text-grey-6 q-mb-sm">การตรวจสอบเครื่องมือแพทย์</div>
@@ -9,6 +14,11 @@
       <span class="pm-no-label">PM No :</span>
       <q-input v-model="store.pmNo" outlined dense class="pm-no-input" bg-color="white" readonly />
     </div>
+
+    <!-- Error banner -->
+    <q-banner v-if="store.error" class="bg-red-1 text-red q-mb-md" rounded>
+      {{ store.error }}
+    </q-banner>
 
     <!-- Device Info -->
     <DeviceInfoCard :info="store.deviceInfo" class="q-mb-md" />
@@ -21,7 +31,7 @@
           title="ตรวจสภาพทั่วไป"
           :items="store.generalItems"
           :remarks="store.generalRemarks"
-          @update="(idx: number, val: InspectionValue) => store.setItemValue('general', idx, val)"
+          @update="(idx: number, val: InspectionValue) => store.setItemValue(0, idx, val)"
           @update:remarks="store.generalRemarks = $event"
         />
       </div>
@@ -32,7 +42,7 @@
           title="ความปลอดภัย"
           :items="store.safetyItems"
           :remarks="store.safetyRemarks"
-          @update="(idx: number, val: InspectionValue) => store.setItemValue('safety', idx, val)"
+          @update="(idx: number, val: InspectionValue) => store.setItemValue(1, idx, val)"
           @update:remarks="store.safetyRemarks = $event"
         />
 
@@ -40,9 +50,7 @@
           title="การบำรุงรักษา"
           :items="store.maintenanceItems"
           :remarks="store.maintenanceRemarks"
-          @update="
-            (idx: number, val: InspectionValue) => store.setItemValue('maintenance', idx, val)
-          "
+          @update="(idx: number, val: InspectionValue) => store.setItemValue(2, idx, val)"
           @update:remarks="store.maintenanceRemarks = $event"
           class="q-mt-md"
         />
@@ -60,6 +68,7 @@
           no-caps
           class="submit-btn q-mt-md"
           label="ส่งสอบเทียบ/ส่งซ่อม"
+          :loading="isSubmitting"
           @click="onSubmit"
         />
       </div>
@@ -68,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import DeviceInfoCard from 'src/components/inspection/DeviceInfoCard.vue';
@@ -80,25 +89,35 @@ const store = useInspectionStore();
 const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
+const isSubmitting = ref(false);
 
-onMounted(() => {
-  const calId = route.params.id as string;
-  if (calId) {
-    store.loadFromCalibration(calId);
+onMounted(async () => {
+  const taskId = Number(route.params.id);
+  if (taskId) {
+    await store.loadFromTask(taskId);
   }
 });
 
-function onSubmit() {
-  $q.notify({
-    type: store.pmResult === 'ไม่ผ่าน' ? 'warning' : 'positive',
-    message: `บันทึกผล PM สำเร็จ — ผลลัพธ์: ${store.pmResult}`,
-    position: 'top',
-    timeout: 3000,
-  });
+async function onSubmit() {
+  isSubmitting.value = true;
+  const res = await store.submitPmForm();
+  isSubmitting.value = false;
 
-  if (store.pmResult !== 'ไม่ผ่าน') {
-    const calId = route.params.id as string;
-    void router.push(`/calibration/record/${calId}`);
+  if (res.success) {
+    $q.notify({
+      type: store.pmResult === 'ไม่ผ่าน' ? 'warning' : 'positive',
+      message: `บันทึกผล PM สำเร็จ — ผลลัพธ์: ${store.pmResult}`,
+      position: 'bottom',
+      timeout: 3000,
+    });
+    void router.push(`/calibration/record/${route.params.id as string}`);
+  } else {
+    $q.notify({
+      type: 'negative',
+      message: res.error ?? 'บันทึกไม่สำเร็จ กรุณาลองใหม่',
+      position: 'top',
+      timeout: 4000,
+    });
   }
 }
 </script>

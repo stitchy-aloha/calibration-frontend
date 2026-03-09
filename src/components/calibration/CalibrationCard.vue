@@ -44,7 +44,8 @@ const props = defineProps<{ record: CalibrationRecord; isOwner: boolean }>();
 const router = useRouter();
 
 function goToInspection() {
-  void router.push('/calibration/inspection/' + props.record.id);
+  const id = props.record.taskId ?? props.record.id;
+  void router.push('/calibration/inspection/' + String(id));
 }
 </script>
 

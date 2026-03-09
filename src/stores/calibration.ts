@@ -1,8 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { api } from 'src/boot/axios';
+import type { TaskApi } from 'src/services/pm.service';
 
 export interface CalibrationRecord {
   id: string; // รหัสสอบเทียบ  e.g. CAL-01
+  taskId?: number; // backend task id — used for navigation
   deviceName: string; // ชื่อเครื่องมือ
   deviceCode: string; // รหัสเครื่อง  e.g. BME-001
   location: string; // ที่ตั้ง      e.g. ICU-01
@@ -224,5 +227,25 @@ export const useCalibrationStore = defineStore('calibration', () => {
     }),
   );
 
-  return { records, searchQuery, selectedType, typeOptions, filteredRecords };
+  async function fetchFromApi() {
+    try {
+      const res = await api.get<TaskApi[]>('/pm-task');
+      if (res.data.length > 0) {
+        records.value = res.data.map((task) => ({
+          id: task.pm_no || `TASK-${task.id}`,
+          taskId: task.id,
+          deviceName: `Equipment #${task.equipment_id}`,
+          deviceCode: String(task.equipment_id),
+          location: '-',
+          type: '-',
+          dueDate: '-',
+          responsible: task.technician?.name ?? '-',
+        }));
+      }
+    } catch {
+      // keep mock data on error
+    }
+  }
+
+  return { records, searchQuery, selectedType, typeOptions, filteredRecords, fetchFromApi };
 });

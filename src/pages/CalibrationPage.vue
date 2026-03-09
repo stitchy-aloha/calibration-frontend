@@ -88,7 +88,7 @@
                 ]"
                 label="เริ่มการสอบเทียบ"
                 :disable="!isOwner(props.row.responsible)"
-                @click="goToInspection(props.row.id)"
+                @click="goToInspection(props.row)"
               />
             </q-td>
           </q-tr>
@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import type { QTableProps } from 'quasar';
 import SearchBar from 'src/components/SearchBar.vue';
@@ -124,8 +124,13 @@ const auth = useAuthStore();
 const router = useRouter();
 const viewMode = ref<'table' | 'card'>('table');
 
-function goToInspection(id: string) {
-  void router.push('/calibration/inspection/' + id);
+onMounted(() => {
+  void store.fetchFromApi();
+});
+
+function goToInspection(record: { id: string; taskId?: number }) {
+  const id = record.taskId ?? record.id;
+  void router.push('/calibration/inspection/' + String(id));
 }
 
 /** Returns true when the logged-in user is the responsible person for a record */
@@ -169,7 +174,7 @@ const columns: QTableProps['columns'] = [
   {
     name: 'dueDate',
     label: 'ครบกำหนด',
-    field: 'dueDate',
+    field: 'calibration_due_date',
     align: 'center',
     sortable: true,
     style: 'width: 120px',
