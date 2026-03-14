@@ -1,14 +1,28 @@
 import { api } from 'src/boot/axios';
-import type { MedicalTool } from 'src/types';
+
+export interface BackendEquipment {
+  id: number;
+  name: string;
+  asset_code: string | null;
+  serial_number: string | null;
+  manufacturer: string | null;
+  model: string | null;
+  status: string;
+  path_pdf: string | null;
+  interval: number | null;
+  calibration_due_date: string | null;
+  calibration_date_last: string | null;
+}
 
 export const ToolService = {
-  getAll: () => api.get<MedicalTool[]>('/tools'),
+  getAll: () => api.get<BackendEquipment[]>('/equipment'),
 
-  getById: (id: string) => api.get<MedicalTool>(`/tools/${id}`),
+  getById: (id: number) => api.get<BackendEquipment>(`/equipment/${id}`),
 
-  create: (data: Omit<MedicalTool, 'id'>) => api.post<MedicalTool>('/tools', data),
+  create: (data: Partial<BackendEquipment>) => api.post<BackendEquipment>('/equipment', data),
 
-  update: (id: string, data: Partial<MedicalTool>) => api.patch<MedicalTool>(`/tools/${id}`, data),
+  update: (id: number, data: Partial<BackendEquipment>) =>
+    api.patch<BackendEquipment>(`/equipment/${id}`, data),
 
-  remove: (id: string) => api.delete(`/tools/${id}`),
+  remove: (id: number) => api.delete(`/equipment/${id}`),
 };

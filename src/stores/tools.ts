@@ -1,219 +1,15 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { MedicalTool, ToolType, CalibrationProcess, CalibrationCost } from 'src/types';
-
-const mockTools: MedicalTool[] = [
-  {
-    id: 'BME-001',
-    name: 'Infusion Pump',
-    company: 'Terumo',
-    model: 'TE-171',
-    type: 'Medical',
-    serialNumber: '4820135',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'Ward-1A',
-    department: 'Internal Medicine',
-    status: 'พร้อมใช้งาน',
-  },
-  {
-    id: 'BME-002',
-    name: 'Patient Monitor',
-    company: 'FLUKE',
-    model: 'ProSim4',
-    type: 'Medical',
-    serialNumber: '5481017',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-28',
-    lastCalibrationDate: '2025-06-26',
-    location: 'ICU-03',
-    department: 'Pulmonary',
-    status: 'ส่งซ่อม',
-  },
-  {
-    id: 'BME-003',
-    name: 'Infant Incubator',
-    company: 'Dräger',
-    model: 'Incub-Neo',
-    type: 'Medical',
-    serialNumber: '3910256',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'Ward-1A',
-    department: 'Pediatrics',
-    status: 'กำลังใช้งาน',
-  },
-  {
-    id: 'BME-004',
-    name: 'Infant Warmers',
-    company: 'GE Healthcare',
-    model: 'Warm-X10',
-    type: 'Medical',
-    serialNumber: '6720488',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'Ward-1A',
-    department: 'Pediatrics',
-    status: 'พร้อมใช้งาน',
-  },
-  {
-    id: 'BME-005',
-    name: 'Oxygen Flow Meter',
-    company: 'Precision Medical',
-    model: 'Oxy-Flo 200',
-    type: 'Medical',
-    serialNumber: '1150339',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-10-15',
-    lastCalibrationDate: '2025-04-15',
-    location: 'Ward-2B',
-    department: 'Respiratory',
-    status: 'พร้อมใช้งาน',
-  },
-  {
-    id: 'BME-006',
-    name: 'Ventilator',
-    company: 'Philips',
-    model: 'Vent-Adv 9',
-    type: 'Medical',
-    serialNumber: '7830122',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'ICU',
-    department: 'Respiratory',
-    status: 'รอดำเนินการ',
-  },
-  {
-    id: 'BME-007',
-    name: 'Plug Gauge',
-    company: 'Mitutoyo',
-    model: 'PG-Stan 50',
-    type: 'Dimension',
-    serialNumber: '2340567',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'Lab-3',
-    department: 'Engineering',
-    status: 'จำหน่ายแล้ว',
-  },
-  {
-    id: 'BME-008',
-    name: 'Snap Gauge',
-    company: 'Mitutoyo',
-    model: 'SG-Micro 1',
-    type: 'Dimension',
-    serialNumber: '8910745',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'Lab-3',
-    department: 'Engineering',
-    status: 'กำลังใช้งาน',
-  },
-  {
-    id: 'BME-009',
-    name: 'Reference Disk',
-    company: 'Heidenhain',
-    model: 'RD-Precision',
-    type: 'Dimension',
-    serialNumber: '4560123',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'Lab-3',
-    department: 'Engineering',
-    status: 'พร้อมใช้งาน',
-  },
-  {
-    id: 'BME-010',
-    name: 'Mu Checker',
-    company: 'Mitutoyo',
-    model: 'MC-Digital',
-    type: 'Dimension',
-    serialNumber: '3570891',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'Lab-3',
-    department: 'Engineering',
-    status: 'พร้อมใช้งาน',
-  },
-  {
-    id: 'BME-011',
-    name: 'Mu Checker',
-    company: 'Mitutoyo',
-    model: 'MC-Digital',
-    type: 'Dimension',
-    serialNumber: '3570892',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-12-26',
-    lastCalibrationDate: '2025-06-26',
-    location: 'Lab-3',
-    department: 'Engineering',
-    status: 'พร้อมใช้งาน',
-  },
-  {
-    id: 'BME-012',
-    name: 'ECG Machine',
-    company: 'Nihon Kohden',
-    model: 'ECG-12L',
-    type: 'Medical',
-    serialNumber: '6180234',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2026-03-10',
-    lastCalibrationDate: '2025-09-10',
-    location: 'CCU',
-    department: 'Cardiology',
-    status: 'พร้อมใช้งาน',
-  },
-  {
-    id: 'BME-013',
-    name: 'Syringe Pump',
-    company: 'B. Braun',
-    model: 'SP-Elite',
-    type: 'Medical',
-    serialNumber: '9250678',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2026-01-15',
-    lastCalibrationDate: '2025-07-15',
-    location: 'ICU',
-    department: 'Anesthesia',
-    status: 'รอดำเนินการ',
-  },
-  {
-    id: 'BME-014',
-    name: 'Autoclave',
-    company: 'Tuttnauer',
-    model: 'AC-350Pro',
-    type: 'Dimension',
-    serialNumber: '7840356',
-    calibrationCycle: '12 เดือน',
-    dueDate: '2026-06-01',
-    lastCalibrationDate: '2025-06-01',
-    location: 'CSR',
-    department: 'CSSD',
-    status: 'พร้อมใช้งาน',
-  },
-  {
-    id: 'BME-015',
-    name: 'Blood Pressure Monitor',
-    company: 'Omron',
-    model: 'BP-Auto3',
-    type: 'Medical',
-    serialNumber: '5430912',
-    calibrationCycle: '6 เดือน',
-    dueDate: '2025-11-30',
-    lastCalibrationDate: '2025-05-30',
-    location: 'OPD',
-    department: 'General',
-    status: 'กำลังใช้งาน',
-  },
-];
+import type { Ref, ComputedRef } from 'vue';
+import type {
+  MedicalTool,
+  ToolType,
+  CalibrationProcess,
+  CalibrationCost,
+  ToolStatus,
+} from 'src/types';
+import { ToolService } from 'src/services/tool.service';
+import type { BackendEquipment } from 'src/services/tool.service';
 
 const mockCalibrationProcesses: CalibrationProcess[] = [
   {
@@ -360,8 +156,131 @@ const mockCalibrationCosts: CalibrationCost[] = [
   { id: 'CC-014', toolName: 'Ventilator', description: 'เครื่องช่วยหายใจ', price: 2000 },
 ];
 
-export const useToolsStore = defineStore('tools', () => {
-  const tools = ref<MedicalTool[]>(mockTools);
+export interface ToolsStoreState {
+  tools: Ref<MedicalTool[]>;
+  loading: Ref<boolean>;
+  calibrationProcesses: Ref<CalibrationProcess[]>;
+  calibrationCosts: Ref<CalibrationCost[]>;
+  searchQuery: Ref<string>;
+  selectedType: Ref<ToolType | ''>;
+  typeOptions: { label: string; value: ToolType | '' }[];
+  statusOptions: { label: string; value: ToolStatus }[];
+  locationOptions: { label: string; value: string }[];
+  filteredTools: ComputedRef<MedicalTool[]>;
+  nextId: ComputedRef<string>;
+  fetchTools: () => Promise<void>;
+  addTool: (tool: Omit<MedicalTool, 'id'>) => Promise<void>;
+  updateTool: (id: string, data: Partial<MedicalTool>) => Promise<void>;
+  deleteTool: (id: string) => Promise<void>;
+  addCalibrationProcess: (item: Omit<CalibrationProcess, 'id'>) => void;
+  updateCalibrationProcess: (id: string, data: Partial<CalibrationProcess>) => void;
+  deleteCalibrationProcess: (id: string) => void;
+  addCalibrationCost: (item: Omit<CalibrationCost, 'id'>) => void;
+  updateCalibrationCost: (id: string, data: Partial<CalibrationCost>) => void;
+  deleteCalibrationCost: (id: string) => void;
+}
+
+export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
+  const tools = ref<MedicalTool[]>([]);
+  const loading = ref(false);
+
+  // Map backend status string → frontend Thai status
+  function mapStatus(s: string): ToolStatus {
+    const map: Record<string, ToolStatus> = {
+      active: 'กำลังใช้งาน',
+      inactive: 'ปิดใช้งาน',
+      maintenance: 'กำลังสอบเทียบ',
+      ready: 'พร้อมใช้งาน',
+    };
+    return map[s] ?? 'พร้อมใช้งาน';
+  }
+
+  // Map frontend Thai status → backend string
+  function unmapStatus(s: ToolStatus): string {
+    const map: Record<ToolStatus, string> = {
+      กำลังใช้งาน: 'active',
+      ปิดใช้งาน: 'inactive',
+      กำลังสอบเทียบ: 'maintenance',
+      พร้อมใช้งาน: 'active',
+      รอดำเนินการ: 'inactive',
+      ส่งซ่อม: 'maintenance',
+      จำหน่ายแล้ว: 'inactive',
+    };
+    return map[s] ?? 'active';
+  }
+
+  // Normalize date: if "-" or empty, return null
+  function normalizeDate(d: string | undefined | null): string | null {
+    if (!d || d === '-') return null;
+    return d;
+  }
+
+  async function fetchTools() {
+    loading.value = true;
+    try {
+      const res = await ToolService.getAll();
+      tools.value = res.data.map((item: BackendEquipment) => ({
+        id: item.asset_code || String(item.id),
+        backendId: item.id,
+        name: item.name,
+        company: item.manufacturer ?? '-',
+        model: item.model ?? '-',
+        type: 'Medical' as const,
+        serialNumber: item.serial_number ?? '-',
+        calibrationCycle: item.interval ? `${item.interval} วัน` : '-',
+        dueDate: item.calibration_due_date ?? '-',
+        lastCalibrationDate: item.calibration_date_last ?? '-',
+        location: '-',
+        department: '-',
+        status: mapStatus(item.status),
+      }));
+    } catch (e) {
+      console.error('fetchTools error:', e);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function addTool(tool: Omit<MedicalTool, 'id'>) {
+    await ToolService.create({
+      name: tool.name,
+      manufacturer: tool.company,
+      model: tool.model,
+      serial_number: tool.serialNumber,
+      interval: parseInt(tool.calibrationCycle) || 365,
+      calibration_due_date: normalizeDate(tool.dueDate),
+      calibration_date_last: normalizeDate(tool.lastCalibrationDate),
+      status: unmapStatus(tool.status),
+    });
+    await fetchTools();
+  }
+
+  async function updateTool(id: string, data: Partial<MedicalTool>) {
+    const target = tools.value.find((t) => t.id === id);
+    const backendId = target?.backendId ?? Number(id);
+    await ToolService.update(backendId, {
+      ...(data.name !== undefined && { name: data.name }),
+      ...(data.company !== undefined && { manufacturer: data.company }),
+      ...(data.model !== undefined && { model: data.model }),
+      ...(data.serialNumber !== undefined && { serial_number: data.serialNumber }),
+      ...(data.calibrationCycle !== undefined && {
+        interval: parseInt(data.calibrationCycle) || 365,
+      }),
+      ...(data.dueDate !== undefined && { calibration_due_date: normalizeDate(data.dueDate) }),
+      ...(data.lastCalibrationDate !== undefined && {
+        calibration_date_last: normalizeDate(data.lastCalibrationDate),
+      }),
+      ...(data.status !== undefined && { status: unmapStatus(data.status) }),
+    });
+    await fetchTools();
+  }
+
+  async function deleteTool(id: string) {
+    const target = tools.value.find((t) => t.id === id);
+    const backendId = target?.backendId ?? Number(id);
+    await ToolService.remove(backendId);
+    await fetchTools();
+  }
   const calibrationProcesses = ref<CalibrationProcess[]>(mockCalibrationProcesses);
   const calibrationCosts = ref<CalibrationCost[]>(mockCalibrationCosts);
   const searchQuery = ref('');
@@ -373,7 +292,7 @@ export const useToolsStore = defineStore('tools', () => {
     { label: 'Dimension', value: 'Dimension' },
   ];
 
-  const statusOptions = [
+  const statusOptions: { label: string; value: ToolStatus }[] = [
     { label: 'พร้อมใช้งาน', value: 'พร้อมใช้งาน' },
     { label: 'กำลังสอบเทียบ', value: 'กำลังสอบเทียบ' },
     { label: 'รอดำเนินการ', value: 'รอดำเนินการ' },
@@ -415,21 +334,6 @@ export const useToolsStore = defineStore('tools', () => {
     }, 0);
     return `BME-${String(maxNum + 1).padStart(3, '0')}`;
   });
-
-  function addTool(tool: Omit<MedicalTool, 'id'>) {
-    tools.value.push({ ...tool, id: nextId.value });
-  }
-
-  function updateTool(id: string, data: Partial<MedicalTool>) {
-    const idx = tools.value.findIndex((t) => t.id === id);
-    if (idx !== -1) {
-      tools.value[idx] = { ...tools.value[idx]!, ...data, id };
-    }
-  }
-
-  function deleteTool(id: string) {
-    tools.value = tools.value.filter((t) => t.id !== id);
-  }
 
   function addCalibrationProcess(item: Omit<CalibrationProcess, 'id'>) {
     const nextNum = calibrationProcesses.value.length + 1;
@@ -483,5 +387,7 @@ export const useToolsStore = defineStore('tools', () => {
     addCalibrationCost,
     updateCalibrationCost,
     deleteCalibrationCost,
+    fetchTools,
+    loading,
   };
 });

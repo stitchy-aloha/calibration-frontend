@@ -61,7 +61,6 @@
             row-key="id"
             flat
             bordered
-            wrap-cells
             class="data-table"
             :rows-per-page-options="[0]"
             hide-pagination
@@ -182,7 +181,6 @@
             row-key="id"
             flat
             bordered
-            wrap-cells
             class="data-table"
             :rows-per-page-options="[0]"
             hide-pagination

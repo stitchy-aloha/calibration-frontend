@@ -141,13 +141,14 @@
     <!-- Footer Buttons -->
     <div class="tool-form__footer">
       <q-btn flat label="ยกเลิก" class="btn-cancel" @click="$emit('close')" />
-      <q-btn unelevated label="บันทึก" icon="save" class="btn-save" @click="onSave" />
+      <q-btn unelevated label="บันทึก" icon="save" class="btn-save" :loading="isSaving" @click="onSave" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, computed } from 'vue';
+import { reactive, watch, computed, ref } from 'vue';
+import { useQuasar } from 'quasar';
 import { useToolsStore } from 'src/stores/tools';
 import type { MedicalTool, ToolType, ToolStatus } from 'src/types';
 
@@ -167,6 +168,8 @@ const emit = defineEmits<{
 }>();
 
 const toolsStore = useToolsStore();
+const $q = useQuasar();
+const isSaving = ref(false);
 
 function emptyForm() {
   return {
@@ -209,30 +212,37 @@ watch(
   { immediate: true },
 );
 
-function onSave() {
+async function onSave() {
+  isSaving.value = true;
   const data: Omit<MedicalTool, 'id'> = {
     name: form.name,
     company: form.company,
     model: form.model,
     type: form.type,
     serialNumber: form.serialNumber,
-    calibrationCycle: `${form.calibrationCycle} เดือน`,
+    calibrationCycle: `${form.calibrationCycle} วัน`,
     dueDate: form.dueDate,
     lastCalibrationDate: form.lastCalibrationDate,
     location: form.location,
     department: form.department,
     status: form.status,
   };
-
-  if (props.tool) {
-    toolsStore.updateTool(props.tool.id, data);
-  } else {
-    toolsStore.addTool(data);
+  try {
+    if (props.tool) {
+      await toolsStore.updateTool(props.tool.id, data);
+      $q.notify({ type: 'positive', message: 'อัปเดตเครื่องมือสำเร็จ' });
+    } else {
+      await toolsStore.addTool(data);
+      $q.notify({ type: 'positive', message: 'เพิ่มเครื่องมือสำเร็จ' });
+    }
+    Object.assign(form, emptyForm());
+    emit('saved');
+    emit('close');
+  } catch {
+    $q.notify({ type: 'negative', message: 'เกิดข้อผิดพลาด กรุณาลองใหม่' });
+  } finally {
+    isSaving.value = false;
   }
-
-  Object.assign(form, emptyForm());
-  emit('saved');
-  emit('close');
 }
 </script>
 

@@ -6,11 +6,11 @@
 
     <!-- Filters -->
     <div class="filters-row q-mb-md">
-      <SearchBar v-model="store.searchQuery" placeholder="ค้นหาเครื่องมือแพทย์" />
+      <SearchBar v-model="searchQuery" placeholder="ค้นหาเครื่องมือแพทย์" />
 
       <q-select
-        v-model="store.selectedType"
-        :options="store.typeOptions"
+        v-model="selectedType"
+        :options="typeOptions"
         option-value="value"
         option-label="label"
         emit-value
@@ -35,7 +35,7 @@
 
     <!-- q-table -->
     <q-table
-      :rows="store.filteredTools"
+      :rows="filteredTools"
       :columns="tableColumns"
       row-key="id"
       flat
@@ -44,6 +44,7 @@
       class="tools-table"
       :rows-per-page-options="[10, 20, 50]"
       no-data-label="ไม่พบข้อมูล"
+      :loading="loading"
     >
       <!-- Custom header -->
       <template #header="props">
@@ -118,7 +119,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useQuasar } from 'quasar';
 import SearchBar from 'src/components/SearchBar.vue';
 import ToolFormDialog from 'src/components/tools/ToolFormDialog.vue';
 import ConfirmDeleteDialog from 'src/components/common/ConfirmDeleteDialog.vue';
@@ -129,7 +132,12 @@ import type { ToolStatus, MedicalTool } from 'src/types';
 import { useAuthStore } from 'src/stores/auth';
 
 const store = useToolsStore();
+const { filteredTools, searchQuery, selectedType, typeOptions, loading } = storeToRefs(store);
+const { fetchTools, deleteTool } = store;
 const auth = useAuthStore();
+const $q = useQuasar();
+
+onMounted(() => { void fetchTools(); });
 
 const isAdmin = computed(() => auth.permissions?.canManageTools ?? false);
 
@@ -156,9 +164,14 @@ function confirmDelete(tool: MedicalTool) {
   deleteDialog.value = true;
 }
 
-function doDelete() {
+async function doDelete() {
   if (deletingTool.value) {
-    store.deleteTool(deletingTool.value.id);
+    try {
+      await deleteTool(deletingTool.value.id);
+      $q.notify({ type: 'positive', message: 'ลบเครื่องมือสำเร็จ' });
+    } catch {
+      $q.notify({ type: 'negative', message: 'เกิดข้อผิดพลาดในการลบ' });
+    }
   }
   deleteDialog.value = false;
   deletingTool.value = null;

@@ -41,4 +41,5 @@ export interface MedicalTool {
   location: string;
   department: string;
   status: ToolStatus;
+  backendId?: number;
 }
