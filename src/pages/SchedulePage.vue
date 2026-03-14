@@ -8,14 +8,13 @@
 
     <div class="row q-col-gutter-lg">
       <!-- Left Column: Calendar -->
-      <div class="col-12 col-md-7 col-lg-8 flex column" style="height: calc(100vh - 160px)">
+      <div class="col-12 col-md-7 col-lg-8 flex column schedule-col">
         <ScheduleCalendar class="col-grow" />
       </div>
 
       <!-- Right Column: Current Date Events -->
       <div
-        class="col-12 col-md-5 col-lg-4 flex column relative-position"
-        style="height: calc(100vh - 160px)"
+        class="col-12 col-md-5 col-lg-4 flex column relative-position schedule-col"
       >
         <!-- Purple Rounded Header Box -->
         <div
@@ -115,5 +114,14 @@ const formattedSelectedDate = computed(() => {
 
 .border-dashed {
   border: 2px dashed #e0e0e0;
+}
+
+.schedule-col {
+  min-height: 400px;
+}
+@media (min-width: 1024px) {
+  .schedule-col {
+    height: calc(100vh - 160px);
+  }
 }
 </style>

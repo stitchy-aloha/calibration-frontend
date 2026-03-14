@@ -2,19 +2,28 @@
   <q-layout view="hHh Lpr lFf">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
+        <q-btn
+          flat
+          dense
+          round
+          icon="menu"
+          aria-label="Menu"
+          @click="leftDrawerOpen = !leftDrawerOpen"
+          class="q-mr-sm lt-md"
+        />
         <q-toolbar-title>
           <div class="header-app-title">
             <q-icon
               name="medical_services"
               size="28px"
-              class="q-mr-sm"
+              class="q-mr-sm gt-xs"
               style="margin-right: 25px"
             />
             <div class="column">
-              <span class="text-subtitle1 text-weight-bold">
+              <span class="text-subtitle1 text-weight-bold" style="font-size: clamp(14px, 4vw, 16px)">
                 ระบบบริหารจัดการสอบเทียบเครื่องมือแพทย์
               </span>
-              <span class="text-caption text-weight-regular opacity-70">
+              <span class="text-caption text-weight-regular opacity-70 gt-xs">
                 Medical Calibration Management System
               </span>
             </div>
@@ -28,13 +37,13 @@
         </q-btn>
 
         <div
-          class="q-separator-vertical q-my-sm bg-white opacity-20 q-mr-md"
+          class="q-separator-vertical q-my-sm bg-white opacity-20 q-mr-md gt-xs"
           style="width: 1px"
         ></div>
 
         <ProfileCard :name="auth.user?.fullName ?? ''" :role="auth.user?.role ?? ''">
           <div class="row items-center">
-            <div class="column text-right q-mr-sm">
+            <div class="column text-right q-mr-sm gt-xs">
               <span class="text-weight-bold text-caption">{{ auth.user?.fullName }}</span>
               <span class="text-caption" style="font-size: 10px; opacity: 0.8">{{
                 auth.user?.role
@@ -49,15 +58,15 @@
     </q-header>
 
     <q-drawer
-      :model-value="true"
+      v-model="leftDrawerOpen"
       show-if-above
       elevated
       side="left"
-      :width="leftDrawerOpen ? 240 : 60"
-      @mouseenter="leftDrawerOpen = true"
-      @mouseleave="leftDrawerOpen = false"
+      :width="$q.screen.lt.md || expandedDrawer ? 240 : 60"
+      @mouseenter="expandedDrawer = true"
+      @mouseleave="expandedDrawer = false"
       class="app-drawer"
-      :style="{ top: '50px', height: 'calc(100vh - 50px)' }"
+      :style="!$q.screen.lt.md ? { top: '50px', height: 'calc(100vh - 50px)' } : {}"
     >
       <div class="drawer-inner">
         <q-list class="drawer-list">
@@ -65,7 +74,7 @@
             v-for="link in linksList"
             :key="link.title"
             v-bind="link"
-            :compact="!leftDrawerOpen"
+            :compact="!expandedDrawer && !$q.screen.lt.md"
           />
         </q-list>
       </div>
@@ -82,8 +91,10 @@ import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink
 import ProfileCard from 'components/ProfileCard.vue';
 import { ref, computed } from 'vue';
 import { useAuthStore } from 'src/stores/auth';
+import { useQuasar } from 'quasar';
 
 const auth = useAuthStore();
+const $q = useQuasar();
 const apiBase = import.meta.env.VITE_API_BASE_URL as string;
 
 const profileImage = computed(() => {
@@ -139,6 +150,7 @@ const linksList = computed<EssentialLinkProps[]>(() => {
 });
 
 const leftDrawerOpen = ref(false);
+const expandedDrawer = ref(false);
 </script>
 
 <style scoped lang="scss">

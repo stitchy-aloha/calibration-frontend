@@ -50,6 +50,7 @@
       row-key="id"
       flat
       bordered
+      wrap-cells
       class="history-table"
       table-header-class="table-thead"
       :rows-per-page-options="[10, 20, 50, 0]"

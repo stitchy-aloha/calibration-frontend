@@ -287,4 +287,39 @@ function nextMonth() {
   height: 14px;
   border-radius: 50%;
 }
+
+@media (max-width: 599px) {
+  .calendar-header {
+    padding: 8px 12px;
+  }
+  .calendar-grid {
+    padding: 8px;
+  }
+  .weekdays-row {
+    margin-bottom: 8px;
+  }
+  .weekday-cell {
+    font-size: 12px;
+  }
+  .days-row {
+    grid-auto-rows: 85px;
+  }
+  .date-badge {
+    font-size: 9px;
+    padding: 2px 4px;
+    white-space: normal;
+    word-break: break-word;
+  }
+  .day-cell {
+    padding: 4px 2px;
+  }
+  .calendar-footer {
+    padding: 10px;
+  }
+  .day-cell--today .date-number {
+    width: 24px;
+    height: 24px;
+    font-size: 13px;
+  }
+}
 </style>

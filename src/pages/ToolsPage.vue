@@ -40,6 +40,7 @@
       row-key="id"
       flat
       bordered
+      wrap-cells
       class="tools-table"
       :rows-per-page-options="[10, 20, 50]"
       no-data-label="ไม่พบข้อมูล"

@@ -37,6 +37,7 @@
       row-key="id"
       flat
       bordered
+      wrap-cells
       :loading="store.loading"
       class="users-table"
       :rows-per-page-options="[10, 20, 50]"

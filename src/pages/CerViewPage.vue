@@ -1,10 +1,10 @@
 <template>
   <q-page padding class="bg-grey-2 cer-view-page">
     <!-- Premium Header -->
-    <div class="cer-header-card q-mb-xl">
-      <div class="row items-center full-height q-px-lg justify-between shadow-1">
+    <div class="cer-header-card q-mb-xl shadow-1">
+      <div class="row items-center q-px-lg q-py-md justify-between q-col-gutter-y-md">
         <!-- Left Side: Doc Info -->
-        <div class="row items-center gap-md">
+        <div class="col-12 col-md-auto row items-center justify-center justify-md-start gap-md">
           <div class="doc-icon-wrapper flex flex-center">
             <q-icon name="description" color="primary" size="24px" />
           </div>
@@ -21,27 +21,29 @@
         </div>
 
         <!-- Center: Toggle Buttons -->
-        <div class="cert-toggle-group">
-          <div
-            class="cert-toggle-btn"
-            :class="{ active: selectedCert === 1 }"
-            @click="selectedCert = 1"
-          >
-            <q-icon :name="selectedCert === 1 ? 'verified' : 'description'" size="18px" />
-            <span class="q-ml-sm"> ใบตรวจสภาพ (PM)</span>
-          </div>
-          <div
-            class="cert-toggle-btn"
-            :class="{ active: selectedCert === 2 }"
-            @click="selectedCert = 2"
-          >
-            <q-icon :name="selectedCert === 2 ? 'verified' : 'description'" size="18px" />
-            <span class="q-ml-sm"> ใบสอบเทียบ (Cal)</span>
+        <div class="col-12 col-md-auto flex justify-center">
+          <div class="cert-toggle-group">
+            <div
+              class="cert-toggle-btn"
+              :class="{ active: selectedCert === 1 }"
+              @click="selectedCert = 1"
+            >
+              <q-icon :name="selectedCert === 1 ? 'verified' : 'description'" size="18px" />
+              <span class="q-ml-sm"> ใบตรวจสภาพ (PM)</span>
+            </div>
+            <div
+              class="cert-toggle-btn"
+              :class="{ active: selectedCert === 2 }"
+              @click="selectedCert = 2"
+            >
+              <q-icon :name="selectedCert === 2 ? 'verified' : 'description'" size="18px" />
+              <span class="q-ml-sm"> ใบสอบเทียบ (Cal)</span>
+            </div>
           </div>
         </div>
 
         <!-- Right Side: Actions -->
-        <div class="row items-center gap-md">
+        <div class="col-12 col-md-auto row items-center justify-center justify-md-end gap-md">
           <q-btn
             outline
             color="grey-4"
@@ -64,12 +66,14 @@
     </div>
 
     <!-- Certificate Component Display & Capture Target -->
-    <div class="cer-container q-mx-auto" ref="cerRef">
-      <div v-show="selectedCert === 1 || isPrinting">
-        <CerCertificate :data="activeCerData" />
-      </div>
-      <div v-show="selectedCert === 2 || isPrinting">
-        <CerCalibration />
+    <div class="cer-scroll-wrapper">
+      <div class="cer-container q-mx-auto" ref="cerRef">
+        <div v-show="selectedCert === 1 || isPrinting">
+          <CerCertificate :data="activeCerData" />
+        </div>
+        <div v-show="selectedCert === 2 || isPrinting">
+          <CerCalibration />
+        </div>
       </div>
     </div>
   </q-page>
@@ -193,11 +197,17 @@ async function downloadPdf() {
 
 .cer-header-card {
   background: white;
-  height: 80px;
+  min-height: 80px;
   border-radius: 12px;
   margin-top: -10px;
   position: relative;
   z-index: 10;
+}
+
+.cer-scroll-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 24px;
 }
 
 .doc-icon-wrapper {

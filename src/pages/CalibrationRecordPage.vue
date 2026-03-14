@@ -70,28 +70,28 @@
     </q-card>
 
     <!-- Floating Footer Actions -->
-    <div class="row justify-between q-mt-lg q-pb-xl px-md">
-      <q-btn
-        outline
-        color="primary"
-        label="ย้อนกลับ"
-        class="bg-white"
-        style="width: 150px"
-        @click="goBack"
-      />
-      <div class="row q-gutter-x-md">
+    <div class="row q-mt-lg q-pb-xl q-px-md items-center justify-between q-col-gutter-y-md">
+      <div class="col-12 col-sm-auto text-center xs-full-width">
+        <q-btn
+          outline
+          color="primary"
+          label="ย้อนกลับ"
+          class="bg-white action-btn"
+          @click="goBack"
+        />
+      </div>
+      <div class="col-12 col-sm-auto row justify-center q-gutter-x-md xs-full-width">
         <q-btn
           outline
           color="primary"
           label="บันทึกแบบร่าง"
-          class="bg-white"
-          style="width: 150px"
+          class="bg-white action-btn"
         />
         <q-btn
           unelevated
           color="primary"
           :label="store.activeTab === 'general' ? 'ถัดไป' : 'บันทึก'"
-          style="width: 150px"
+          class="action-btn"
           @click="handleNext"
         />
       </div>
@@ -188,5 +188,16 @@ const handleSave = () => {
 
 .tab-content-border {
   border-top: 4px solid $primary;
+}
+
+.action-btn {
+  width: 150px;
+}
+
+@media (max-width: 599px) {
+  .xs-full-width .action-btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
 }
 </style>

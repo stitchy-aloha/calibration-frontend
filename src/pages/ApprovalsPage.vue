@@ -48,6 +48,7 @@
         :columns="columns"
         row-key="id"
         flat
+        wrap-cells
         class="cal-table"
         :rows-per-page-options="[15, 20, 50]"
         no-data-label="ไม่พบข้อมูล"
