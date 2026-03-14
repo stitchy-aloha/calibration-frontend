@@ -88,8 +88,8 @@ defineEmits<{
 
 .section-title {
   font-weight: 700;
-  font-size: 18px;
-  color: #1a1a2e;
+  font-size: 16px;
+  color: white;
 }
 
 .inspection-list {

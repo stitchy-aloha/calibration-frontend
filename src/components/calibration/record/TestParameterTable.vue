@@ -191,7 +191,6 @@ const emit = defineEmits<{
 const showRange = computed(() => props.showRange !== false);
 
 const allColumns: QTableProps['columns'] = [
-  { name: 'range', label: 'ช่วง', field: 'range', align: 'center' },
   { name: 'standard', label: 'ค่ามาตรฐาน', field: 'standard', align: 'center' },
   { name: 'val1', label: 'ครั้งที่ 1', field: 'val1', align: 'center' },
   { name: 'val2', label: 'ครั้งที่ 2', field: 'val2', align: 'center' },
@@ -327,7 +326,7 @@ const formatError = (error: number | null): string => {
 
 .btn {
   background-color: $secondary;
-  color: #412c67;
+  color: white;
   width: 150px;
 }
 

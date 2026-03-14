@@ -10,7 +10,7 @@
           </div>
           <div class="column justify-center q-ml-sm">
             <div class="text-h6 text-weight-bold text-grey-9 leading-tight">
-              ใบรับรองผลการตรวจสภาพ (Maintenance)
+              {{ selectedCert === 1 ? 'ใบรับรองผลการตรวจสภาพ (Maintenance)' : 'ใบรับรองผลการสอบเทียบเครื่องมือ (Calibration)' }}
             </div>
             <div class="text-caption text-grey-6 row items-center">
               <span class="text-weight-medium">ID: {{ activeCerData.pmNo || '-' }}</span>
@@ -23,14 +23,20 @@
         <!-- Center: Toggle Buttons -->
         <div class="cert-toggle-group">
           <div
-            v-for="i in [1, 2]"
-            :key="i"
             class="cert-toggle-btn"
-            :class="{ active: selectedCert === i }"
-            @click="selectedCert = i"
+            :class="{ active: selectedCert === 1 }"
+            @click="selectedCert = 1"
           >
-            <q-icon :name="selectedCert === i ? 'verified' : 'description'" size="18px" />
-            <span class="q-ml-sm"> Certificate {{ i }}</span>
+            <q-icon :name="selectedCert === 1 ? 'verified' : 'description'" size="18px" />
+            <span class="q-ml-sm"> ใบตรวจสภาพ (PM)</span>
+          </div>
+          <div
+            class="cert-toggle-btn"
+            :class="{ active: selectedCert === 2 }"
+            @click="selectedCert = 2"
+          >
+            <q-icon :name="selectedCert === 2 ? 'verified' : 'description'" size="18px" />
+            <span class="q-ml-sm"> ใบสอบเทียบ (Cal)</span>
           </div>
         </div>
 
@@ -59,18 +65,25 @@
 
     <!-- Certificate Component Display & Capture Target -->
     <div class="cer-container q-mx-auto" ref="cerRef">
-      <CerCertificate :data="activeCerData" />
+      <div v-show="selectedCert === 1 || isPrinting">
+        <CerCertificate :data="activeCerData" />
+      </div>
+      <div v-show="selectedCert === 2 || isPrinting">
+        <CerCalibration />
+      </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import html2pdf from 'html2pdf.js';
 import type { jsPDF } from 'jspdf';
 import CerCertificate from 'src/components/history/CerCertificate.vue';
+import CerCalibration from 'src/components/history/CerCalibration.vue';
 
 const selectedCert = ref(1);
+const isPrinting = ref(false);
 const cerRef = ref<HTMLElement | null>(null);
 
 const cert1Data = {
@@ -133,8 +146,11 @@ function getPdfOptions() {
   };
 }
 
-function printCer() {
+async function printCer() {
   if (!cerRef.value) return;
+
+  isPrinting.value = true;
+  await nextTick();
 
   const opt = getPdfOptions();
 
@@ -147,15 +163,27 @@ function printCer() {
       pdf.autoPrint();
       const blobUrl = pdf.output('bloburl');
       window.open(blobUrl);
+    })
+    .finally(() => {
+      isPrinting.value = false;
     });
 }
 
-function downloadPdf() {
+async function downloadPdf() {
   if (!cerRef.value) return;
+
+  isPrinting.value = true;
+  await nextTick();
 
   const opt = getPdfOptions();
 
-  void html2pdf().set(opt).from(cerRef.value).save();
+  void html2pdf()
+    .set(opt)
+    .from(cerRef.value)
+    .save()
+    .finally(() => {
+      isPrinting.value = false;
+    });
 }
 </script>
 <style scoped lang="scss">
@@ -248,7 +276,8 @@ function downloadPdf() {
 
   .cer-container {
     width: 210mm;
-    height: 297mm;
+    /* let height be auto for multiple pages */
+    height: auto;
   }
 }
 </style>

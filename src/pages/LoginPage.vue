@@ -34,7 +34,7 @@
               bg-color="white"
             >
               <template v-slot:prepend>
-                <q-icon name="business_center" class="text-purple-3" />
+                <q-icon name="business_center" color="primary" />
               </template>
             </q-input>
           </div>
@@ -53,7 +53,7 @@
               bg-color="white"
             >
               <template v-slot:prepend>
-                <q-icon name="vpn_key" class="text-purple-3" />
+                <q-icon name="vpn_key" color="primary" />
               </template>
               <template v-slot:append>
                 <q-icon
@@ -71,12 +71,12 @@
               v-model="rememberMe"
               label="Remember device"
               size="xs"
-              color="purple-3"
+              color="primary"
               class="text-grey-7 text-caption"
             />
             <a
               href="#"
-              class="text-purple-7 text-caption text-weight-medium"
+              class="text-primary text-caption text-weight-medium"
               style="text-decoration: none"
               >Reset Password?</a
             >
@@ -87,7 +87,7 @@
             <q-btn
               label="เข้าสู่ระบบ"
               type="submit"
-              color="deep-purple-5"
+              color="primary"
               text-color="white"
               class="full-width q-py-sm text-weight-bold shadow-2"
               icon-right="login"
@@ -149,7 +149,7 @@ const onSubmit = async () => {
 
 <style scoped>
 .login-page {
-  background: linear-gradient(135deg, #fdfbfd 0%, #f3e5f5 100%);
+  background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
   position: relative;
   overflow: hidden;
 }
@@ -171,17 +171,9 @@ const onSubmit = async () => {
 .logo-bg {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+  background: linear-gradient(135deg, #09637e 0%, #088395 100%);
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(126, 34, 206, 0.3);
-}
-
-.text-purple-3 {
-  color: #d8b4fe !important;
-}
-
-.bg-purple-1 {
-  background-color: #f3e8ff !important;
+  box-shadow: 0 4px 12px rgba(8, 131, 149, 0.3);
 }
 
 /* Floating Background Icons */
@@ -198,7 +190,7 @@ const onSubmit = async () => {
 
 .bg-icon {
   position: absolute;
-  color: #e9d5ff; /* Very light purple */
+  color: #4db6ac; /* Very light teal/primary variation */
   opacity: 0.4;
   transform: rotate(-15deg);
 }
