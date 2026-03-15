@@ -34,7 +34,7 @@ export const useApprovalsStore = defineStore('approvals', () => {
       // Only show tasks that have been submitted (PendingApproval, Approved, Rejected)
       // 'Pending' means calibration hasn't been done yet — hide those
       const submitted = res.data.filter((task) =>
-        ['PendingApproval', 'Approved', 'Rejected'].includes(task.status),
+        ['PendingApproval'].includes(task.status),
       );
       approvals.value = submitted.map((task) => ({
         id: task.pm_no || `CAL-${task.id}`,

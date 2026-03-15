@@ -210,6 +210,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 // ---------- Props ----------
 interface CheckItem {
   code: string;
@@ -221,7 +222,14 @@ interface MaintenanceItem {
   name: string;
   done: boolean;
 }
-interface CerData {
+export interface QualitativeItem {
+  item_name: string;
+  result: string;
+  category_id?: number | undefined;
+  display_order?: number | undefined;
+}
+
+export interface CerData {
   pmNo: string;
   pmId: string;
   detail: string;
@@ -237,13 +245,14 @@ interface CerData {
   remark2: string;
   remark3: string;
   overallResult: 'pass' | 'fail';
+  qualitatives?: QualitativeItem[];
 }
 
 interface Props {
   data?: CerData;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   data: () => ({
     pmNo: '',
     pmId: 'PM-1-69-',
@@ -260,50 +269,94 @@ withDefaults(defineProps<Props>(), {
     remark2: '',
     remark3: '',
     overallResult: 'pass',
+    qualitatives: [],
   }),
 });
 
+// ---------- Grouping Qualitatives by Category ----------
+const groupedQualitatives = computed(() => {
+  if (!props.data.qualitatives) return [];
+  // Group by category_id and sort each group by display_order
+  const groups: Record<number, QualitativeItem[]> = {};
+  props.data.qualitatives.forEach((q) => {
+    const catId = q.category_id || 0;
+    if (!groups[catId]) groups[catId] = [];
+    groups[catId].push(q);
+  });
+
+  // Sort categories by their ID (assuming they match the order 1, 2, 3)
+  // Or better, convert to an array of sections
+  const sortedCatIds = Object.keys(groups)
+    .map(Number)
+    .sort((a, b) => a - b);
+  return sortedCatIds.map((id) => (groups[id] || []).sort((a, b) => (a.display_order || 0) - (b.display_order || 0)));
+});
+
+// ---------- Helpers ----------
+function getStatus(sectionIdx: number, itemIdx: number): 'normal' | 'abnormal' | 'na' {
+  const section = groupedQualitatives.value[sectionIdx];
+  if (!section || !section[itemIdx]) return 'na';
+  const res = section[itemIdx].result.toUpperCase();
+  if (res === 'PASS') return 'normal';
+  if (res === 'FAIL') return 'abnormal';
+  return 'na';
+}
+
+function getDone(sectionIdx: number, itemIdx: number): boolean {
+  const section = groupedQualitatives.value[sectionIdx];
+  if (!section || !section[itemIdx]) return false;
+  return section[itemIdx].result.toUpperCase() === 'PASS';
+}
+
 // ---------- Section 1 items ----------
-const section1Items: CheckItem[] = [
-  { code: '1.1', name: 'สภาพภายนอก /โครงสร้าง', status: 'normal' },
-  { code: '1.2', name: 'ฝีมือการติดตั้ง/ยึดโยง', status: 'normal' },
-  { code: '1.3', name: 'การขับเคลื่อน/เบรค', status: 'normal' },
-  { code: '1.4', name: 'สายไฟ AC ปลั๊ก', status: 'normal' },
-  { code: '1.5', name: 'สายสัญญาณ', status: 'normal' },
-  { code: '1.6', name: 'ความตึงหย่อน/ความหนาแน่น', status: 'normal' },
-  { code: '1.7', name: 'เบรกเกอร์/ฟิวส์', status: 'normal' },
-  { code: '1.8', name: 'หลอด ท่อ/วัสดุห่อหุ้ม', status: 'normal' },
-  { code: '1.9', name: 'สายเคเบิล', status: 'normal' },
-  { code: '1.10', name: 'ข้อต่อ/จุดต่อต่างๆ', status: 'normal' },
-  { code: '1.11', name: 'Electrodes/Transducers', status: 'normal' },
-  { code: '1.12', name: 'ฟิลเตอร์', status: 'normal' },
-  { code: '1.13', name: 'สวิทช์/การควบคุม', status: 'normal' },
-  { code: '1.14', name: 'อินเตอร์', status: 'normal' },
-  { code: '1.15', name: 'มอเตอร์/ปั๊ม/พัดลม', status: 'normal' },
-  { code: '1.16', name: 'ระดับ/ของเหลว', status: 'normal' },
-  { code: '1.17', name: 'แบตเตอรี/การชาร์จประจุ', status: 'normal' },
-  { code: '1.18', name: 'การแสดงผล', status: 'normal' },
-  { code: '1.19', name: 'Self Test', status: 'normal' },
-  { code: '1.20', name: 'สัญญาณเตือน', status: 'normal' },
-  { code: '1.21', name: 'สัญญาณแสดงการทำงาน', status: 'normal' },
-  { code: '1.22', name: 'ฉลาก/เครื่องหมาย', status: 'normal' },
-  { code: '1.23', name: 'อุปกรณ์ประกอบ', status: 'normal' },
-];
+const section1Items = computed((): CheckItem[] => [
+  { code: '1.1', name: 'สภาพภายนอก /โครงสร้าง', status: getStatus(0, 0) },
+  { code: '1.2', name: 'ฝีมือการติดตั้ง/ยึดโยง', status: getStatus(0, 1) },
+  { code: '1.3', name: 'การขับเคลื่อน/เบรค', status: getStatus(0, 2) },
+  { code: '1.4', name: 'สายไฟ AC ปลั๊ก', status: getStatus(0, 3) },
+  { code: '1.5', name: 'สายสัญญาณ', status: getStatus(0, 4) },
+  { code: '1.6', name: 'ความตึงหย่อน/ความหนาแน่น', status: getStatus(0, 5) },
+  { code: '1.7', name: 'เบรกเกอร์/ฟิวส์', status: getStatus(0, 6) },
+  { code: '1.8', name: 'หลอด ท่อ/วัสดุห่อหุ้ม', status: getStatus(0, 7) },
+  { code: '1.9', name: 'สายเคเบิล', status: getStatus(0, 8) },
+  { code: '1.10', name: 'ข้อต่อ/จุดต่อต่างๆ', status: getStatus(0, 9) },
+  { code: '1.11', name: 'Electrodes/Transducers', status: getStatus(0, 10) },
+  { code: '1.12', name: 'ฟิลเตอร์', status: getStatus(0, 11) },
+  { code: '1.13', name: 'สวิทช์/การควบคุม', status: getStatus(0, 12) },
+  { code: '1.14', name: 'อินเตอร์', status: getStatus(0, 13) },
+  { code: '1.15', name: 'มอเตอร์/ปั๊ม/พัดลม', status: getStatus(0, 14) },
+  { code: '1.16', name: 'ระดับ/ของเหลว', status: getStatus(0, 15) },
+  { code: '1.17', name: 'แบตเตอรี/การชาร์จประจุ', status: getStatus(0, 16) },
+  { code: '1.18', name: 'การแสดงผล', status: getStatus(0, 17) },
+  { code: '1.19', name: 'Self Test', status: getStatus(0, 18) },
+  { code: '1.20', name: 'สัญญาณเตือน', status: getStatus(0, 19) },
+  { code: '1.21', name: 'สัญญาณแสดงการทำงาน', status: getStatus(0, 20) },
+  { code: '1.22', name: 'ฉลาก/เครื่องหมาย', status: getStatus(0, 21) },
+  { code: '1.23', name: 'อุปกรณ์ประกอบ', status: getStatus(0, 22) },
+]);
 
 // ---------- Section 2 items ----------
-const section2Items: CheckItem[] = [
-  { code: '2.1', name: 'ระบบกราวด์ (0.5 OHM)', status: 'normal' },
-  { code: '2.2', name: 'การรั่วของกระแสไฟฟ้า', status: 'normal' },
-];
+const section2Items = computed((): CheckItem[] => [
+  { code: '2.1', name: 'ระบบกราวด์ (0.5 OHM)', status: getStatus(1, 0) },
+  { code: '2.2', name: 'การรั่วของกระแสไฟฟ้า', status: getStatus(1, 1) },
+]);
 
 // ---------- Section 3 items ----------
-const section3Items: MaintenanceItem[] = [
-  { code: '3.1', name: 'ทำความสะอาดตัวเครื่อง,สายประกอบภายนอกและภายใน', done: true },
-  { code: '3.2', name: 'การหล่อลื่นจุดสัมผัสกลไกต่างๆ', done: true },
-  { code: '3.3', name: 'ปรับเทียบค่ามาตรฐาน/ปรับจูนแก้ไข กลไกต่างๆ', done: true },
-  { code: '3.4', name: 'เปลี่ยนวัสดุตามอายุงาน ฟิลเตอร์/แปงถ่าน', done: true },
-  { code: '3.5', name: 'เปลี่ยนถ่ายของเหลวในกระเปาะ', done: true },
-];
+const section3Items = computed((): MaintenanceItem[] => [
+  {
+    code: '3.1',
+    name: 'ทำความสะอาดตัวเครื่อง,สายประกอบภายนอกและภายใน',
+    done: getDone(2, 0),
+  },
+  { code: '3.2', name: 'การหล่อลื่นจุดสัมผัสกลไกต่างๆ', done: getDone(2, 1) },
+  {
+    code: '3.3',
+    name: 'ปรับเทียบค่ามาตรฐาน/ปรับจูนแก้ไข กลไกต่างๆ',
+    done: getDone(2, 2),
+  },
+  { code: '3.4', name: 'เปลี่ยนวัสดุตามอายุงาน ฟิลเตอร์/แปงถ่าน', done: getDone(2, 3) },
+  { code: '3.5', name: 'เปลี่ยนถ่ายของเหลวในกระเปาะ', done: getDone(2, 4) },
+]);
 
 // ---------- Print ----------
 </script>

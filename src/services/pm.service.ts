@@ -58,6 +58,30 @@ export interface QualitativeApi {
   task_id: number;
 }
 
+export interface PmChecklistResultApi {
+  id: number;
+  task_id: number;
+  item_id: number;
+  status: 'Pass' | 'Fail' | 'NA';
+  item?: {
+    id: number;
+    description: string;
+    category_id: number;
+    display_order: number;
+  };
+}
+
+export interface PmCategoryRemarkApi {
+  id: number;
+  task_id: number;
+  category_id: number;
+  text: string;
+  category?: {
+    id: number;
+    name: string;
+  };
+}
+
 export interface TechnicianApi {
   id: number;
   name: string;
@@ -78,6 +102,9 @@ export interface TaskApi {
   measurements?: MeasurementApi[];
   environments?: EnvironmentApi[];
   qualitatives?: QualitativeApi[];
+  checklistResults?: PmChecklistResultApi[];
+  checklistRemarks?: PmCategoryRemarkApi[];
+  remarks?: string;
   standardTools?: {
     id: number;
     name: string;

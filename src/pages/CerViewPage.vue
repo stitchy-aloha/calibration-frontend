@@ -80,54 +80,88 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
 import html2pdf from 'html2pdf.js';
 import type { jsPDF } from 'jspdf';
+import { pmService } from 'src/services/pm.service';
+import type { TaskApi } from 'src/services/pm.service';
 import CerCertificate from 'src/components/history/CerCertificate.vue';
+import type { CerData } from 'src/components/history/CerCertificate.vue';
 import CerCalibration from 'src/components/history/CerCalibration.vue';
 
+const route = useRoute();
 const selectedCert = ref(1);
 const isPrinting = ref(false);
 const cerRef = ref<HTMLElement | null>(null);
+const loading = ref(false);
+const task = ref<TaskApi | null>(null);
 
-const cert1Data = {
-  pmNo: 'PM-1-69-001',
-  pmId: 'PM-1-69-',
-  detail: 'PATIENT MONITOR',
-  manufacture: 'NIHON KOHDEN',
-  model: 'PVM-2701',
-  serialNo: '12345678',
-  idNo: '3555255',
-  department: 'โรงพยาบาลส่งเสริมสุขภาพตำบล',
-  address: 'ตำบลบางสะพาน จังหวัดประจวบคีรีขันธ์',
-  section: 'NUR - กลุ่มงานการพยาบาล',
-  pmDate: 'Monday, February 2, 2024',
-  remark1: '',
-  remark2: '',
-  remark3: '',
-  overallResult: 'pass' as const,
-};
+const activeCerData = computed((): CerData => {
+  if (!task.value) {
+    return {
+      pmNo: '-',
+      pmId: '-',
+      detail: '-',
+      manufacture: '-',
+      model: '-',
+      serialNo: '-',
+      idNo: '-',
+      department: '-',
+      address: '-',
+      section: '-',
+      pmDate: '-',
+      remark1: '',
+      remark2: '',
+      remark3: '',
+      overallResult: 'pass' as const,
+    };
+  }
 
-const cert2Data = {
-  pmNo: 'PM-1-69-002',
-  pmId: 'PM-1-69-',
-  detail: 'EKG MACHINE',
-  manufacture: 'SCHILLER',
-  model: 'AT-102',
-  serialNo: '87654321',
-  idNo: '4666366',
-  department: 'โรงพยาบาลบางสะพาน',
-  address: 'ตำบลกำเนิดนพคุณ อำเภอบางสะพาน',
-  section: 'ER - แผนกฉุกเฉิน',
-  pmDate: 'Wednesday, March 5, 2024',
-  remark1: 'เครื่องทำงานปกติ แต่อาจต้องเปลี่ยนแบตเตอรี่ในรอบหน้า',
-  remark2: '',
-  remark3: 'ทำความสะอาดเช็คขั้วต่อทั้งหมด',
-  overallResult: 'pass' as const,
-};
+  const t = task.value;
+  return {
+    pmNo: t.pm_no || `CAL-${t.id}`,
+    pmId: t.pm_no?.substring(0, 8) || 'PM-1-69-',
+    detail: t.equipment?.name || '-',
+    manufacture: t.equipment?.manufacturer || '-',
+    model: t.equipment?.model || '-',
+    serialNo: t.equipment?.serial_number || '-',
+    idNo: t.equipment?.asset_code || '-',
+    department: 'Hospital', // Fallback as it's not in TaskApi directly
+    address: '-',
+    section: '-',
+    pmDate: t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }) : '-',
+    remark1: t.checklistRemarks?.find(r => r.category?.name?.includes('สภาพทั่วไป'))?.text || '',
+    remark2: t.checklistRemarks?.find(r => r.category?.name?.includes('ปลอดภัย'))?.text || '',
+    remark3: t.checklistRemarks?.find(r => r.category?.name?.includes('บำรุงรักษา'))?.text || '',
+    overallResult: t.overall_result?.toLowerCase() === 'pass' ? 'pass' : 'fail',
+    qualitatives: t.checklistResults?.map((r) => ({
+      item_name: r.item?.description || '-',
+      result: r.status,
+      category_id: r.item?.category_id,
+      display_order: r.item?.display_order,
+    })) || [],
+  };
+});
 
-const activeCerData = computed(() => {
-  return selectedCert.value === 1 ? cert1Data : cert2Data;
+onMounted(async () => {
+  const taskId = route.query.taskId as string;
+  if (taskId) {
+    loading.value = true;
+    try {
+      const res = await pmService.getTaskById(parseInt(taskId));
+      task.value = res.data;
+    } catch (err) {
+      console.error('Failed to fetch task for CER:', err);
+    } finally {
+      loading.value = false;
+    }
+  }
 });
 
 function getPdfOptions() {

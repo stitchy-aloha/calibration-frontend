@@ -241,7 +241,7 @@ const handleApprove = async () => {
 
     await store.approveEvent(approval.taskId);
     $q.notify({ type: 'positive', message: 'อนุมัติการสอบเทียบสำเร็จ!', position: 'top-right' });
-    setTimeout(() => void router.push('/approval'), 1000);
+    setTimeout(() => void router.push('/history'), 1000);
   } catch (err) {
     console.error('Approve Error:', err);
     $q.notify({ type: 'negative', message: 'เกิดข้อผิดพลาดในการอนุมัติ', position: 'top-right' });
@@ -268,7 +268,7 @@ const confirmReject = async () => {
 
     await store.rejectEvent(approval.taskId, rejectRemark.value);
     $q.notify({ type: 'negative', message: 'ไม่อนุมัติการสอบเทียบ', position: 'top-right' });
-    setTimeout(() => void router.push('/approval'), 1000);
+    setTimeout(() => void router.push('/history'), 1000);
   } catch (err) {
     console.error('Reject Error:', err);
     $q.notify({ type: 'negative', message: 'เกิดข้อผิดพลาดในการไม่อนุมัติ', position: 'top-right' });

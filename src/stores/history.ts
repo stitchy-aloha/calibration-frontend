@@ -1,12 +1,16 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
+import { api } from 'src/boot/axios';
+import type { TaskApi } from 'src/services/pm.service';
+
 export type CalibrationResult = 'pass' | 'fail';
 export type CertType = 'all' | 'external' | 'calibration';
 export type ExportFormat = 'csv' | 'pdf';
 
 export interface HistoryRecord {
   id: string;
+  taskId: number;
   date: string; // YYYY-MM-DD
   deviceName: string;
   deviceCode: string;
@@ -14,110 +18,40 @@ export interface HistoryRecord {
   result: CalibrationResult;
 }
 
-const mockHistory: HistoryRecord[] = [
-  {
-    id: 'H-001',
-    date: '2025-07-26',
-    deviceName: 'Infusion Pump',
-    deviceCode: 'BME-004',
-    inspector: 'สมชาย ใจดี',
-    result: 'pass',
-  },
-  {
-    id: 'H-002',
-    date: '2025-07-20',
-    deviceName: 'Pulse Oximeter',
-    deviceCode: 'BME-003',
-    inspector: 'สมหญิง มีใจ',
-    result: 'fail',
-  },
-  {
-    id: 'H-003',
-    date: '2025-06-15',
-    deviceName: 'BP Monitor',
-    deviceCode: 'BME-002',
-    inspector: 'สมหญิง มีใจ',
-    result: 'fail',
-  },
-  {
-    id: 'H-004',
-    date: '2025-06-01',
-    deviceName: 'Infusion Pump',
-    deviceCode: 'BME-001',
-    inspector: 'สมชาย ใจดี',
-    result: 'pass',
-  },
-  {
-    id: 'H-005',
-    date: '2025-06-01',
-    deviceName: 'Infusion Pump',
-    deviceCode: 'BME-001',
-    inspector: 'สมชาย ใจดี',
-    result: 'pass',
-  },
-  {
-    id: 'H-006',
-    date: '2025-06-01',
-    deviceName: 'Infusion Pump',
-    deviceCode: 'BME-001',
-    inspector: 'สมชาย ใจดี',
-    result: 'pass',
-  },
-  {
-    id: 'H-007',
-    date: '2025-06-01',
-    deviceName: 'Infusion Pump',
-    deviceCode: 'BME-001',
-    inspector: 'สมชาย ใจดี',
-    result: 'pass',
-  },
-  {
-    id: 'H-008',
-    date: '2025-06-01',
-    deviceName: 'Patient Monitor',
-    deviceCode: 'BME-002',
-    inspector: 'นันท์นภัส รุจิพูนพงศ์',
-    result: 'pass',
-  },
-  {
-    id: 'H-009',
-    date: '2025-05-30',
-    deviceName: 'Ventilator',
-    deviceCode: 'BME-003',
-    inspector: 'สมชาย ใจดี',
-    result: 'pass',
-  },
-  {
-    id: 'H-010',
-    date: '2025-05-28',
-    deviceName: 'ECG Machine',
-    deviceCode: 'BME-004',
-    inspector: 'นันท์นภัส รุจิพูนพงศ์',
-    result: 'fail',
-  },
-  {
-    id: 'H-011',
-    date: '2025-05-20',
-    deviceName: 'Infusion Pump',
-    deviceCode: 'BME-001',
-    inspector: 'สมชาย ใจดี',
-    result: 'pass',
-  },
-  {
-    id: 'H-012',
-    date: '2025-05-15',
-    deviceName: 'Pulse Oximeter',
-    deviceCode: 'BME-003',
-    inspector: 'สมหญิง มีใจ',
-    result: 'pass',
-  },
-];
-
 export const useHistoryStore = defineStore('history', () => {
-  const records = ref<HistoryRecord[]>(mockHistory);
+  const records = ref<HistoryRecord[]>([]);
+  const loading = ref(false);
   const searchQuery = ref('');
   const selectedDevice = ref('');
   const selectedResult = ref('');
+
+  async function fetchRecords() {
+    loading.value = true;
+    try {
+      const res = await api.get<TaskApi[]>('/pm-task');
+      // Show only Approved and Rejected tasks
+      const approvedOrRejected = res.data.filter((task) =>
+        ['Approved', 'Rejected'].includes(task.status),
+      );
+
+      const mappedRecords: HistoryRecord[] = approvedOrRejected.map((task) => {
+        return {
+          id: String(task.pm_no || `CAL-${task.id}`),
+          taskId: Number(task.id),
+          date: String((task.createdAt || '').split('T')[0]),
+          deviceName: String(task.equipment?.name || 'Unknown'),
+          deviceCode: String(task.equipment?.asset_code || '-'),
+          inspector: String(task.technician?.name || '-'),
+          result: (task.overall_result?.toLowerCase() === 'pass' ? 'pass' : 'fail') as CalibrationResult,
+        };
+      });
+      records.value = mappedRecords;
+    } catch (error) {
+      console.error('fetchRecords error:', error);
+    } finally {
+      loading.value = false;
+    }
+  }
 
   const deviceOptions = computed(() => {
     const names = [...new Set(records.value.map((r) => r.deviceName))];
@@ -149,11 +83,13 @@ export const useHistoryStore = defineStore('history', () => {
 
   return {
     records,
+    loading,
     searchQuery,
     selectedDevice,
     selectedResult,
     deviceOptions,
     resultOptions,
     filteredRecords,
+    fetchRecords,
   };
 });

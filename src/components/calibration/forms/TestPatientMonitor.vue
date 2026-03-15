@@ -80,7 +80,7 @@ watch([ekgItems, systolicData, diastolicData, tempData, heartRateData, spo2Data]
   // Map qualitatives
   store.qualitatives = ekgItems.value.map((item) => ({
     parameter_name: 'EKG',
-    item_name: ['Alarm', '1mV'].includes(item.label) ? item.label : `Lead ${item.label}`,
+    item_name: item.label,
     result: item.status === 'pass' ? 'PASS' : item.status === 'fail' ? 'FAIL' : 'NA',
   }));
 

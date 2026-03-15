@@ -71,7 +71,7 @@
       </template>
 
       <!-- Actions column custom slot -->
-      <template #body-cell-actions>
+      <template #body-cell-actions="props">
         <q-td class="text-center">
           <q-btn
             flat
@@ -80,7 +80,7 @@
             icon="description"
             color="primary"
             size="md"
-            @click="router.push('/cer-view')"
+            @click="router.push({ path: '/cer-view', query: { taskId: props.row.taskId } })"
           >
             <q-tooltip>ดูใบรับรอง (CER)</q-tooltip>
           </q-btn>
@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { QTableProps } from 'quasar';
 import { useHistoryStore } from 'src/stores/history';
@@ -125,6 +125,10 @@ import SearchBar from 'src/components/SearchBar.vue';
 const router = useRouter();
 const store = useHistoryStore();
 const showExport = ref(false);
+
+onMounted(async () => {
+  await store.fetchRecords();
+});
 
 const columns: QTableProps['columns'] = [
   { name: 'date', label: 'วันที่', field: 'date', align: 'center', sortable: true },

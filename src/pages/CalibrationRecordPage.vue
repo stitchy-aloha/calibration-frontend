@@ -162,6 +162,7 @@ const handleSave = async () => {
       message: 'บันทึกผลการสอบเทียบสำเร็จ!',
       position: 'top-right',
     });
+    void router.push('/calibration');
   } catch (err) {
     console.error('Submit Error:', err);
     $q.notify({
