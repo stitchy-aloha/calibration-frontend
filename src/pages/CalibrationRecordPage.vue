@@ -154,15 +154,22 @@ const handleNext = () => {
   }
 };
 
-const handleSave = () => {
-  $q.notify({
-    type: 'positive',
-    message: 'บันทึกผลการสอบเทียบสำเร็จ!',
-    position: 'top-right',
-  });
-  setTimeout(() => {
-    void router.push('/calibration');
-  }, 1000);
+const handleSave = async () => {
+  try {
+    await store.submitCalibration();
+    $q.notify({
+      type: 'positive',
+      message: 'บันทึกผลการสอบเทียบสำเร็จ!',
+      position: 'top-right',
+    });
+  } catch (err) {
+    console.error('Submit Error:', err);
+    $q.notify({
+      type: 'negative',
+      message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+      position: 'top-right',
+    });
+  }
 };
 </script>
 

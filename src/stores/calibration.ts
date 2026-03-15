@@ -44,18 +44,19 @@ export const useCalibrationStore = defineStore('calibration', () => {
   async function fetchFromApi() {
     try {
       const res = await api.get<TaskApi[]>('/pm-task');
-      if (res.data.length > 0) {
-        records.value = res.data.map((task) => ({
-          id: task.pm_no || `TASK-${task.id}`,
-          taskId: task.id,
-          deviceName: task.equipment?.name ?? `Equipment #${task.equipment_id}`,
-          deviceCode: task.equipment?.asset_code ?? String(task.equipment_id),
-          location: '-', // Still placeholder as Equipment entity has it as loose FK / string not joined currently
-          type: 'Medical', // Defaulting to Medical for PM form mapping
-          dueDate: task.equipment?.calibration_due_date ?? '-',
-          responsible: task.technician?.name ?? '-',
-        }));
-      }
+      // Only show tasks that are yet to be calibrated (status = 'Pending')
+      const pendingTasks = res.data.filter((task) => task.status === 'Pending');
+      
+      records.value = pendingTasks.map((task) => ({
+        id: task.pm_no || `TASK-${task.id}`,
+        taskId: task.id,
+        deviceName: task.equipment?.name ?? `Equipment #${task.equipment_id}`,
+        deviceCode: task.equipment?.asset_code ?? String(task.equipment_id),
+        location: '-',
+        type: 'Medical',
+        dueDate: task.equipment?.calibration_due_date ?? '-',
+        responsible: task.technician?.name ?? '-',
+      }));
     } catch {
       // keep mock data on error
     }

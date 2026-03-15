@@ -1,47 +1,22 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { ApprovalEvent } from 'src/types';
+import { api } from 'src/boot/axios';
+import type { TaskApi } from 'src/services/pm.service';
+
+export interface ApprovalEvent {
+  id: string;
+  taskId: number;
+  toolName: string;
+  toolCode: string;
+  location: string;
+  calDate: string;
+  result: string;
+  status: 'pending' | 'approved' | 'rejected';
+}
 
 export const useApprovalsStore = defineStore('approvals', () => {
-  // Generate mock data for approvals based on the mockup image
-  function generateMockApprovals(): ApprovalEvent[] {
-    const list: ApprovalEvent[] = [];
-    const baseDate = '2025-06-26';
-
-    const items = [
-      { id: 'CAL-200', name: 'Infusion Pump', code: 'BME-101', loc: 'ER-01' },
-      { id: 'CAL-002', name: 'Patient Monitor', code: 'BME-002', loc: 'NUR' },
-      { id: 'CAL-202', name: 'Infusion Pump', code: 'BME-015', loc: 'ICU-01' },
-      { id: 'CAL-203', name: 'Infusion Pump', code: 'BME-016', loc: 'ICU-02' },
-      { id: 'CAL-204', name: 'Infusion Pump', code: 'BME-017', loc: 'ICU-02' },
-      { id: 'CAL-205', name: 'Infusion Pump', code: 'BME-021', loc: 'ICU-03' },
-      { id: 'CAL-206', name: 'Infusion Pump', code: 'BME-022', loc: 'ICU-03' },
-      { id: 'CAL-207', name: 'Infusion Pump', code: 'BME-031', loc: 'ICU-04' },
-      { id: 'CAL-208', name: 'Infusion Pump', code: 'BME-041', loc: 'ICU-05' },
-      { id: 'CAL-209', name: 'Infusion Pump', code: 'BME-042', loc: 'ICU-05' },
-      { id: 'CAL-210', name: 'Infusion Pump', code: 'BME-043', loc: 'ICU-05' },
-      { id: 'CAL-211', name: 'Infusion Pump', code: 'BME-044', loc: 'ICU-05' },
-      { id: 'CAL-212', name: 'Infusion Pump', code: 'BME-045', loc: 'ICU-05' },
-      { id: 'CAL-213', name: 'Infusion Pump', code: 'BME-046', loc: 'ICU-05' },
-      { id: 'CAL-214', name: 'Infusion Pump', code: 'BME-047', loc: 'ICU-05' },
-    ];
-
-    items.forEach((item) => {
-      list.push({
-        id: item.id,
-        toolName: item.name,
-        toolCode: item.code,
-        location: item.loc,
-        calDate: baseDate,
-        result: 'ผ่าน',
-        status: 'pending',
-      });
-    });
-
-    return list;
-  }
-
-  const approvals = ref<ApprovalEvent[]>(generateMockApprovals());
+  const approvals = ref<ApprovalEvent[]>([]);
+  const loading = ref(false);
   const searchQuery = ref('');
   const selectedType = ref('ทั้งหมด');
 
@@ -52,10 +27,37 @@ export const useApprovalsStore = defineStore('approvals', () => {
     { label: 'ปฏิเสธ', value: 'rejected' },
   ];
 
+  async function fetchApprovals() {
+    loading.value = true;
+    try {
+      const res = await api.get<TaskApi[]>('/pm-task');
+      // Only show tasks that have been submitted (PendingApproval, Approved, Rejected)
+      // 'Pending' means calibration hasn't been done yet — hide those
+      const submitted = res.data.filter((task) =>
+        ['PendingApproval', 'Approved', 'Rejected'].includes(task.status),
+      );
+      approvals.value = submitted.map((task) => ({
+        id: task.pm_no || `CAL-${task.id}`,
+        taskId: task.id,
+        toolName: task.equipment?.name || 'Unknown',
+        toolCode: task.equipment?.asset_code || '-',
+        location: '-',
+        calDate: task.createdAt ? new Date(task.createdAt).toLocaleDateString('th-TH') : '-',
+        result: task.overall_result === 'Pass' ? 'ผ่าน' : task.overall_result === 'Fail' ? 'ไม่ผ่าน' : '-',
+        status: task.status === 'PendingApproval' ? 'pending' :
+                task.status === 'Approved' ? 'approved' :
+                task.status === 'Rejected' ? 'rejected' : 'pending',
+      }));
+    } catch (error) {
+      console.error('fetchApprovals error:', error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   const filteredApprovals = computed(() => {
     let result = approvals.value;
 
-    // Filter by search query
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase();
       result = result.filter(
@@ -73,19 +75,45 @@ export const useApprovalsStore = defineStore('approvals', () => {
     return result;
   });
 
-  function approveEvent(id: string) {
-    const event = approvals.value.find((e) => e.id === id);
-    if (event) {
-      event.status = 'approved';
+  async function approveEvent(taskId: number, approverId: number = 1) {
+    try {
+      await api.patch(`/pm-task/${taskId}/approve`, {
+        approver_id: approverId,
+        decision: 'Approve',
+        remarks: 'Approved via frontend',
+      });
+      await fetchApprovals();
+      return true;
+    } catch (error) {
+      console.error('Approve Error:', error);
+      throw error;
+    }
+  }
+
+  async function rejectEvent(taskId: number, remarks: string, approverId: number = 1) {
+    try {
+      await api.patch(`/pm-task/${taskId}/approve`, {
+        approver_id: approverId,
+        decision: 'Reject',
+        remarks,
+      });
+      await fetchApprovals();
+      return true;
+    } catch (error) {
+      console.error('Reject Error:', error);
+      throw error;
     }
   }
 
   return {
     approvals,
+    loading,
     searchQuery,
     selectedType,
     typeOptions,
     filteredApprovals,
+    fetchApprovals,
     approveEvent,
+    rejectEvent,
   };
 });

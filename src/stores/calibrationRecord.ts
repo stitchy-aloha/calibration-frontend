@@ -1,8 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { CalibrationService } from 'src/services/calibration.service';
+import type { SubmitTaskPayload } from 'src/services/calibration.service';
 
 export interface EquipmentDetails {
   id: string;
+  backendId?: number;
   name: string;
   company: string;
   model: string;
@@ -28,7 +31,7 @@ export interface EnvironmentDetails {
 }
 
 export interface StandardEquipment {
-  id: string;
+  id: number;
   type: string;
   name: string;
   company: string;
@@ -38,18 +41,28 @@ export interface StandardEquipment {
   certificateNumber: string;
 }
 
-export interface TestResultItem {
-  id: string;
-  parameter: string;
-  standardValue: number | null;
-  val1: number | null;
-  val2: number | null;
-  val3: number | null;
+export interface MeasurementRecord {
+  parameter_name: string;
+  range?: number;
+  standard_value?: number;
+  reading_1?: number;
+  reading_2?: number;
+  reading_3?: number;
+  average_value?: number;
+  error_value?: number;
+  result: 'PASS' | 'FAIL';
+}
+
+export interface QualitativeRecord {
+  parameter_name?: string;
+  item_name: string;
+  result: 'PASS' | 'FAIL' | 'NA';
 }
 
 export const useCalibrationRecordStore = defineStore('calibrationRecord', () => {
   const loading = ref(false);
   const activeTab = ref('general');
+  const taskId = ref<number | null>(null);
 
   const equipmentDetails = ref<EquipmentDetails>({
     id: '',
@@ -77,29 +90,34 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
     humidity: null,
   });
 
-  const standardEquipments = ref<StandardEquipment[]>([]);
+  const standardToolIds = ref<number[]>([]);
+  const measurements = ref<MeasurementRecord[]>([]);
+  const qualitatives = ref<QualitativeRecord[]>([]);
+  const overallResult = ref<'Pass' | 'Fail' | 'NA'>('Pass');
 
-  // Mock fetching data based on ID
-  const fetchCalibrationRecord = async (id: string) => {
+  async function fetchCalibrationRecord(id: string | number) {
     loading.value = true;
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const res = await CalibrationService.getRecord(id);
+      const task = res.data;
+      taskId.value = task.id;
 
-      // Mock data based on the UI provided
-      equipmentDetails.value = {
-        id,
-        name: 'Patient Monitor',
-        company: 'FLUKE',
-        model: 'ProSim4',
-        serialNumber: '5481017',
-        code: 'BME-002',
-        riskLevel: 'สูง',
-        type: 'Medical',
-        calibrationCycle: '6 เดือน',
-        lastCalibrationDate: '26 มิถุนายน 2568',
-        nextCalibrationDate: '28 ธันวาคม 2568',
-      };
+      if (task.equipment) {
+        equipmentDetails.value = {
+          id: task.equipment.asset_code || String(task.equipment.id),
+          backendId: task.equipment.id,
+          name: task.equipment.name.trim(),
+          company: task.equipment.manufacturer,
+          model: task.equipment.model,
+          serialNumber: task.equipment.serial_number,
+          code: task.equipment.asset_code,
+          riskLevel: 'สูง', // Default for now
+          type: 'Medical',
+          calibrationCycle: `${task.equipment.interval} วัน`,
+          lastCalibrationDate: task.equipment.calibration_date_last,
+          nextCalibrationDate: task.equipment.calibration_due_date,
+        };
+      }
 
       locationDetails.value = {
         department: 'NUR - กลุ่มงานการพยาบาล',
@@ -108,47 +126,54 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
         province: 'ประจวบคีรีขันธ์',
       };
 
-      standardEquipments.value = [
-        {
-          id: '1',
-          type: 'Patient BP / EKG',
-          name: 'ProSim4',
-          company: 'FLUKE',
-          serialNumber: 'S35684',
-          unit: 'mmHg',
-          lastCalibrationDate: '1 มิถุนายน 2566',
-          certificateNumber: 'PC-EVT-6587',
-        },
-        {
-          id: '2',
-          type: 'SPOT Light',
-          name: 'SPOT Light',
-          company: 'FLUKE',
-          serialNumber: 'S34494',
-          unit: 'Pulse/Minute',
-          lastCalibrationDate: '1 มิถุนายน 2566',
-          certificateNumber: 'PC-EVT-6587',
-        },
-      ];
-
-      environment.value = {
-        temperature: 24.5,
-        humidity: 42,
-      };
+      // Reset results for new entry
+      environment.value = { temperature: 25, humidity: 45 };
+      measurements.value = [];
+      qualitatives.value = [];
+      standardToolIds.value = [];
     } catch (error) {
       console.error('Failed to fetch calibration record', error);
     } finally {
       loading.value = false;
     }
-  };
+  }
+
+  async function submitCalibration() {
+    if (!taskId.value) return;
+
+    loading.value = true;
+    try {
+      const payload: SubmitTaskPayload = {
+        ambient_temp: environment.value.temperature ?? undefined,
+        ambient_humidity: environment.value.humidity ?? undefined,
+        standard_tool_ids: standardToolIds.value,
+        measurements: measurements.value,
+        qualitatives: qualitatives.value,
+        overall_result: overallResult.value,
+      };
+
+      await CalibrationService.submitTask(taskId.value, payload);
+      return true;
+    } catch (error) {
+      console.error('Submit Failed:', error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
 
   return {
     loading,
     activeTab,
+    taskId,
     equipmentDetails,
     locationDetails,
     environment,
-    standardEquipments,
+    standardToolIds,
+    measurements,
+    qualitatives,
+    overallResult,
     fetchCalibrationRecord,
+    submitCalibration,
   };
 });

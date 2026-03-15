@@ -13,7 +13,7 @@
               <q-icon name="thermostat" size="24px" color="blue-5" />
               <span class="status-tag">ปกติ</span>
             </div>
-            <div class="env-value">{{ store.environment.temperature ?? '-' }}°C</div>
+            <div class="env-value">{{ displayTemp ?? '-' }}°C</div>
             <div class="env-label">อุณหภูมิ</div>
           </q-card-section>
         </q-card>
@@ -25,7 +25,7 @@
               <q-icon name="water_drop" size="24px" color="blue-5" />
               <span class="status-tag">ปกติ</span>
             </div>
-            <div class="env-value">{{ store.environment.humidity ?? '-' }} %Rh</div>
+            <div class="env-value">{{ displayHumidity ?? '-' }} %Rh</div>
             <div class="env-label">ความชื้น</div>
           </q-card-section>
         </q-card>
@@ -65,11 +65,27 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useCalibrationRecordStore } from 'stores/calibrationRecord';
 
-withDefaults(defineProps<{ readonly?: boolean }>(), { readonly: false });
+interface EnvData {
+  temperature?: number | undefined;
+  humidity?: number | undefined;
+}
+
+const props = withDefaults(
+  defineProps<{
+    readonly?: boolean;
+    envData?: EnvData;
+  }>(),
+  { readonly: false },
+);
 
 const store = useCalibrationRecordStore();
+
+// Use prop data if provided (Approval mode), otherwise use store (Recording mode)
+const displayTemp = computed(() => props.envData?.temperature ?? store.environment.temperature);
+const displayHumidity = computed(() => props.envData?.humidity ?? store.environment.humidity);
 </script>
 
 <style scoped lang="scss">

@@ -5,156 +5,165 @@
       <div class="text-h6 text-weight-bold text-black">รับรองการสอบเทียบเครื่องมือ</div>
     </div>
 
-    <!-- Main Container Card -->
-    <q-card flat bordered class="bg-white overflow-hidden" style="border-radius: 8px">
-      <!-- Top Section (Equipment Header + Status + Tabs) -->
-      <div
-        class="row justify-between items-center q-px-lg q-py-md"
-        style="border-bottom: 1px solid #e0e0e0"
-      >
-        <div class="col-12 col-md-6">
-          <div class="text-h6 text-weight-bold">
-            {{ calStore.equipmentDetails.name || 'Patient Monitor' }}
-          </div>
-          <div class="text-caption text-grey-8 row q-gutter-x-lg q-mt-xs">
-            <div>
-              <span class="text-grey-6">รหัสการสอบเทียบ : </span>
-              <span class="text-weight-bold">{{ approvalId }}</span>
+    <!-- Loading State -->
+    <div v-if="loading" class="flex flex-center q-py-xl">
+      <q-spinner color="primary" size="40px" />
+    </div>
+
+    <template v-else>
+      <!-- Main Container Card -->
+      <q-card flat bordered class="bg-white overflow-hidden" style="border-radius: 8px">
+        <!-- Top Section (Equipment Header + Status + Tabs) -->
+        <div
+          class="row justify-between items-center q-px-lg q-py-md"
+          style="border-bottom: 1px solid #e0e0e0"
+        >
+          <div class="col-12 col-md-6">
+            <div class="text-h6 text-weight-bold">
+              {{ task?.equipment?.name || 'ไม่ระบุชื่อเครื่อง' }}
             </div>
-            <div class="row items-center q-gutter-x-xs">
-              <span class="text-grey-6">สถานะ :</span>
-              <span class="text-positive text-weight-bold">ผ่าน</span>
-              <q-icon name="check_circle" color="positive" size="16px" />
+            <div class="text-caption text-grey-8 row q-gutter-x-lg q-mt-xs">
+              <div>
+                <span class="text-grey-6">รหัสการสอบเทียบ : </span>
+                <span class="text-weight-bold">{{ task?.pm_no || approvalId }}</span>
+              </div>
+              <div class="row items-center q-gutter-x-xs">
+                <span class="text-grey-6">สถานะ :</span>
+                <span
+                  :class="task?.overall_result === 'Pass' ? 'text-positive' : 'text-negative'"
+                  class="text-weight-bold"
+                >
+                  {{ task?.overall_result === 'Pass' ? 'ผ่าน' : task?.overall_result === 'Fail' ? 'ไม่ผ่าน' : '-' }}
+                </span>
+                <q-icon
+                  :name="task?.overall_result === 'Pass' ? 'check_circle' : 'cancel'"
+                  :color="task?.overall_result === 'Pass' ? 'positive' : 'negative'"
+                  size="16px"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Custom Styled Tabs -->
-        <div class="col-12 col-md-6 row justify-end items-end q-mt-sm q-mt-md-none">
-          <q-btn
-            unelevated
-            :class="
-              activeTab === 'general' ? 'tab-btn tab-btn--active' : 'tab-btn tab-btn--inactive'
-            "
-            label="ข้อมูลทั่วไป"
-            @click="switchTab('general')"
-            no-caps
-          />
-          <q-btn
-            unelevated
-            :class="
-              activeTab === 'test_results' ? 'tab-btn tab-btn--active' : 'tab-btn tab-btn--inactive'
-            "
-            label="รับรองผลการสอบเทียบ"
-            @click="switchTab('test_results')"
-            no-caps
-          />
-        </div>
-      </div>
-
-      <!-- Tab Content Area -->
-      <div class="tab-content-border">
-        <q-tab-panels v-model="activeTab" animated class="bg-white" keep-alive>
-          <!-- General Info Tab -->
-          <q-tab-panel name="general" class="q-pa-lg">
-            <ApprovalTabGeneralInfo />
-          </q-tab-panel>
-
-          <!-- Test Results Tab (read-only) -->
-          <q-tab-panel name="test_results" class="q-pa-lg">
-            <ApprovalTabTestResults
-              :ekg-items="ekgItems"
-              :systolic-data="systolicData"
-              :diastolic-data="diastolicData"
-              :temp-data="tempData"
-              :heart-rate-data="heartRateData"
-              :spo2-data="spo2Data"
+          <!-- Custom Styled Tabs -->
+          <div class="col-12 col-md-6 row justify-end items-end q-mt-sm q-mt-md-none">
+            <q-btn
+              unelevated
+              :class="
+                activeTab === 'general' ? 'tab-btn tab-btn--active' : 'tab-btn tab-btn--inactive'
+              "
+              label="ข้อมูลทั่วไป"
+              @click="switchTab('general')"
+              no-caps
             />
-          </q-tab-panel>
-        </q-tab-panels>
-      </div>
-    </q-card>
-
-    <!-- Inline remark field — appears when ไม่อนุมัติ is clicked -->
-    <transition name="slide-down">
-      <q-card
-        v-if="showRemarkField"
-        flat
-        bordered
-        class="bg-white q-mt-md"
-        style="border-radius: 8px; border-left: 4px solid var(--q-negative)"
-      >
-        <q-card-section>
-          <div class="row items-center q-mb-sm">
-            <q-icon name="warning" color="negative" size="20px" class="q-mr-sm" />
-            <span class="text-weight-bold text-negative">หมายเหตุและเหตุผลที่ไม่อนุมัติ</span>
-            <span class="text-negative q-ml-xs">*</span>
+            <q-btn
+              unelevated
+              :class="
+                activeTab === 'test_results' ? 'tab-btn tab-btn--active' : 'tab-btn tab-btn--inactive'
+              "
+              label="รับรองผลการสอบเทียบ"
+              @click="switchTab('test_results')"
+              no-caps
+            />
           </div>
-          <q-input
-            v-model="rejectRemark"
-            type="textarea"
-            outlined
-            autogrow
-            :rows="3"
-            placeholder="ระบุเหตุผลที่ไม่อนุมัติ..."
-            :rules="[(val) => !!val?.trim() || 'กรุณากรอกหมายเหตุ']"
-            lazy-rules
-            ref="remarkInputRef"
-            bg-color="white"
-          />
-        </q-card-section>
+        </div>
+
+        <!-- Tab Content Area -->
+        <div class="tab-content-border">
+          <q-tab-panels v-model="activeTab" animated class="bg-white" keep-alive>
+            <!-- General Info Tab -->
+            <q-tab-panel name="general" class="q-pa-lg">
+              <ApprovalTabGeneralInfo :task="task" />
+            </q-tab-panel>
+
+            <!-- Test Results Tab (read-only, real data) -->
+            <q-tab-panel name="test_results" class="q-pa-lg">
+              <ApprovalTabTestResults :task="task" />
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
       </q-card>
-    </transition>
 
-    <!-- Footer Actions -->
-    <div class="row justify-between q-mt-lg q-pb-xl">
-      <q-btn
-        outline
-        color="primary"
-        :label="showRemarkField ? 'ยกเลิก' : 'ย้อนกลับ'"
-        class="bg-white"
-        style="width: 150px"
-        @click="showRemarkField ? cancelReject() : goBack()"
-      />
+      <!-- Inline remark field — appears when ไม่อนุมัติ is clicked -->
+      <transition name="slide-down">
+        <q-card
+          v-if="showRemarkField"
+          flat
+          bordered
+          class="bg-white q-mt-md"
+          style="border-radius: 8px; border-left: 4px solid var(--q-negative)"
+        >
+          <q-card-section>
+            <div class="row items-center q-mb-sm">
+              <q-icon name="warning" color="negative" size="20px" class="q-mr-sm" />
+              <span class="text-weight-bold text-negative">หมายเหตุและเหตุผลที่ไม่อนุมัติ</span>
+              <span class="text-negative q-ml-xs">*</span>
+            </div>
+            <q-input
+              v-model="rejectRemark"
+              type="textarea"
+              outlined
+              autogrow
+              :rows="3"
+              placeholder="ระบุเหตุผลที่ไม่อนุมัติ..."
+              :rules="[(val) => !!val?.trim() || 'กรุณากรอกหมายเหตุ']"
+              lazy-rules
+              ref="remarkInputRef"
+              bg-color="white"
+            />
+          </q-card-section>
+        </q-card>
+      </transition>
 
-      <!-- General tab: ถัดไป -->
-      <q-btn
-        v-if="activeTab === 'general'"
-        unelevated
-        color="primary"
-        label="ถัดไป"
-        style="width: 150px"
-        @click="switchTab('test_results')"
-      />
+      <!-- Footer Actions -->
+      <div class="row justify-between q-mt-lg q-pb-xl">
+        <q-btn
+          outline
+          color="primary"
+          :label="showRemarkField ? 'ยกเลิก' : 'ย้อนกลับ'"
+          class="bg-white"
+          style="width: 150px"
+          @click="showRemarkField ? cancelReject() : goBack()"
+        />
 
-      <!-- Test results tab: action buttons -->
-      <div v-else class="row q-gutter-x-md">
-        <template v-if="!showRemarkField">
+        <!-- General tab: ถัดไป -->
+        <q-btn
+          v-if="activeTab === 'general'"
+          unelevated
+          color="primary"
+          label="ถัดไป"
+          style="width: 150px"
+          @click="switchTab('test_results')"
+        />
+
+        <!-- Test results tab: action buttons -->
+        <div v-else class="row q-gutter-x-md">
+          <template v-if="!showRemarkField">
+            <q-btn
+              unelevated
+              color="negative"
+              label="ไม่อนุมัติ"
+              style="width: 150px"
+              @click="handleReject"
+            />
+            <q-btn
+              unelevated
+              color="positive"
+              label="อนุมัติ"
+              style="width: 150px"
+              @click="handleApprove"
+            />
+          </template>
           <q-btn
+            v-else
             unelevated
             color="negative"
-            label="ไม่อนุมัติ"
-            style="width: 150px"
-            @click="handleReject"
+            label="ยืนยันไม่อนุมัติ"
+            style="min-width: 180px"
+            @click="confirmReject"
           />
-          <q-btn
-            unelevated
-            color="positive"
-            label="อนุมัติ"
-            style="width: 150px"
-            @click="handleApprove"
-          />
-        </template>
-        <q-btn
-          v-else
-          unelevated
-          color="negative"
-          label="ยืนยันไม่อนุมัติ"
-          style="min-width: 180px"
-          @click="confirmReject"
-        />
+        </div>
       </div>
-    </div>
+    </template>
   </q-page>
 </template>
 
@@ -163,16 +172,16 @@ import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { QInput } from 'quasar';
-import { useCalibrationRecordStore } from 'stores/calibrationRecord';
-import { useInspectionStore } from 'stores/inspection';
+import { useApprovalsStore } from 'stores/approvals';
+import { pmService } from 'src/services/pm.service';
+import type { TaskApi } from 'src/services/pm.service';
 import ApprovalTabGeneralInfo from 'components/calibration/approval/ApprovalTabGeneralInfo.vue';
 import ApprovalTabTestResults from 'components/calibration/approval/ApprovalTabTestResults.vue';
 
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
-const calStore = useCalibrationRecordStore();
-const inspectionStore = useInspectionStore();
+const store = useApprovalsStore();
 
 type TabKey = 'general' | 'test_results';
 
@@ -181,6 +190,8 @@ const approvalId = route.params.id as string;
 const showRemarkField = ref(false);
 const rejectRemark = ref('');
 const remarkInputRef = ref<InstanceType<typeof QInput> | null>(null);
+const loading = ref(true);
+const task = ref<TaskApi | null>(null);
 
 /** Sync tab state to URL query param */
 const switchTab = (tab: TabKey) => {
@@ -194,39 +205,22 @@ onMounted(async () => {
     activeTab.value = tabParam;
   }
 
-  // Save the identity fields already set by ApprovalsPage before navigating
-  const presetName = calStore.equipmentDetails.name;
-  const presetCode = calStore.equipmentDetails.code;
-  const presetHospital = calStore.locationDetails.hospital;
-  const presetDeviceName = inspectionStore.deviceInfo.deviceName;
-  const presetAssetCode = inspectionStore.deviceInfo.assetCode;
-  const presetLocation = inspectionStore.deviceInfo.location;
+  // Find the task from the approvals store to get the real taskId
+  // The route param is the pm_no (e.g. "PM-2024-0001"), not the numeric ID
+  await store.fetchApprovals();
+  const approval = store.approvals.find((a) => a.id === approvalId);
 
-  // Fetch mock to backfill supplementary fields (company, model, serialNumber, riskLevel, etc.)
-  await calStore.fetchCalibrationRecord(approvalId);
+  if (approval) {
+    try {
+      const res = await pmService.getTaskById(approval.taskId);
+      task.value = res.data;
+    } catch (err) {
+      console.error('Failed to fetch task detail:', err);
+      $q.notify({ type: 'negative', message: 'ไม่สามารถโหลดข้อมูลได้', position: 'top-right' });
+    }
+  }
 
-  // Restore identity fields so the real approval row data is shown
-  if (presetName) calStore.equipmentDetails.name = presetName;
-  if (presetCode) calStore.equipmentDetails.code = presetCode;
-  if (presetHospital) calStore.locationDetails.hospital = presetHospital;
-
-  // Sync final state into inspectionStore
-  const eq = calStore.equipmentDetails;
-  const loc = calStore.locationDetails;
-  inspectionStore.deviceInfo = {
-    deviceName: presetDeviceName || eq.name,
-    company: eq.company,
-    manufacturer: eq.company,
-    model: eq.model,
-    serialNumber: eq.serialNumber,
-    assetCode: presetAssetCode || eq.code,
-    category: eq.type,
-    department: loc.department,
-    location: presetLocation || loc.district,
-    calibrationInterval: eq.calibrationCycle,
-    lastCalibrationDate: eq.lastCalibrationDate,
-    dueDate: eq.nextCalibrationDate,
-  };
+  loading.value = false;
 });
 
 watch(
@@ -238,158 +232,20 @@ watch(
   },
 );
 
-// --- Mock read-only test data ---
-const ekgItems = ref([
-  { id: 'i', label: 'I', status: 'pass' as const },
-  { id: 'ii', label: 'II', status: 'pass' as const },
-  { id: 'iii', label: 'III', status: 'pass' as const },
-  { id: 'alarm', label: 'Alarm', status: 'pass' as const },
-  { id: 'avr', label: 'aVR', status: 'pass' as const },
-  { id: 'avl', label: 'aVL', status: 'pass' as const },
-  { id: 'avf', label: 'aVF', status: 'pass' as const },
-  { id: '1mv', label: '1mV', status: 'pass' as const },
-]);
-
-const systolicData = ref([
-  {
-    range: 'ต่ำ',
-    standard: 80,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-  {
-    range: 'สูง',
-    standard: 120,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-  {
-    range: 'กลาง',
-    standard: 160,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-]);
-
-const diastolicData = ref([
-  {
-    range: 'ต่ำ',
-    standard: 50,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-  {
-    range: 'สูง',
-    standard: 80,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-  {
-    range: 'กลาง',
-    standard: 100,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-]);
-
-const tempData = ref([
-  {
-    range: '',
-    standard: 35,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-  {
-    range: '',
-    standard: 40,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-]);
-
-const heartRateData = ref([
-  {
-    range: '',
-    standard: 60,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-  {
-    range: '',
-    standard: 80,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-]);
-
-const spo2Data = ref([
-  {
-    range: '',
-    standard: 85,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-  {
-    range: '',
-    standard: 100,
-    val1: 141,
-    val2: 140,
-    val3: 142,
-    average: 141,
-    error: 1,
-    status: 'pass' as const,
-  },
-]);
-
 const goBack = () => router.back();
 
-const handleApprove = () => {
-  $q.notify({ type: 'positive', message: 'อนุมัติการสอบเทียบสำเร็จ!', position: 'top-right' });
-  setTimeout(() => void router.push('/approval'), 1000);
+const handleApprove = async () => {
+  try {
+    const approval = store.approvals.find((a) => a.id === approvalId);
+    if (!approval) throw new Error('Task not found');
+
+    await store.approveEvent(approval.taskId);
+    $q.notify({ type: 'positive', message: 'อนุมัติการสอบเทียบสำเร็จ!', position: 'top-right' });
+    setTimeout(() => void router.push('/approval'), 1000);
+  } catch (err) {
+    console.error('Approve Error:', err);
+    $q.notify({ type: 'negative', message: 'เกิดข้อผิดพลาดในการอนุมัติ', position: 'top-right' });
+  }
 };
 
 const handleReject = () => {
@@ -406,8 +262,17 @@ const confirmReject = async () => {
   await remarkInputRef.value?.validate();
   if (!rejectRemark.value?.trim()) return;
 
-  $q.notify({ type: 'negative', message: 'ไม่อนุมัติการสอบเทียบ', position: 'top-right' });
-  setTimeout(() => void router.push('/approval'), 1000);
+  try {
+    const approval = store.approvals.find((a) => a.id === approvalId);
+    if (!approval) throw new Error('Task not found');
+
+    await store.rejectEvent(approval.taskId, rejectRemark.value);
+    $q.notify({ type: 'negative', message: 'ไม่อนุมัติการสอบเทียบ', position: 'top-right' });
+    setTimeout(() => void router.push('/approval'), 1000);
+  } catch (err) {
+    console.error('Reject Error:', err);
+    $q.notify({ type: 'negative', message: 'เกิดข้อผิดพลาดในการไม่อนุมัติ', position: 'top-right' });
+  }
 };
 </script>
 

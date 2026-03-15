@@ -29,6 +29,41 @@ export interface EquipmentApi {
   calibration_date_last: string;
 }
 
+export interface MeasurementApi {
+  id: number;
+  parameter_name: string;
+  range: number;
+  standard_value: number;
+  reading_1: number;
+  reading_2: number;
+  reading_3: number;
+  average_value: number;
+  error_value: number;
+  result: 'PASS' | 'FAIL';
+  task_id: number;
+}
+
+export interface EnvironmentApi {
+  id: number;
+  ambient_temp: number;
+  ambient_humidity: number;
+  task_id: number;
+}
+
+export interface QualitativeApi {
+  id: number;
+  parameter_name?: string;
+  item_name: string;
+  result: 'PASS' | 'FAIL' | 'NA';
+  task_id: number;
+}
+
+export interface TechnicianApi {
+  id: number;
+  name: string;
+  position: string;
+}
+
 export interface TaskApi {
   id: number;
   pm_no: string;
@@ -36,12 +71,23 @@ export interface TaskApi {
   status: string;
   overall_result: string;
   task_user: number;
-  technician: {
+  createdAt: string;
+  technician: TechnicianApi;
+  approver?: TechnicianApi;
+  equipment?: EquipmentApi;
+  measurements?: MeasurementApi[];
+  environments?: EnvironmentApi[];
+  qualitatives?: QualitativeApi[];
+  standardTools?: {
     id: number;
     name: string;
-    position: string;
-  };
-  equipment?: EquipmentApi;
+    model: string;
+    manufacturer: string;
+    serial_number: string;
+    unit: string;
+    calibration_date_last: string;
+    certificate_number: string;
+  }[];
 }
 
 export interface SavePmPayload {
@@ -61,6 +107,8 @@ export const pmService = {
 
   getTask: (taskId: number) =>
     api.get<TaskApi[]>('/pm-task').then((r) => r.data.find((t) => t.id === taskId)),
+
+  getTaskById: (taskId: number) => api.get<TaskApi>(`/pm-task/${taskId}`),
 
   savePmForm: (payload: SavePmPayload) =>
     api.post<{ success: boolean; task_id: number }>('/pm-save', payload),

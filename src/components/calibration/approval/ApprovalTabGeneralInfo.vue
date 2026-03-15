@@ -1,3 +1,22 @@
+<script setup lang="ts">
+import EquipmentDetailsCard from 'components/calibration/record/EquipmentDetailsCard.vue';
+import LocationDetailsCard from 'components/calibration/record/LocationDetailsCard.vue';
+import type { TaskApi } from 'src/services/pm.service';
+
+defineProps<{
+  task: TaskApi | null;
+}>();
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '-';
+  return new Date(dateStr).toLocaleDateString('th-TH', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+};
+</script>
+
 <template>
   <div class="q-pa-md">
     <!-- Equipment Details (reuse existing component) -->
@@ -8,13 +27,13 @@
     <q-card flat bordered class="q-pa-md q-mb-xl">
       <div class="info-grid text-body2">
         <span class="info-label">ชื่อ</span>
-        <span class="info-value">นาย วิววาด ใจกว้าง</span>
+        <span class="info-value">{{ task?.technician?.name || '-' }}</span>
 
         <span class="info-label">ตำแหน่ง</span>
-        <span class="info-value">นายช่างเทคนิค</span>
+        <span class="info-value">{{ task?.technician?.position || '-' }}</span>
 
         <span class="info-label">วันที่สอบเทียบ</span>
-        <span class="info-value">25 ธันวาคม 2568</span>
+        <span class="info-value">{{ formatDate(task?.createdAt) }}</span>
 
         <span class="info-label">สถานะการสอบ</span>
         <span class="info-value text-positive">ผ่าน</span>
@@ -25,11 +44,6 @@
     <LocationDetailsCard />
   </div>
 </template>
-
-<script setup lang="ts">
-import EquipmentDetailsCard from 'components/calibration/record/EquipmentDetailsCard.vue';
-import LocationDetailsCard from 'components/calibration/record/LocationDetailsCard.vue';
-</script>
 
 <style scoped lang="scss">
 .section-title {

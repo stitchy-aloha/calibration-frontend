@@ -111,10 +111,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { QTableProps } from 'quasar';
-import type { ApprovalEvent } from 'src/types';
+import type { ApprovalEvent } from 'src/stores/approvals';
 import { useApprovalsStore } from 'src/stores/approvals';
 import { useCalibrationRecordStore } from 'src/stores/calibrationRecord';
 import { useInspectionStore } from 'src/stores/inspection';
@@ -126,6 +126,10 @@ const calStore = useCalibrationRecordStore();
 const inspectionStore = useInspectionStore();
 const router = useRouter();
 const viewMode = ref<'list' | 'grid'>('list');
+
+onMounted(async () => {
+  await store.fetchApprovals();
+});
 
 /** Pre-populate stores with the clicked row's data BEFORE navigating */
 function handleOpenApproval(row: ApprovalEvent) {
