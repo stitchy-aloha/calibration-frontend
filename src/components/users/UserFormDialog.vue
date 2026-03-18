@@ -94,14 +94,51 @@
           />
         </div>
 
-        <!-- Row 4 — Image Upload (full width) -->
-        <div class="form-field full-width">
+        <!-- Row 4 — Image Upload -->
+        <div class="form-field">
           <label class="field-label">รูปภาพ</label>
           <q-file v-model="form.image" outlined dense accept="image/*" label="อัปโหลดรูป">
             <template #prepend>
               <q-icon name="cloud_upload" color="grey-5" />
             </template>
           </q-file>
+        </div>
+
+        <!-- Row 5 — Signature Pad (full width) -->
+        <div class="form-field full-width">
+          <label class="field-label">ลายเซ็นดิจิทัล <span class="required">*</span></label>
+          <div class="signature-container">
+            <div v-if="hasExistingSignature && !isResettingSignature" class="existing-sig">
+              <img :src="getImageUrl(props.user?.signatureUrl)" alt="Signature" />
+              <q-btn
+                flat
+                round
+                dense
+                icon="refresh"
+                color="primary"
+                class="reset-sig-btn"
+                @click="resetSignature"
+              >
+                <q-tooltip>เซ็นใหม่</q-tooltip>
+              </q-btn>
+            </div>
+            <div v-else class="sig-pad-wrapper">
+              <canvas
+                ref="sigCanvas"
+                class="sig-canvas"
+                @mousedown="startDrawing"
+                @mousemove="draw"
+                @mouseup="stopDrawing"
+                @mouseleave="stopDrawing"
+                @touchstart.prevent="startDrawing"
+                @touchmove.prevent="draw"
+                @touchend.prevent="stopDrawing"
+              ></canvas>
+              <div class="sig-actions">
+                <q-btn flat dense icon="delete" label="ล้าง" color="grey-7" @click="clearSignature" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Actions -->
@@ -122,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore, type User } from 'src/stores/user';
 
@@ -131,10 +168,94 @@ const emit = defineEmits<{ close: []; saved: [] }>();
 
 const $q = useQuasar();
 const store = useUserStore();
+const apiBase = import.meta.env.VITE_API_BASE_URL as string;
 
 const isEdit = computed(() => !!props.user);
 const saving = ref(false);
 const showPwd = ref(false);
+
+const sigCanvas = ref<HTMLCanvasElement | null>(null);
+const isDrawing = ref(false);
+const hasDrawn = ref(false);
+const hasExistingSignature = computed(() => !!props.user?.signatureUrl);
+const isResettingSignature = ref(false);
+
+function getImageUrl(path: string | null | undefined) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${apiBase}${path}`;
+}
+
+function resetSignature() {
+  isResettingSignature.value = true;
+  hasDrawn.value = false;
+  // Canvas won't be available until next tick when v-if updates
+}
+
+/* ── Signature Drawing ── */
+let ctx: CanvasRenderingContext2D | null = null;
+
+onMounted(() => {
+  initCanvas();
+});
+
+watch([sigCanvas, isResettingSignature], () => {
+  if (sigCanvas.value) {
+    initCanvas();
+  }
+});
+
+function initCanvas() {
+  const canvas = sigCanvas.value;
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  if (ctx) {
+    // Set canvas internal size to match displayed size
+    canvas.width = canvas.offsetWidth || 0;
+    canvas.height = canvas.offsetHeight || 0;
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+  }
+}
+
+function getPos(e: MouseEvent | TouchEvent) {
+  const canvas = sigCanvas.value;
+  if (!canvas) return { x: 0, y: 0 };
+  const rect = canvas.getBoundingClientRect();
+  const clientX = 'touches' in e ? (e.touches[0]?.clientX ?? 0) : e.clientX;
+  const clientY = 'touches' in e ? (e.touches[0]?.clientY ?? 0) : e.clientY;
+  return {
+    x: clientX - rect.left,
+    y: clientY - rect.top,
+  };
+}
+
+function startDrawing(e: MouseEvent | TouchEvent) {
+  isDrawing.value = true;
+  hasDrawn.value = true;
+  const { x, y } = getPos(e);
+  ctx?.beginPath();
+  ctx?.moveTo(x, y);
+}
+
+function draw(e: MouseEvent | TouchEvent) {
+  if (!isDrawing.value) return;
+  const { x, y } = getPos(e);
+  ctx?.lineTo(x, y);
+  ctx?.stroke();
+}
+
+function stopDrawing() {
+  isDrawing.value = false;
+  ctx?.closePath();
+}
+
+function clearSignature() {
+  if (!sigCanvas.value || !ctx) return;
+  ctx.clearRect(0, 0, sigCanvas.value.width, sigCanvas.value.height);
+  hasDrawn.value = false;
+}
 
 const form = ref({
   username: '',
@@ -174,6 +295,13 @@ watch(
   { immediate: true },
 );
 
+async function getSignatureBlob(): Promise<Blob | null> {
+  if (!sigCanvas.value || !hasDrawn.value) return null;
+  return new Promise((resolve) => {
+    sigCanvas.value?.toBlob((blob) => resolve(blob), 'image/png');
+  });
+}
+
 const roleOptions = [
   { label: 'ผู้ดูแลระบบ', value: 1 },
   { label: 'เจ้าหน้าที่สอบเทียบ', value: 2 },
@@ -194,9 +322,23 @@ function buildFormData(): FormData {
 }
 
 async function onSubmit() {
+  if (!hasExistingSignature.value && !hasDrawn.value) {
+    $q.notify({ color: 'warning', message: 'กรุณาเซ็นชื่อ', icon: 'edit' });
+    return;
+  }
+
   saving.value = true;
   try {
     const fd = buildFormData();
+
+    // Add signature if newly drawn
+    if (hasDrawn.value) {
+      const sigBlob = await getSignatureBlob();
+      if (sigBlob) {
+        fd.append('signature', sigBlob, 'signature.png');
+      }
+    }
+
     if (isEdit.value && props.user) {
       await store.updateUser(props.user.id, fd);
       $q.notify({ color: 'positive', message: 'แก้ไขสำเร็จ', icon: 'check_circle' });
@@ -281,5 +423,54 @@ async function onSubmit() {
 
 :deep(.q-field__control) {
   border-radius: 10px;
+}
+
+.signature-container {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fdfdfd;
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+.existing-sig {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+
+  img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+  }
+
+  .reset-sig-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+}
+
+.sig-pad-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.sig-canvas {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.sig-actions {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
 }
 </style>

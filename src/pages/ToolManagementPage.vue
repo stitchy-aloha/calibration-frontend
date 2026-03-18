@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <!-- Page Header -->
-    <div class="text-h7 q-mb-sm text-weight-bold">จัดการเครื่องมือแพทย์</div>
+    <div class="text-h6 q-mb-sm text-weight-bold">จัดการเครื่องมือแพทย์</div>
     <div class="text-caption text-grey-6 q-mb-md">เพิ่มและตั้งค่าเครื่องมือทั้งหมดในระบบ</div>
 
     <!-- Two-column layout -->

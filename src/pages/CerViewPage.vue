@@ -10,7 +10,11 @@
           </div>
           <div class="column justify-center q-ml-sm">
             <div class="text-h6 text-weight-bold text-grey-9 leading-tight">
-              {{ selectedCert === 1 ? 'ใบรับรองผลการตรวจสภาพ (Maintenance)' : 'ใบรับรองผลการสอบเทียบเครื่องมือ (Calibration)' }}
+              {{
+                selectedCert === 1
+                  ? 'ใบรับรองผลการตรวจสภาพ (Maintenance)'
+                  : 'ใบรับรองผลการสอบเทียบเครื่องมือ (Calibration)'
+              }}
             </div>
             <div class="text-caption text-grey-6 row items-center">
               <span class="text-weight-medium">ID: {{ activeCerData.pmNo || '-' }}</span>
@@ -55,7 +59,7 @@
           />
           <q-btn
             unelevated
-            color="deep-purple-5"
+            color="primary"
             icon="download"
             label="ดาวน์โหลด PDF"
             class="download-btn q-px-md text-weight-bold"
@@ -130,22 +134,32 @@ const activeCerData = computed((): CerData => {
     department: 'Hospital', // Fallback as it's not in TaskApi directly
     address: '-',
     section: '-',
-    pmDate: t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }) : '-',
-    remark1: t.checklistRemarks?.find(r => r.category?.name?.includes('สภาพทั่วไป'))?.text || '',
-    remark2: t.checklistRemarks?.find(r => r.category?.name?.includes('ปลอดภัย'))?.text || '',
-    remark3: t.checklistRemarks?.find(r => r.category?.name?.includes('บำรุงรักษา'))?.text || '',
+    pmDate: t.createdAt
+      ? new Date(t.createdAt).toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : '-',
+    remark1: t.checklistRemarks?.find((r) => r.category?.name?.includes('สภาพทั่วไป'))?.text || '',
+    remark2: t.checklistRemarks?.find((r) => r.category?.name?.includes('ปลอดภัย'))?.text || '',
+    remark3: t.checklistRemarks?.find((r) => r.category?.name?.includes('บำรุงรักษา'))?.text || '',
     overallResult: t.overall_result?.toLowerCase() === 'pass' ? 'pass' : 'fail',
-    qualitatives: t.checklistResults?.map((r) => ({
-      item_name: r.item?.description || '-',
-      result: r.status,
-      category_id: r.item?.category_id,
-      display_order: r.item?.display_order,
-    })) || [],
+    qualitatives:
+      t.checklistResults?.map((r) => ({
+        item_name: r.item?.description || '-',
+        result: r.status,
+        category_id: r.item?.category_id,
+        display_order: r.item?.display_order,
+      })) || [],
+    technician: t.technician
+      ? {
+          name: t.technician.name,
+          signatureUrl: t.technician.signatureUrl ?? null,
+          role: t.technician.role ?? null,
+        }
+      : null,
   };
 });
 
@@ -276,7 +290,7 @@ async function downloadPdf() {
 
   &.active {
     background: white;
-    color: $deep-purple-5;
+    color: $primary;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 }

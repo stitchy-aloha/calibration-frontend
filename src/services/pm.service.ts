@@ -86,6 +86,12 @@ export interface TechnicianApi {
   id: number;
   name: string;
   position: string;
+  signatureUrl?: string | null;
+  role?: {
+    id: number;
+    name: string;
+    description: string;
+  };
 }
 
 export interface TaskApi {

@@ -33,7 +33,13 @@
                   :class="task?.overall_result === 'Pass' ? 'text-positive' : 'text-negative'"
                   class="text-weight-bold"
                 >
-                  {{ task?.overall_result === 'Pass' ? 'ผ่าน' : task?.overall_result === 'Fail' ? 'ไม่ผ่าน' : '-' }}
+                  {{
+                    task?.overall_result === 'Pass'
+                      ? 'ผ่าน'
+                      : task?.overall_result === 'Fail'
+                        ? 'ไม่ผ่าน'
+                        : '-'
+                  }}
                 </span>
                 <q-icon
                   :name="task?.overall_result === 'Pass' ? 'check_circle' : 'cancel'"
@@ -58,7 +64,9 @@
             <q-btn
               unelevated
               :class="
-                activeTab === 'test_results' ? 'tab-btn tab-btn--active' : 'tab-btn tab-btn--inactive'
+                activeTab === 'test_results'
+                  ? 'tab-btn tab-btn--active'
+                  : 'tab-btn tab-btn--inactive'
               "
               label="รับรองผลการสอบเทียบ"
               @click="switchTab('test_results')"
@@ -140,14 +148,14 @@
           <template v-if="!showRemarkField">
             <q-btn
               unelevated
-              color="negative"
+              color="red"
               label="ไม่อนุมัติ"
               style="width: 150px"
               @click="handleReject"
             />
             <q-btn
               unelevated
-              color="positive"
+              color="green-8"
               label="อนุมัติ"
               style="width: 150px"
               @click="handleApprove"
@@ -271,7 +279,11 @@ const confirmReject = async () => {
     setTimeout(() => void router.push('/history'), 1000);
   } catch (err) {
     console.error('Reject Error:', err);
-    $q.notify({ type: 'negative', message: 'เกิดข้อผิดพลาดในการไม่อนุมัติ', position: 'top-right' });
+    $q.notify({
+      type: 'negative',
+      message: 'เกิดข้อผิดพลาดในการไม่อนุมัติ',
+      position: 'top-right',
+    });
   }
 };
 </script>

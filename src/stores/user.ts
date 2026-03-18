@@ -7,7 +7,8 @@ export interface User {
   email: string;
   name: string;
   tel: string;
-  imageUrl: string;
+  imageUrl: string | null;
+  signatureUrl: string | null;
   roleId: number;
   role: {
     id: number;

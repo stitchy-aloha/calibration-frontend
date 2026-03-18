@@ -186,15 +186,28 @@
 
           <!-- Repair Note -->
           <div class="repair-note">
-            <span>บำรุงรักษาโดย :</span>
-            <span class="repair-line">....................................................</span>
+            <span>บำรุงรักษาโดย : </span>
+            <div class="signature-area">
+              <div class="signature-wrapper">
+                <div v-if="data.technician?.signatureUrl" class="signature-img">
+                  <img :src="getImageUrl(data.technician.signatureUrl)" alt="Technician Signature" />
+                </div>
+                <div v-else class="signature-placeholder"></div>
+                <div class="dots-line">....................................................</div>
+              </div>
+
+              <div class="signature-line">
+                ({{
+                  data.technician?.name || '....................................................'
+                }})
+              </div>
+              <div class="signature-title">
+                {{ data.technician?.role?.description || 'นายช่างไฟฟ้า' }}
+              </div>
+            </div>
           </div>
 
           <!-- Signature -->
-          <div class="signature-area">
-            <div class="signature-line">(นายวินทะชัย ช่อมณฑา)</div>
-            <div class="signature-title">นายช่างไฟฟ้า</div>
-          </div>
         </div>
       </div>
 
@@ -211,6 +224,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+const apiBase = import.meta.env.VITE_API_BASE_URL as string;
+
+function getImageUrl(path: string | null | undefined) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${apiBase}${path}`;
+}
 // ---------- Props ----------
 interface CheckItem {
   code: string;
@@ -246,6 +266,13 @@ export interface CerData {
   remark3: string;
   overallResult: 'pass' | 'fail';
   qualitatives?: QualitativeItem[];
+  technician?: {
+    name: string;
+    signatureUrl?: string | null;
+    role?: {
+      description: string;
+    } | null;
+  } | null;
 }
 
 interface Props {
@@ -289,7 +316,9 @@ const groupedQualitatives = computed(() => {
   const sortedCatIds = Object.keys(groups)
     .map(Number)
     .sort((a, b) => a - b);
-  return sortedCatIds.map((id) => (groups[id] || []).sort((a, b) => (a.display_order || 0) - (b.display_order || 0)));
+  return sortedCatIds.map((id) =>
+    (groups[id] || []).sort((a, b) => (a.display_order || 0) - (b.display_order || 0)),
+  );
 });
 
 // ---------- Helpers ----------
@@ -723,9 +752,30 @@ const section3Items = computed((): MaintenanceItem[] => [
   margin-top: 8px;
   text-align: center;
   padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .signature-img {
+    height: 45px;
+    margin-bottom: -15px;
+    z-index: 1;
+
+    img {
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .signature-placeholder {
+    height: 30px;
+    visibility: hidden;
+  }
 
   .signature-line {
     font-size: 9.5pt;
+    position: relative;
+    z-index: 2;
   }
 
   .signature-title {
