@@ -39,6 +39,8 @@ export interface EquipmentApi {
   section?: {
     id: number;
     name: string;
+    description?: string;
+    code?: string;
     hospital?: {
       id: number;
       name: string;

@@ -131,9 +131,9 @@ const activeCerData = computed((): CerData => {
     model: t.equipment?.model || '-',
     serialNo: t.equipment?.serial_number || '-',
     idNo: t.equipment?.asset_code || '-',
-    department: 'Hospital', // Fallback as it's not in TaskApi directly
-    address: '-',
-    section: '-',
+    department: t.equipment?.section?.hospital?.name || t.equipment?.location || 'Hospital',
+    address: [t.equipment?.section?.hospital?.district, t.equipment?.section?.hospital?.province].filter(Boolean).join(' ') || '-',
+    section: t.equipment?.section ? `${t.equipment.section.name} - ${t.equipment.section.description}` : (t.equipment?.department || '-'),
     pmDate: t.createdAt
       ? new Date(t.createdAt).toLocaleDateString('en-US', {
           weekday: 'long',

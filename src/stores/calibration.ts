@@ -52,7 +52,7 @@ export const useCalibrationStore = defineStore('calibration', () => {
         taskId: task.id,
         deviceName: task.equipment?.name ?? `Equipment #${task.equipment_id}`,
         deviceCode: task.equipment?.asset_code ?? String(task.equipment_id),
-        location: '-',
+        location: task.equipment?.section?.name || task.equipment?.location || '-',
         type: 'Medical',
         dueDate: task.equipment?.calibration_due_date ?? '-',
         responsible: task.technician?.name ?? '-',
