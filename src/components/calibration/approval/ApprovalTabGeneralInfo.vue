@@ -48,7 +48,9 @@ const equipmentInfo = computed(() => {
         <span class="info-value">{{ task?.technician?.name || '-' }}</span>
 
         <span class="info-label">ตำแหน่ง</span>
-        <span class="info-value">{{ task?.technician?.position || '-' }}</span>
+        <span class="info-value">
+          {{ task?.technician?.position || task?.technician?.role?.description || task?.technician?.role?.name || '-' }}
+        </span>
 
         <span class="info-label">วันที่สอบเทียบ</span>
         <span class="info-value">{{ formatDate(task?.createdAt) }}</span>
@@ -68,7 +70,7 @@ const equipmentInfo = computed(() => {
   font-size: 15px;
   font-weight: 700;
   color: #1a1a2e;
-  border-left: 4px solid #f4c242;
+  border-left: 4px solid $secondary;
   padding-left: 10px;
 }
 

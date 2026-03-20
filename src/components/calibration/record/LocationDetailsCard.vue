@@ -32,7 +32,7 @@ const calRecord = useCalibrationRecordStore();
   font-size: 15px;
   font-weight: 700;
   color: #1a1a2e;
-  border-left: 4px solid #f4c242;
+  border-left: 4px solid $secondary;
   padding-left: 10px;
 }
 
