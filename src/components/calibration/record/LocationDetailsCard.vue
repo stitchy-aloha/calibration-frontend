@@ -5,26 +5,26 @@
   <q-card flat bordered class="q-pa-md q-mb-md">
     <div class="info-grid text-body2">
       <span class="info-label">หน่วยงาน</span>
-      <span class="info-value">{{ inspection.deviceInfo.department || '-' }}</span>
+      <span class="info-value">{{ details?.department || '-' }}</span>
 
       <span class="info-label">โรงพยาบาล</span>
-      <span class="info-value">{{ calRecord.locationDetails.hospital || '-' }}</span>
+      <span class="info-value">{{ details?.hospital || '-' }}</span>
 
       <span class="info-label">อำเภอ</span>
-      <span class="info-value">{{ calRecord.locationDetails.district || '-' }}</span>
+      <span class="info-value">{{ details?.district || '-' }}</span>
 
       <span class="info-label">จังหวัด</span>
-      <span class="info-value">{{ calRecord.locationDetails.province || '-' }}</span>
+      <span class="info-value">{{ details?.province || '-' }}</span>
     </div>
   </q-card>
 </template>
 
 <script setup lang="ts">
-import { useInspectionStore } from 'stores/inspection';
-import { useCalibrationRecordStore } from 'stores/calibrationRecord';
+import type { LocationDetails } from 'stores/calibrationRecord';
 
-const inspection = useInspectionStore();
-const calRecord = useCalibrationRecordStore();
+defineProps<{
+  details?: LocationDetails;
+}>();
 </script>
 
 <style scoped lang="scss">

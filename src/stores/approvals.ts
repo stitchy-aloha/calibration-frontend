@@ -41,7 +41,7 @@ export const useApprovalsStore = defineStore('approvals', () => {
         taskId: task.id,
         toolName: task.equipment?.name || 'Unknown',
         toolCode: task.equipment?.asset_code || '-',
-        location: '-',
+        location: task.equipment?.section?.name || task.equipment?.location || '-',
         calDate: task.createdAt ? new Date(task.createdAt).toLocaleDateString('th-TH') : '-',
         result: task.overall_result === 'Pass' ? 'ผ่าน' : task.overall_result === 'Fail' ? 'ไม่ผ่าน' : '-',
         status: task.status === 'PendingApproval' ? 'pending' :

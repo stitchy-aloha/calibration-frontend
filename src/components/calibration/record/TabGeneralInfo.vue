@@ -27,6 +27,6 @@ const equipmentInfo = computed(() => ({
 <template>
   <div class="q-pa-md">
     <EquipmentDetailsCard :details="equipmentInfo" />
-    <LocationDetailsCard />
+    <LocationDetailsCard :details="calRecord.locationDetails" />
   </div>
 </template>

@@ -33,6 +33,16 @@ const equipmentInfo = computed(() => {
     location: eq?.section?.hospital?.name || eq?.location || '-',
   };
 });
+
+const locationInfo = computed(() => {
+  const eq = props.task?.equipment;
+  return {
+    department: eq?.section?.name || eq?.department || '-',
+    hospital: eq?.section?.hospital?.name || eq?.location || '-',
+    district: eq?.section?.hospital?.district || '-',
+    province: eq?.section?.hospital?.province || '-',
+  };
+});
 </script>
 
 <template>
@@ -61,7 +71,7 @@ const equipmentInfo = computed(() => {
     </q-card>
 
     <!-- Location Details (reuse existing component) -->
-    <LocationDetailsCard />
+    <LocationDetailsCard :details="locationInfo" />
   </div>
 </template>
 
