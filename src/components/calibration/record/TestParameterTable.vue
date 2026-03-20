@@ -41,18 +41,18 @@
           key="range"
           :props="props"
           class="text-center"
-          @dblclick.stop="startEdit(props.rowIndex)"
+          @dblclick.stop="props.row.isNew && startEdit(props.rowIndex, 'range')"
         >
           <q-input
-            v-if="editingRowIndex === props.rowIndex"
+            v-if="editingCell?.index === props.rowIndex && editingCell?.col === 'range'"
             v-model="props.row.range"
             dense
             outlined
             autofocus
             input-class="text-center"
             style="min-width: 80px"
-            @blur="editingRowIndex = null"
-            @keyup.enter="editingRowIndex = null"
+            @blur="editingCell = null"
+            @keyup.enter="editingCell = null"
             @click.stop
           />
           <span v-else class="cursor-pointer" style="user-select: none">
@@ -61,9 +61,31 @@
           </span>
         </q-td>
 
-        <!-- ค่ามาตรฐาน: read-only -->
-        <q-td key="standard" :props="props" class="text-center text-grey-8">
-          {{ props.row.standard !== null ? props.row.standard : '-' }}
+        <!-- ค่ามาตรฐาน: double-click to edit inline -->
+        <q-td
+          key="standard"
+          :props="props"
+          class="text-center"
+          @dblclick.stop="props.row.isNew && startEdit(props.rowIndex, 'standard')"
+        >
+          <q-input
+            v-if="editingCell?.index === props.rowIndex && editingCell?.col === 'standard'"
+            v-model.number="props.row.standard"
+            type="number"
+            dense
+            outlined
+            autofocus
+            input-class="text-center"
+            style="min-width: 80px"
+            @blur="editingCell = null"
+            @keyup.enter="editingCell = null"
+            @click.stop
+            @update:model-value="calculate(props.rowIndex)"
+          />
+          <span v-else class="cursor-pointer text-grey-8" style="user-select: none">
+            {{ props.row.standard !== null ? props.row.standard : '-' }}
+            <q-tooltip>ดับเบิ้ลคลิกเพื่อแก้ไข</q-tooltip>
+          </span>
         </q-td>
 
         <!-- ครั้งที่ 1 -->
@@ -162,6 +184,7 @@
 
 <script lang="ts">
 export interface TestRow {
+  isNew?: boolean;
   range: string;
   standard: number | null;
   val1: number | null;
@@ -191,13 +214,13 @@ const emit = defineEmits<{
 const showRange = computed(() => props.showRange !== false);
 
 const allColumns: QTableProps['columns'] = [
-  { name: 'standard', label: 'ค่ามาตรฐาน', field: 'standard', align: 'center' },
-  { name: 'val1', label: 'ครั้งที่ 1', field: 'val1', align: 'center' },
-  { name: 'val2', label: 'ครั้งที่ 2', field: 'val2', align: 'center' },
-  { name: 'val3', label: 'ครั้งที่ 3', field: 'val3', align: 'center' },
-  { name: 'average', label: 'ค่าเฉลี่ย', field: 'average', align: 'center' },
-  { name: 'error', label: 'ค่าความคาดเคลื่อน', field: 'error', align: 'center' },
-  { name: 'status', label: 'ผลการทดสอบ', field: 'status', align: 'center' },
+  { name: 'standard', label: 'STD', field: 'standard', align: 'center' },
+  { name: 'val1', label: 'UUC-1', field: 'val1', align: 'center' },
+  { name: 'val2', label: 'UUC-2', field: 'val2', align: 'center' },
+  { name: 'val3', label: 'UUC-3', field: 'val3', align: 'center' },
+  { name: 'average', label: 'Mean', field: 'average', align: 'center' },
+  { name: 'error', label: 'Error', field: 'error', align: 'center' },
+  { name: 'status', label: 'Result', field: 'status', align: 'center' },
 ];
 
 const visibleColumns = computed(() =>
@@ -205,13 +228,13 @@ const visibleColumns = computed(() =>
 );
 
 const rows = ref<TestRow[]>([]);
-const editingRowIndex = ref<number | null>(null);
+const editingCell = ref<{ index: number; col: string } | null>(null);
 const activeRowIndex = ref<number | null>(null);
 const showDeleteDialog = ref(false);
 const rowToDeleteIndex = ref<number | null>(null);
 
-const startEdit = (index: number) => {
-  editingRowIndex.value = index;
+const startEdit = (index: number, col: string) => {
+  editingCell.value = { index, col };
 };
 
 const toggleActiveRow = (index: number) => {
@@ -273,6 +296,7 @@ const calculate = (index: number) => {
 
 const addRow = () => {
   rows.value.push({
+    isNew: true,
     range: 'กำหนดเอง',
     standard: null,
     val1: null,

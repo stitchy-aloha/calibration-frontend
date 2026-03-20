@@ -110,14 +110,13 @@ const props = defineProps<{
 const showRange = computed(() => props.showRange !== false);
 
 const allColumns: QTableProps['columns'] = [
-  { name: 'range', label: 'ช่วง', field: 'range', align: 'center' },
-  { name: 'standard', label: 'ค่ามาตรฐาน', field: 'standard', align: 'center' },
-  { name: 'val1', label: 'ครั้งที่ 1', field: 'val1', align: 'center' },
-  { name: 'val2', label: 'ครั้งที่ 2', field: 'val2', align: 'center' },
-  { name: 'val3', label: 'ครั้งที่ 3', field: 'val3', align: 'center' },
-  { name: 'average', label: 'ค่าเฉลี่ย', field: 'average', align: 'center' },
-  { name: 'error', label: 'ค่าความคาดเคลื่อน', field: 'error', align: 'center' },
-  { name: 'status', label: 'ผลการทดสอบ', field: 'status', align: 'center' },
+  { name: 'standard', label: 'STD', field: 'standard', align: 'center' },
+  { name: 'val1', label: 'UUC-1', field: 'val1', align: 'center' },
+  { name: 'val2', label: 'UUC-2', field: 'val2', align: 'center' },
+  { name: 'val3', label: 'UUC-3', field: 'val3', align: 'center' },
+  { name: 'average', label: 'Mean', field: 'average', align: 'center' },
+  { name: 'error', label: 'Error', field: 'error', align: 'center' },
+  { name: 'status', label: 'Result', field: 'status', align: 'center' },
 ];
 
 const visibleColumns = computed(() =>

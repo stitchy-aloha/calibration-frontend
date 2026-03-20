@@ -59,8 +59,6 @@ const currentDeviceComponent = computed(() => {
 });
 </script>
 
-
-
 <style scoped lang="scss">
 .bg-purple-2 {
   background-color: $secondary !important;

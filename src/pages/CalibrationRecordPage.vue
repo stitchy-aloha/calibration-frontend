@@ -96,6 +96,9 @@
         />
       </div>
     </div>
+
+    <!-- Save Confirmation Dialog -->
+    <SaveConfirmDialog v-model="showSaveDialog" @confirm="onConfirmSave" />
   </q-page>
 </template>
 
@@ -105,7 +108,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { useCalibrationRecordStore } from 'stores/calibrationRecord';
 import TabGeneralInfo from 'components/calibration/record/TabGeneralInfo.vue';
 import TabTestResults from 'components/calibration/record/TabTestResults.vue';
+import SaveConfirmDialog from 'components/calibration/record/SaveConfirmDialog.vue';
 import { useQuasar } from 'quasar';
+import { ref } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -150,11 +155,17 @@ const handleNext = () => {
   if (store.activeTab === 'general') {
     switchTab('test_results');
   } else {
-    void handleSave();
+    handleSave();
   }
 };
 
-const handleSave = async () => {
+const showSaveDialog = ref(false);
+
+const handleSave = () => {
+  showSaveDialog.value = true;
+};
+
+const onConfirmSave = async () => {
   try {
     await store.submitCalibration();
     $q.notify({

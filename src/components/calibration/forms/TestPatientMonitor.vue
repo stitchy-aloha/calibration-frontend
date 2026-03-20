@@ -49,76 +49,188 @@ const ekgItems = ref([
 
 // Pressure tables: keep range + standard, user fills val1/val2/val3
 const systolicData: Ref<TestRow[]> = ref([
-  { range: 'ต่ำ', standard: 80, val1: null, val2: null, val3: null, average: null, error: null, status: null },
-  { range: 'สูง', standard: 120, val1: null, val2: null, val3: null, average: null, error: null, status: null },
-  { range: 'กลาง', standard: 160, val1: null, val2: null, val3: null, average: null, error: null, status: null },
+  {
+    range: 'ต่ำ',
+    standard: 80,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
+  {
+    range: 'สูง',
+    standard: 120,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
+  {
+    range: 'กลาง',
+    standard: 160,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
 ]);
 
 const diastolicData: Ref<TestRow[]> = ref([
-  { range: 'ต่ำ', standard: 50, val1: null, val2: null, val3: null, average: null, error: null, status: null },
-  { range: 'สูง', standard: 80, val1: null, val2: null, val3: null, average: null, error: null, status: null },
-  { range: 'กลาง', standard: 100, val1: null, val2: null, val3: null, average: null, error: null, status: null },
+  {
+    range: 'ต่ำ',
+    standard: 50,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
+  {
+    range: 'สูง',
+    standard: 80,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
+  {
+    range: 'กลาง',
+    standard: 100,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
 ]);
 
 const tempData: Ref<TestRow[]> = ref([
-  { range: '', standard: 35, val1: null, val2: null,  val3: null, average: null, error: null, status: null },
-  { range: '', standard: 40, val1: null, val2: null, val3: null, average: null, error: null, status: null },
+  {
+    range: '',
+    standard: 35,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
+  {
+    range: '',
+    standard: 40,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
 ]);
 
 const heartRateData: Ref<TestRow[]> = ref([
-  { range: '', standard: 60, val1: null, val2: null, val3: null, average: null, error: null, status: null },
-  { range: '', standard: 80, val1: null, val2: null, val3: null, average: null, error: null, status: null },
+  {
+    range: '',
+    standard: 60,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
+  {
+    range: '',
+    standard: 80,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
 ]);
 
 const spo2Data: Ref<TestRow[]> = ref([
-  { range: '', standard: 85, val1: null, val2: null, val3: null, average: null, error: null, status: null },
-  { range: '', standard: 100, val1: null, val2: null, val3: null, average: null, error: null, status: null },
+  {
+    range: '',
+    standard: 85,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
+  {
+    range: '',
+    standard: 100,
+    val1: null,
+    val2: null,
+    val3: null,
+    average: null,
+    error: null,
+    status: null,
+  },
 ]);
 
 // Sync to store
-watch([ekgItems, systolicData, diastolicData, tempData, heartRateData, spo2Data], () => {
-  // Map qualitatives
-  store.qualitatives = ekgItems.value.map((item) => ({
-    parameter_name: 'EKG',
-    item_name: item.label,
-    result: item.status === 'pass' ? 'PASS' : item.status === 'fail' ? 'FAIL' : 'NA',
-  }));
+watch(
+  [ekgItems, systolicData, diastolicData, tempData, heartRateData, spo2Data],
+  () => {
+    // Map qualitatives
+    store.qualitatives = ekgItems.value.map((item) => ({
+      parameter_name: 'EKG',
+      item_name: item.label,
+      result: item.status === 'pass' ? 'PASS' : item.status === 'fail' ? 'FAIL' : 'NA',
+    }));
 
-  // Map measurements
-  const mapRows = (rows: TestRow[], param: string) => rows.map(r => {
-    const obj: {
-      parameter_name: string;
-      range: number;
-      result: 'PASS' | 'FAIL';
-      standard_value?: number;
-      reading_1?: number;
-      reading_2?: number;
-      reading_3?: number;
-      average_value?: number;
-      error_value?: number;
-    } = {
-      parameter_name: param,
-      range: r.range === 'ต่ำ' ? 1 : r.range === 'กลาง' ? 2 : r.range === 'สูง' ? 3 : 0,
-      result: r.status === 'pass' ? 'PASS' : 'FAIL'
-    };
-    if (r.standard !== null && r.standard !== undefined) obj.standard_value = r.standard;
-    if (r.val1 !== null && r.val1 !== undefined) obj.reading_1 = r.val1;
-    if (r.val2 !== null && r.val2 !== undefined) obj.reading_2 = r.val2;
-    if (r.val3 !== null && r.val3 !== undefined) obj.reading_3 = r.val3;
-    if (r.average !== null && r.average !== undefined) obj.average_value = r.average;
-    if (r.error !== null && r.error !== undefined) obj.error_value = r.error;
-    return obj;
-  });
+    // Map measurements
+    const mapRows = (rows: TestRow[], param: string) =>
+      rows.map((r) => {
+        const obj: {
+          parameter_name: string;
+          range: number;
+          result: 'PASS' | 'FAIL';
+          standard_value?: number;
+          reading_1?: number;
+          reading_2?: number;
+          reading_3?: number;
+          average_value?: number;
+          error_value?: number;
+        } = {
+          parameter_name: param,
+          range: r.range === 'ต่ำ' ? 1 : r.range === 'กลาง' ? 2 : r.range === 'สูง' ? 3 : 0,
+          result: r.status === 'pass' ? 'PASS' : 'FAIL',
+        };
+        if (r.standard !== null && r.standard !== undefined) obj.standard_value = r.standard;
+        if (r.val1 !== null && r.val1 !== undefined) obj.reading_1 = r.val1;
+        if (r.val2 !== null && r.val2 !== undefined) obj.reading_2 = r.val2;
+        if (r.val3 !== null && r.val3 !== undefined) obj.reading_3 = r.val3;
+        if (r.average !== null && r.average !== undefined) obj.average_value = r.average;
+        if (r.error !== null && r.error !== undefined) obj.error_value = r.error;
+        return obj;
+      });
 
-  store.measurements = [
-    ...mapRows(systolicData.value, 'Systolic Pressure'),
-    ...mapRows(diastolicData.value, 'Diastolic Pressure'),
-    ...mapRows(tempData.value, 'Temperature'),
-    ...mapRows(heartRateData.value, 'Heart Rate'),
-    ...mapRows(spo2Data.value, 'SpO2'),
-  ];
-}, { deep: true });
+    store.measurements = [
+      ...mapRows(systolicData.value, 'Systolic Pressure'),
+      ...mapRows(diastolicData.value, 'Diastolic Pressure'),
+      ...mapRows(tempData.value, 'Temperature'),
+      ...mapRows(heartRateData.value, 'Heart Rate'),
+      ...mapRows(spo2Data.value, 'SpO2'),
+    ];
+  },
+  { deep: true },
+);
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

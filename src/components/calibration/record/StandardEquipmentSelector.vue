@@ -51,7 +51,9 @@
                 <span class="value-text">{{ selectedTools[index]?.unit || '-' }}</span>
 
                 <span class="label-text">วันที่สอบเทียบ</span>
-                <span class="value-text">{{ selectedTools[index]?.lastCalibrationDate || '-' }}</span>
+                <span class="value-text">{{
+                  selectedTools[index]?.lastCalibrationDate || '-'
+                }}</span>
 
                 <span class="label-text">หมายเลขใบรับรอง</span>
                 <span class="value-text">{{ selectedTools[index]?.certificateNumber || '-' }}</span>

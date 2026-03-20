@@ -54,12 +54,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Save Confirmation Dialog -->
+    <SaveConfirmDialog v-model="showSaveDialog" @confirm="onConfirmSave" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import InspectorCard from './InspectorCard.vue';
+import SaveConfirmDialog from './SaveConfirmDialog.vue';
 
 interface TestRow {
   status: 'pass' | 'fail' | null;
@@ -120,7 +124,13 @@ const checklistItems = computed(() => [
 
 const allPassed = computed(() => checklistItems.value.every((i) => i.passed));
 
+const showSaveDialog = ref(false);
+
 const handleSave = () => {
+  showSaveDialog.value = true;
+};
+
+const onConfirmSave = () => {
   emit('save');
 };
 </script>

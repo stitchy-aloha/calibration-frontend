@@ -1,11 +1,15 @@
 <template>
   <div class="q-py-md">
     <TestParameterTable title="Flow Rate (ml/h)" v-model="flowRateData" :show-range="false" />
-    <TestParameterTable title="Occlusion Pressure (mmHg)" v-model="occlusionData" :show-range="false" />
+    <TestParameterTable
+      title="Occlusion Pressure (mmHg)"
+      v-model="occlusionData"
+      :show-range="false"
+    />
 
     <q-card flat bordered class="q-pa-md q-mt-md">
       <div class="text-h6 text-grey-9 q-mb-md">สรุปผลการทดสอบ (Infusion Pump)</div>
-      
+
       <div class="row q-col-gutter-md q-mb-md">
         <div class="col-12 col-md-6">
           <q-select
@@ -18,7 +22,7 @@
           />
         </div>
       </div>
-      
+
       <div class="row justify-end q-mt-lg">
         <q-btn
           unelevated

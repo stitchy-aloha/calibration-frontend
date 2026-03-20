@@ -5,21 +5,25 @@ export interface SubmitTaskPayload {
   ambient_temp?: number | undefined;
   ambient_humidity?: number | undefined;
   standard_tool_ids?: number[] | undefined;
-  measurements?: {
-    parameter_name: string;
-    range?: number | undefined;
-    standard_value?: number | undefined;
-    reading_1?: number | undefined;
-    reading_2?: number | undefined;
-    reading_3?: number | undefined;
-    average_value?: number | undefined;
-    error_value?: number | undefined;
-    result: 'PASS' | 'FAIL';
-  }[] | undefined;
-  qualitatives?: {
-    item_name: string;
-    result: 'PASS' | 'FAIL' | 'NA';
-  }[] | undefined;
+  measurements?:
+    | {
+        parameter_name: string;
+        range?: number | undefined;
+        standard_value?: number | undefined;
+        reading_1?: number | undefined;
+        reading_2?: number | undefined;
+        reading_3?: number | undefined;
+        average_value?: number | undefined;
+        error_value?: number | undefined;
+        result: 'PASS' | 'FAIL';
+      }[]
+    | undefined;
+  qualitatives?:
+    | {
+        item_name: string;
+        result: 'PASS' | 'FAIL' | 'NA';
+      }[]
+    | undefined;
   overall_result: 'Pass' | 'Fail' | 'NA';
 }
 
