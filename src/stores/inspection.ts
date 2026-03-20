@@ -32,6 +32,8 @@ export interface DeviceInfo {
   calibrationInterval: string;
   lastCalibrationDate: string;
   dueDate: string;
+  riskLevel: string;
+  type: string;
 }
 
 const VALUE_MAP_REVERSE: Record<InspectionValue, 'Pass' | 'Fail' | 'NA'> = {
@@ -67,6 +69,8 @@ export const useInspectionStore = defineStore('inspection', () => {
     calibrationInterval: '',
     lastCalibrationDate: '',
     dueDate: '',
+    riskLevel: '',
+    type: '',
   });
 
   const sections = ref<InspectionSection[]>([]);
@@ -152,12 +156,14 @@ export const useInspectionStore = defineStore('inspection', () => {
         model: eq.model ?? '-',
         serialNumber: eq.serial_number ?? '-',
         assetCode: eq.asset_code ?? '-',
-        category: '-',
-        department: '-',
-        location: '-',
+        category: eq.equipmentType?.name || '-',
+        department: eq.department || '-',
+        location: eq.location || '-',
         calibrationInterval: eq.interval ? `${eq.interval} วัน` : '-',
         lastCalibrationDate: eq.calibration_date_last ?? '-',
         dueDate: eq.calibration_due_date ?? '-',
+        riskLevel: eq.risk_level || '-',
+        type: eq.equipmentType?.name || '-',
       };
 
       sections.value = buildSections(categoriesRes.data);

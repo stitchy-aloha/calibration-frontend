@@ -21,7 +21,7 @@
     </q-banner>
 
     <!-- Device Info -->
-    <DeviceInfoCard :info="store.deviceInfo" class="q-mb-md" />
+    <EquipmentDetailsCard :details="store.deviceInfo" class="q-mb-md" />
 
     <!-- Inspection Sections (2-column layout) -->
     <div class="inspection-grid">
@@ -80,7 +80,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import DeviceInfoCard from 'src/components/inspection/DeviceInfoCard.vue';
+import EquipmentDetailsCard from 'src/components/calibration/record/EquipmentDetailsCard.vue';
 import InspectionSection from 'src/components/inspection/InspectionSection.vue';
 import PmResultCard from 'src/components/inspection/PmResultCard.vue';
 import { useInspectionStore, type InspectionValue } from 'src/stores/inspection';

@@ -33,6 +33,8 @@ export interface EquipmentApi {
   interval: number;
   calibration_due_date: string;
   calibration_date_last: string;
+  department?: string;
+  location?: string;
 }
 
 export interface MeasurementApi {

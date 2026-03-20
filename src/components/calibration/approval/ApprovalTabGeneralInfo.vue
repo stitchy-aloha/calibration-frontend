@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import EquipmentDetailsCard from 'components/calibration/record/EquipmentDetailsCard.vue';
 import LocationDetailsCard from 'components/calibration/record/LocationDetailsCard.vue';
 import type { TaskApi } from 'src/services/pm.service';
 
-defineProps<{
+const props = defineProps<{
   task: TaskApi | null;
 }>();
 
@@ -15,12 +16,29 @@ const formatDate = (dateStr?: string) => {
     year: 'numeric',
   });
 };
+const equipmentInfo = computed(() => {
+  const eq = props.task?.equipment;
+  return {
+    deviceName: eq?.name || '-',
+    company: eq?.manufacturer || '-',
+    model: eq?.model || '-',
+    serialNumber: eq?.serial_number || '-',
+    assetCode: eq?.asset_code || '-',
+    riskLevel: eq?.risk_level || '-',
+    type: eq?.equipmentType?.name || '-',
+    calibrationInterval: eq?.interval ? `${eq.interval} วัน` : '-',
+    lastCalibrationDate: eq?.calibration_date_last || '-',
+    dueDate: eq?.calibration_due_date || '-',
+    department: eq?.department || '-',
+    location: eq?.location || '-',
+  };
+});
 </script>
 
 <template>
   <div class="q-pa-md">
     <!-- Equipment Details (reuse existing component) -->
-    <EquipmentDetailsCard />
+    <EquipmentDetailsCard :details="equipmentInfo" />
 
     <!-- Inspector Section -->
     <div class="section-title q-mb-sm q-mt-lg">ข้อมูลผู้สอบเทียบ</div>
