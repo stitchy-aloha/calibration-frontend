@@ -62,6 +62,19 @@
           <q-td key="name" :props="props" class="col-name">{{ props.row.name }}</q-td>
           <q-td key="model" :props="props">{{ props.row.model }}</q-td>
           <q-td key="type" :props="props">{{ props.row.type }}</q-td>
+          <q-td key="riskLevel" :props="props" class="text-center">
+            <div :class="['risk-badge', `risk--${props.row.riskLevel}`]">
+              {{
+                props.row.riskLevel === 'high'
+                  ? 'สูง'
+                  : props.row.riskLevel === 'medium'
+                    ? 'กลาง'
+                    : props.row.riskLevel === 'low'
+                      ? 'ต่ำ'
+                      : '-'
+              }}
+            </div>
+          </q-td>
           <q-td key="calibrationCycle" :props="props" class="text-center">{{
             props.row.calibrationCycle
           }}</q-td>
@@ -137,7 +150,9 @@ const { fetchTools, deleteTool } = store;
 const auth = useAuthStore();
 const $q = useQuasar();
 
-onMounted(() => { void fetchTools(); });
+onMounted(() => {
+  void fetchTools();
+});
 
 const isAdmin = computed(() => auth.permissions?.canManageTools ?? false);
 
@@ -210,6 +225,14 @@ const baseColumns: QTableProps['columns'] = [
     align: 'left',
     sortable: true,
     style: 'width: 100px; min-width: 90px',
+  },
+  {
+    name: 'riskLevel',
+    label: 'ความเสี่ยง',
+    field: 'riskLevel',
+    align: 'center',
+    sortable: true,
+    style: 'width: 90px; min-width: 80px',
   },
   {
     name: 'calibrationCycle',
@@ -373,5 +396,55 @@ function statusClass(status: ToolStatus): string {
 .status--disabled {
   background: #f5f5f5;
   color: #9e9e9e;
+}
+/* ── Risk badges ────────────────────────────── */
+.risk-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 65px;
+}
+
+.risk-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.risk--high {
+  background: #fef2f2;
+  color: #991b1b;
+  .risk-dot {
+    background: #dc2626;
+  }
+}
+
+.risk--medium {
+  background: #fffbef;
+  color: #92400e;
+  .risk-dot {
+    background: #d97706;
+  }
+}
+
+.risk--low {
+  background: #f0fdf4;
+  color: #166534;
+  .risk-dot {
+    background: #16a34a;
+  }
+}
+
+.risk--- {
+  background: #f9fafb;
+  color: #6b7280;
+  .risk-dot {
+    background: #9ca3af;
+  }
 }
 </style>

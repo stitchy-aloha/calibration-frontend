@@ -1,13 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { Ref, ComputedRef } from 'vue';
-import type {
-  MedicalTool,
-  ToolType,
-  CalibrationProcess,
-  CalibrationCost,
-  ToolStatus,
-} from 'src/types';
+import type { MedicalTool, CalibrationProcess, CalibrationCost, ToolStatus } from 'src/types';
 import { ToolService } from 'src/services/tool.service';
 import type { BackendEquipment } from 'src/services/tool.service';
 
@@ -159,11 +153,13 @@ const mockCalibrationCosts: CalibrationCost[] = [
 export interface ToolsStoreState {
   tools: Ref<MedicalTool[]>;
   loading: Ref<boolean>;
+  equipmentTypes: Ref<{ id: number; name: string }[]>;
   calibrationProcesses: Ref<CalibrationProcess[]>;
   calibrationCosts: Ref<CalibrationCost[]>;
   searchQuery: Ref<string>;
-  selectedType: Ref<ToolType | ''>;
-  typeOptions: { label: string; value: ToolType | '' }[];
+  selectedType: Ref<string>;
+  fetchEquipmentTypes: () => Promise<void>;
+  typeOptions: ComputedRef<{ label: string; value: string }[]>;
   statusOptions: { label: string; value: ToolStatus }[];
   locationOptions: { label: string; value: string }[];
   filteredTools: ComputedRef<MedicalTool[]>;
@@ -183,6 +179,7 @@ export interface ToolsStoreState {
 export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
   const tools = ref<MedicalTool[]>([]);
   const loading = ref(false);
+  const equipmentTypes = ref<{ id: number; name: string }[]>([]);
 
   // Map backend status string → frontend Thai status
   function mapStatus(s: string): ToolStatus {
@@ -215,9 +212,23 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     return d;
   }
 
+  async function fetchEquipmentTypes() {
+    try {
+      const res = await ToolService.getEquipmentTypes();
+      equipmentTypes.value = res.data;
+    } catch (e) {
+      console.error('fetchEquipmentTypes error:', e);
+    }
+  }
+
   async function fetchTools() {
     loading.value = true;
     try {
+      // Ensure types are fetched
+      if (equipmentTypes.value.length === 0) {
+        await fetchEquipmentTypes();
+      }
+
       const res = await ToolService.getAll();
       tools.value = res.data.map((item: BackendEquipment) => ({
         id: item.asset_code || String(item.id),
@@ -225,7 +236,9 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
         name: item.name,
         company: item.manufacturer ?? '-',
         model: item.model ?? '-',
-        type: 'Medical' as const,
+        type: item.equipmentType?.name || '-',
+        riskLevel: item.risk_level || '-',
+        equipment_type_id: item.equipment_type_id,
         serialNumber: item.serial_number ?? '-',
         calibrationCycle: item.interval ? `${item.interval} วัน` : '-',
         dueDate: item.calibration_due_date ?? '-',
@@ -251,6 +264,8 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
       calibration_due_date: normalizeDate(tool.dueDate),
       calibration_date_last: normalizeDate(tool.lastCalibrationDate),
       status: unmapStatus(tool.status),
+      risk_level: tool.riskLevel || 'medium',
+      equipment_type_id: tool.equipment_type_id ?? null,
     });
     await fetchTools();
   }
@@ -263,6 +278,10 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
       ...(data.company !== undefined && { manufacturer: data.company }),
       ...(data.model !== undefined && { model: data.model }),
       ...(data.serialNumber !== undefined && { serial_number: data.serialNumber }),
+      ...(data.riskLevel !== undefined && { risk_level: data.riskLevel }),
+      ...(data.equipment_type_id !== undefined && {
+        equipment_type_id: data.equipment_type_id ?? null,
+      }),
       ...(data.calibrationCycle !== undefined && {
         interval: parseInt(data.calibrationCycle) || 365,
       }),
@@ -281,16 +300,19 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     await ToolService.remove(backendId);
     await fetchTools();
   }
+
   const calibrationProcesses = ref<CalibrationProcess[]>(mockCalibrationProcesses);
   const calibrationCosts = ref<CalibrationCost[]>(mockCalibrationCosts);
   const searchQuery = ref('');
-  const selectedType = ref<ToolType | ''>('');
+  const selectedType = ref<string>('');
 
-  const typeOptions: { label: string; value: ToolType | '' }[] = [
-    { label: 'ทั้งหมด', value: '' },
-    { label: 'Medical', value: 'Medical' },
-    { label: 'Dimension', value: 'Dimension' },
-  ];
+  const typeOptions = computed(() => {
+    const options = [{ label: 'ทั้งหมด', value: '' }];
+    equipmentTypes.value.forEach((t) => {
+      options.push({ label: t.name, value: t.name });
+    });
+    return options;
+  });
 
   const statusOptions: { label: string; value: ToolStatus }[] = [
     { label: 'พร้อมใช้งาน', value: 'พร้อมใช้งาน' },
@@ -389,5 +411,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     deleteCalibrationCost,
     fetchTools,
     loading,
+    equipmentTypes,
+    fetchEquipmentTypes,
   };
 });

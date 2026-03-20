@@ -29,7 +29,7 @@
           <span class="info-label">ความเสี่ยง</span>
           <span class="info-value">{{ calRecord.equipmentDetails.riskLevel || '-' }}</span>
           <span class="info-label">ประเภท</span>
-          <span class="info-value">{{ inspection.deviceInfo.category || '-' }}</span>
+          <span class="info-value">{{ calRecord.equipmentDetails.type || '-' }}</span>
           <span class="info-label">รอบการสอบเทียบ</span>
           <span class="info-value">{{ inspection.deviceInfo.calibrationInterval || '-' }}</span>
           <span class="info-label">วันที่สอบเทียบครั้งล่าสุด</span>

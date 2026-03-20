@@ -24,6 +24,12 @@ export interface EquipmentApi {
   manufacturer: string;
   model: string;
   status: string;
+  risk_level?: string;
+  equipment_type_id?: number;
+  equipmentType?: {
+    id: number;
+    name: string;
+  };
   interval: number;
   calibration_due_date: string;
   calibration_date_last: string;

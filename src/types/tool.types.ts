@@ -1,4 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
 // Medical Tool types (used by tools.ts store and ToolsPage)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -10,8 +9,6 @@ export type ToolStatus =
   | 'กำลังใช้งาน'
   | 'ส่งซ่อม'
   | 'ปิดใช้งาน';
-
-export type ToolType = 'Medical' | 'Dimension';
 
 export interface CalibrationProcess {
   id: string;
@@ -33,7 +30,7 @@ export interface MedicalTool {
   name: string;
   company: string;
   model: string;
-  type: ToolType;
+  type: string;
   serialNumber: string;
   calibrationCycle: string;
   dueDate: string;
@@ -41,5 +38,8 @@ export interface MedicalTool {
   location: string;
   department: string;
   status: ToolStatus;
+  riskLevel?: string;
+  equipmentType?: { id: number; name: string };
+  equipment_type_id?: number | null;
   backendId?: number;
 }

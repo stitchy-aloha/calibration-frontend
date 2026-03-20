@@ -48,8 +48,12 @@
           class="form-field"
         />
         <q-select
-          v-model="form.type"
-          :options="['Medical', 'Dimension']"
+          v-model="form.equipment_type_id"
+          :options="toolsStore.equipmentTypes"
+          option-value="id"
+          option-label="name"
+          emit-value
+          map-options
           label="ประเภท *"
           outlined
           dense
@@ -58,16 +62,33 @@
         />
       </div>
 
-      <!-- Row 3: Serial Number (full width) -->
-      <q-input
-        v-model="form.serialNumber"
-        label="หมายเลขเครื่อง (Serial No.)"
-        placeholder="ระบุ S/N"
-        outlined
-        dense
-        bg-color="white"
-        class="q-mb-md"
-      />
+      <!-- Row 3: Risk Level + Serial Number -->
+      <div class="form-row">
+        <q-select
+          v-model="form.riskLevel"
+          :options="[
+            { label: 'สูง (High)', value: 'high' },
+            { label: 'กลาง (Medium)', value: 'medium' },
+            { label: 'ต่ำ (Low)', value: 'low' },
+          ]"
+          emit-value
+          map-options
+          label="ความเสี่ยง *"
+          outlined
+          dense
+          bg-color="white"
+          class="form-field"
+        />
+        <q-input
+          v-model="form.serialNumber"
+          label="หมายเลขเครื่อง (Serial No.)"
+          placeholder="ระบุ S/N"
+          outlined
+          dense
+          bg-color="white"
+          class="form-field"
+        />
+      </div>
 
       <!-- Row 4: Calibration Cycle + Due Date -->
       <div class="form-row">
@@ -150,7 +171,7 @@
 import { reactive, watch, computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useToolsStore } from 'src/stores/tools';
-import type { MedicalTool, ToolType, ToolStatus } from 'src/types';
+import type { MedicalTool, ToolStatus } from 'src/types';
 
 const props = withDefaults(
   defineProps<{
@@ -177,7 +198,9 @@ function emptyForm() {
     name: '',
     company: '',
     model: '',
-    type: 'Medical' as ToolType,
+    type: '',
+    equipment_type_id: null as number | null,
+    riskLevel: 'medium',
     serialNumber: '',
     calibrationCycle: '6',
     dueDate: '',
@@ -199,6 +222,8 @@ watch(
         name: t.name,
         model: t.model,
         type: t.type,
+        equipment_type_id: t.equipment_type_id ?? null,
+        riskLevel: t.riskLevel || 'medium',
         serialNumber: t.serialNumber,
         calibrationCycle: t.calibrationCycle.replace(/[^\d]/g, ''),
         dueDate: t.dueDate,
@@ -219,6 +244,8 @@ async function onSave() {
     company: form.company,
     model: form.model,
     type: form.type,
+    equipment_type_id: form.equipment_type_id,
+    riskLevel: form.riskLevel,
     serialNumber: form.serialNumber,
     calibrationCycle: `${form.calibrationCycle} วัน`,
     dueDate: form.dueDate,

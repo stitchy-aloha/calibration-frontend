@@ -105,6 +105,11 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       taskId.value = task.id;
 
       if (task.equipment) {
+        const riskMap: Record<string, string> = {
+          high: 'สูง',
+          medium: 'กลาง',
+          low: 'ต่ำ',
+        };
         equipmentDetails.value = {
           id: task.equipment.asset_code || String(task.equipment.id),
           backendId: task.equipment.id,
@@ -113,8 +118,8 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
           model: task.equipment.model,
           serialNumber: task.equipment.serial_number,
           code: task.equipment.asset_code,
-          riskLevel: 'สูง', // Default for now
-          type: 'Medical',
+          riskLevel: riskMap[task.equipment.risk_level || ''] || task.equipment.risk_level || '-',
+          type: task.equipment.equipmentType?.name || '-',
           calibrationCycle: `${task.equipment.interval} วัน`,
           lastCalibrationDate: task.equipment.calibration_date_last,
           nextCalibrationDate: task.equipment.calibration_due_date,
