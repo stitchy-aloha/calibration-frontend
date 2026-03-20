@@ -12,7 +12,7 @@
     <!-- Body -->
     <div class="dept-form__body">
       <q-input
-        v-model="form.code"
+        v-model="form.name"
         label="ชื่อย่อหน่วยงาน *"
         placeholder="เช่น NUR"
         outlined
@@ -21,7 +21,7 @@
         class="q-mb-md"
       />
       <q-input
-        v-model="form.name"
+        v-model="form.description"
         label="ชื่อหน่วยงาน *"
         placeholder="เช่น กลุ่มงานการพยาบาล"
         outlined
@@ -61,8 +61,8 @@ const isEditing = computed(() => !!props.department);
 
 function createEmptyForm() {
   return {
-    code: '',
     name: '',
+    description: '',
   };
 }
 
@@ -72,8 +72,8 @@ watch(
   () => props.department,
   (d) => {
     if (d) {
-      form.code = d.code;
       form.name = d.name;
+      form.description = d.description ?? '';
     } else {
       Object.assign(form, createEmptyForm());
     }
@@ -81,16 +81,16 @@ watch(
   { immediate: true },
 );
 
-function onSave() {
+async function onSave() {
   if (isEditing.value && props.department) {
-    store.updateDepartment(props.department.id, {
-      code: form.code,
+    await store.updateDepartment(props.department.id, {
       name: form.name,
+      description: form.description,
     });
   } else {
-    store.addDepartment({
-      code: form.code,
+    await store.addDepartment({
       name: form.name,
+      description: form.description,
     });
   }
   Object.assign(form, createEmptyForm());

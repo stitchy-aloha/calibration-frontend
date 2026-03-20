@@ -6,7 +6,7 @@
 
     <!-- Filters -->
     <div class="filters-row q-mb-md">
-      <SearchBar v-model="store.searchQuery" placeholder="ค้นหา..." />
+      <SearchBar v-model="departmentStore.searchQuery" placeholder="ค้นหา..." />
 
       <q-btn
         v-if="canManage"
@@ -20,7 +20,7 @@
 
     <!-- q-table -->
     <q-table
-      :rows="store.filteredDepartments"
+      :rows="departmentStore.filteredDepartments"
       :columns="tableColumns"
       row-key="id"
       flat
@@ -42,8 +42,8 @@
       <template #body="props">
         <q-tr :props="props" class="table-body-row">
           <q-td key="id" :props="props" class="text-center">{{ props.row.id }}</q-td>
-          <q-td key="code" :props="props" class="text-center">{{ props.row.code }}</q-td>
-          <q-td key="name" :props="props" class="text-center">{{ props.row.name }}</q-td>
+          <q-td key="code" :props="props" class="text-center">{{ props.row.name }}</q-td>
+          <q-td key="name" :props="props" class="text-center">{{ props.row.description }}</q-td>
           <q-td v-if="canManage" key="actions" :props="props" class="text-center">
             <q-btn
               flat
@@ -99,10 +99,14 @@ import ConfirmDeleteDialog from 'src/components/common/ConfirmDeleteDialog.vue';
 import type { QTableProps } from 'quasar';
 import { useDepartmentsStore, type Department } from 'src/stores/departments';
 import { useAuthStore } from 'src/stores/auth';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 
-const store = useDepartmentsStore();
+const departmentStore = useDepartmentsStore();
 const auth = useAuthStore();
+
+onMounted(() => {
+  void departmentStore.fetchDepartments();
+});
 const canManage = computed(() => auth.permissions?.canManageDepartments ?? false);
 
 const baseColumns: QTableProps['columns'] = [
@@ -117,7 +121,7 @@ const baseColumns: QTableProps['columns'] = [
   {
     name: 'code',
     label: 'ชื่อย่อหน่วยงาน',
-    field: 'code',
+    field: 'name',
     align: 'center',
     sortable: true,
     style: 'width: 20%',
@@ -125,7 +129,7 @@ const baseColumns: QTableProps['columns'] = [
   {
     name: 'name',
     label: 'ชื่อหน่วยงาน',
-    field: 'name',
+    field: 'description',
     align: 'center',
     sortable: true,
     style: 'width: 40%',
@@ -165,7 +169,7 @@ function confirmDelete(dept: Department) {
 
 function doDelete() {
   if (deletingDept.value) {
-    store.deleteDepartment(deletingDept.value.id);
+    void departmentStore.deleteDepartment(deletingDept.value.id);
   }
   deleteDialog.value = false;
   deletingDept.value = null;

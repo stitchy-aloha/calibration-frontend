@@ -43,6 +43,7 @@ export const useAuthStore = defineStore('auth', {
       imageUrl: string;
       role: AppRole;
       roleId: number;
+      hospitalId: number | null;
     },
     isAuthenticated: false,
     token: null as null | string,
@@ -81,6 +82,7 @@ export const useAuthStore = defineStore('auth', {
         imageUrl: u.imageUrl,
         role: mapRoleName(u.role.name),
         roleId: u.roleId,
+        hospitalId: (u as unknown as { hospitalId: number | null }).hospitalId || null,
       };
       this.isAuthenticated = true;
       return true;

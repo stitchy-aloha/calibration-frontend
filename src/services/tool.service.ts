@@ -37,11 +37,14 @@ export interface Hospital {
   address?: string;
   district?: string;
   province?: string;
+  description?: string;
 }
 
 export interface Section {
   id: number;
   name: string;
+  code?: string;
+  description?: string;
   hospitalId: number;
   hospital?: Hospital;
 }
@@ -54,6 +57,9 @@ export const HospitalService = {
 export const SectionService = {
   getAll: () => api.get<Section[]>('/section'),
   getByHospital: (hospitalId: number) => api.get<Section[]>(`/section?hospitalId=${hospitalId}`),
+  create: (data: Partial<Section>) => api.post<Section>('/section', data),
+  update: (id: number, data: Partial<Section>) => api.patch<Section>(`/section/${id}`, data),
+  remove: (id: number) => api.delete(`/section/${id}`),
 };
 
 export const ToolService = {
