@@ -128,16 +128,16 @@
         </q-input>
       </div>
 
-      <!-- Row 5: Location + Status -->
+      <!-- Row 5: Hospital + Section -->
       <div class="form-row">
         <q-select
-          v-model="form.location"
-          :options="toolsStore.locationOptions"
-          option-value="value"
-          option-label="label"
+          v-model="form.sectionId"
+          :options="filteredSections"
+          option-value="id"
+          option-label="name"
           emit-value
           map-options
-          label="สถานที่ (Location) *"
+          label="แผนก/หน่วยงาน (Section) *"
           outlined
           dense
           bg-color="white"
@@ -162,13 +162,20 @@
     <!-- Footer Buttons -->
     <div class="tool-form__footer">
       <q-btn flat label="ยกเลิก" class="btn-cancel" @click="$emit('close')" />
-      <q-btn unelevated label="บันทึก" icon="save" class="btn-save" :loading="isSaving" @click="onSave" />
+      <q-btn
+        unelevated
+        label="บันทึก"
+        icon="save"
+        class="btn-save"
+        :loading="isSaving"
+        @click="onSave"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, computed, ref } from 'vue';
+import { reactive, watch, computed, ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useToolsStore } from 'src/stores/tools';
 import type { MedicalTool, ToolStatus } from 'src/types';
@@ -205,13 +212,28 @@ function emptyForm() {
     calibrationCycle: '6',
     dueDate: '',
     lastCalibrationDate: '',
-    location: 'Ward-1A',
+    location: '',
     department: '',
+    hospitalId: null as number | null,
+    sectionId: null as number | null,
     status: 'พร้อมใช้งาน' as ToolStatus,
   };
 }
 
 const form = reactive(emptyForm());
+
+const filteredSections = computed(() => {
+  if (!form.hospitalId) return [];
+  return toolsStore.sections.filter((s) => s.hospitalId === form.hospitalId);
+});
+
+onMounted(async () => {
+  await Promise.all([
+    toolsStore.fetchEquipmentTypes(),
+    toolsStore.fetchHospitals(),
+    toolsStore.fetchSections(),
+  ]);
+});
 
 watch(
   () => props.tool,
@@ -228,6 +250,8 @@ watch(
         calibrationCycle: t.calibrationCycle.replace(/[^\d]/g, ''),
         dueDate: t.dueDate,
         location: t.location,
+        hospitalId: t.hospitalId || null,
+        sectionId: t.sectionId || null,
         status: t.status,
       });
     } else {
@@ -252,6 +276,8 @@ async function onSave() {
     lastCalibrationDate: form.lastCalibrationDate,
     location: form.location,
     department: form.department,
+    hospitalId: form.hospitalId,
+    sectionId: form.sectionId,
     status: form.status,
   };
   try {

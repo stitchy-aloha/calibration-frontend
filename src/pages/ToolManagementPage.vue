@@ -152,6 +152,7 @@
                 <q-tr :props="props" class="table-body-row">
                   <q-td key="name" :props="props" class="col-name">{{ props.row.name }}</q-td>
                   <q-td key="type" :props="props" class="text-center">{{ props.row.type }}</q-td>
+                  <q-td key="department" :props="props">{{ props.row.department }}</q-td>
                   <q-td key="action" :props="props" class="text-center">
                     <q-btn
                       unelevated
@@ -387,7 +388,12 @@ const uniqueTools = computed(() => {
       seen.add(t.name);
       return true;
     })
-    .map((t) => ({ name: t.name, type: t.type }));
+    .map((t) => ({
+      name: t.name,
+      type: t.type,
+      location: t.location,
+      department: t.department,
+    }));
 });
 
 const filteredUniqueTools = computed(() =>
@@ -429,6 +435,7 @@ const settingsColumns = [
     style: 'width: 50%',
   },
   { name: 'type', label: 'ประเภท', field: 'type', align: 'center' as const, style: 'width: 25%' },
+  { name: 'department', label: 'แผนก/หน่วยงาน', field: 'department', align: 'left' as const },
   { name: 'action', label: '', field: 'name', align: 'center' as const, style: 'width: 25%' },
 ];
 

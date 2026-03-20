@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { Ref, ComputedRef } from 'vue';
 import type { MedicalTool, CalibrationProcess, CalibrationCost, ToolStatus } from 'src/types';
-import { ToolService } from 'src/services/tool.service';
-import type { BackendEquipment } from 'src/services/tool.service';
+import { ToolService, HospitalService, SectionService } from 'src/services/tool.service';
+import type { BackendEquipment, Hospital, Section } from 'src/services/tool.service';
 
 const mockCalibrationProcesses: CalibrationProcess[] = [
   {
@@ -154,6 +154,8 @@ export interface ToolsStoreState {
   tools: Ref<MedicalTool[]>;
   loading: Ref<boolean>;
   equipmentTypes: Ref<{ id: number; name: string }[]>;
+  hospitals: Ref<Hospital[]>;
+  sections: Ref<Section[]>;
   calibrationProcesses: Ref<CalibrationProcess[]>;
   calibrationCosts: Ref<CalibrationCost[]>;
   searchQuery: Ref<string>;
@@ -165,6 +167,8 @@ export interface ToolsStoreState {
   filteredTools: ComputedRef<MedicalTool[]>;
   nextId: ComputedRef<string>;
   fetchTools: () => Promise<void>;
+  fetchHospitals: () => Promise<void>;
+  fetchSections: () => Promise<void>;
   addTool: (tool: Omit<MedicalTool, 'id'>) => Promise<void>;
   updateTool: (id: string, data: Partial<MedicalTool>) => Promise<void>;
   deleteTool: (id: string) => Promise<void>;
@@ -180,6 +184,8 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
   const tools = ref<MedicalTool[]>([]);
   const loading = ref(false);
   const equipmentTypes = ref<{ id: number; name: string }[]>([]);
+  const hospitals = ref<Hospital[]>([]);
+  const sections = ref<Section[]>([]);
 
   // Map backend status string → frontend Thai status
   function mapStatus(s: string): ToolStatus {
@@ -220,6 +226,22 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
       console.error('fetchEquipmentTypes error:', e);
     }
   }
+  async function fetchHospitals() {
+    try {
+      const res = await HospitalService.getAll();
+      hospitals.value = res.data;
+    } catch (e) {
+      console.error('fetchHospitals error:', e);
+    }
+  }
+  async function fetchSections() {
+    try {
+      const res = await SectionService.getAll();
+      sections.value = res.data;
+    } catch (e) {
+      console.error('fetchSections error:', e);
+    }
+  }
 
   async function fetchTools() {
     loading.value = true;
@@ -238,13 +260,15 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
         model: item.model ?? '-',
         type: item.equipmentType?.name || '-',
         riskLevel: item.risk_level || '-',
-        equipment_type_id: item.equipment_type_id,
+        equipment_type_id: item.equipment_type_id || null, // Added || null
         serialNumber: item.serial_number ?? '-',
         calibrationCycle: item.interval ? `${item.interval} วัน` : '-',
         dueDate: item.calibration_due_date ?? '-',
         lastCalibrationDate: item.calibration_date_last ?? '-',
-        location: '-',
-        department: '-',
+        location: item.section?.hospital?.name || item.location || '-',
+        department: item.section?.name || item.department || '-',
+        hospitalId: item.section?.hospital?.id || null,
+        sectionId: item.sectionId || null,
         status: mapStatus(item.status),
       }));
     } catch (e) {
@@ -266,6 +290,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
       status: unmapStatus(tool.status),
       risk_level: tool.riskLevel || 'medium',
       equipment_type_id: tool.equipment_type_id ?? null,
+      sectionId: tool.sectionId ?? null,
     });
     await fetchTools();
   }
@@ -290,6 +315,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
         calibration_date_last: normalizeDate(data.lastCalibrationDate),
       }),
       ...(data.status !== undefined && { status: unmapStatus(data.status) }),
+      ...(data.sectionId !== undefined && { sectionId: data.sectionId ?? null }),
     });
     await fetchTools();
   }
@@ -413,5 +439,9 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     loading,
     equipmentTypes,
     fetchEquipmentTypes,
+    hospitals,
+    sections,
+    fetchHospitals,
+    fetchSections,
   };
 });

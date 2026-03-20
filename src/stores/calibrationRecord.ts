@@ -127,10 +127,10 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       }
 
       locationDetails.value = {
-        department: 'NUR - กลุ่มงานการพยาบาล',
-        hospital: 'โรงพยาบาลส่งเสริมสุขภาพตำบล',
-        district: 'บางสะพาน',
-        province: 'ประจวบคีรีขันธ์',
+        department: task.equipment?.section?.name || task.equipment?.department || '-',
+        hospital: task.equipment?.section?.hospital?.name || task.equipment?.location || '-',
+        district: task.equipment?.section?.hospital?.district || '-',
+        province: task.equipment?.section?.hospital?.province || '-',
       };
 
       // Reset results for new entry

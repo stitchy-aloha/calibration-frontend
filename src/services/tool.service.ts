@@ -15,7 +15,46 @@ export interface BackendEquipment {
   interval: number | null;
   calibration_due_date: string | null;
   calibration_date_last: string | null;
+  department: string | null;
+  location: string | null;
+  sectionId: number | null;
+  section: {
+    id: number;
+    name: string;
+    hospital: {
+      id: number;
+      name: string;
+      address: string;
+      district: string;
+      province: string;
+    };
+  } | null;
 }
+
+export interface Hospital {
+  id: number;
+  name: string;
+  address?: string;
+  district?: string;
+  province?: string;
+}
+
+export interface Section {
+  id: number;
+  name: string;
+  hospitalId: number;
+  hospital?: Hospital;
+}
+
+export const HospitalService = {
+  getAll: () => api.get<Hospital[]>('/hospital'),
+  getById: (id: number) => api.get<Hospital>(`/hospital/${id}`),
+};
+
+export const SectionService = {
+  getAll: () => api.get<Section[]>('/section'),
+  getByHospital: (hospitalId: number) => api.get<Section[]>(`/section?hospitalId=${hospitalId}`),
+};
 
 export const ToolService = {
   getAll: () => api.get<BackendEquipment[]>('/equipment'),

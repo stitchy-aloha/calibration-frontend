@@ -41,5 +41,7 @@ export interface MedicalTool {
   riskLevel?: string;
   equipmentType?: { id: number; name: string };
   equipment_type_id?: number | null;
+  sectionId?: number | null;
+  hospitalId?: number | null;
   backendId?: number;
 }

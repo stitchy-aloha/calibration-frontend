@@ -29,8 +29,8 @@ const equipmentInfo = computed(() => {
     calibrationInterval: eq?.interval ? `${eq.interval} วัน` : '-',
     lastCalibrationDate: eq?.calibration_date_last || '-',
     dueDate: eq?.calibration_due_date || '-',
-    department: eq?.department || '-',
-    location: eq?.location || '-',
+    department: eq?.section?.name || eq?.department || '-',
+    location: eq?.section?.hospital?.name || eq?.location || '-',
   };
 });
 </script>

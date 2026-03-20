@@ -35,6 +35,18 @@ export interface EquipmentApi {
   calibration_date_last: string;
   department?: string;
   location?: string;
+  sectionId?: number;
+  section?: {
+    id: number;
+    name: string;
+    hospital?: {
+      id: number;
+      name: string;
+      address?: string;
+      district?: string;
+      province?: string;
+    };
+  };
 }
 
 export interface MeasurementApi {
