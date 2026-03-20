@@ -16,6 +16,8 @@ export interface SubmitTaskPayload {
         average_value?: number | undefined;
         error_value?: number | undefined;
         result: 'PASS' | 'FAIL';
+        display_type?: string | undefined;
+        resolution?: string | undefined;
       }[]
     | undefined;
   qualitatives?:

@@ -48,9 +48,11 @@ export interface MeasurementRecord {
   reading_1?: number;
   reading_2?: number;
   reading_3?: number;
-  average_value?: number;
-  error_value?: number;
+  average_value?: number | undefined;
+  error_value?: number | undefined;
   result: 'PASS' | 'FAIL';
+  display_type?: string | undefined;
+  resolution?: string | undefined;
 }
 
 export interface QualitativeRecord {

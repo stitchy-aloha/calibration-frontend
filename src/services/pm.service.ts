@@ -40,6 +40,8 @@ export interface MeasurementApi {
   average_value: number;
   error_value: number;
   result: 'PASS' | 'FAIL';
+  display_type?: string;
+  resolution?: string;
   task_id: number;
 }
 

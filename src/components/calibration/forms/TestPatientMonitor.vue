@@ -2,11 +2,39 @@
   <div class="q-py-md">
     <!-- Detailed Tests specific to Patient Monitor -->
     <EkgTestCard :ekg-items="ekgItems" />
-    <TestParameterTable title="Systolic Pressure" v-model="systolicData" :show-range="true" />
-    <TestParameterTable title="Diastolic Pressure" v-model="diastolicData" :show-range="true" />
-    <TestParameterTable title="Temp" v-model="tempData" :show-range="false" />
-    <TestParameterTable title="Heart Rate" v-model="heartRateData" :show-range="false" />
-    <TestParameterTable title="Spo2" v-model="spo2Data" :show-range="false" />
+    <TestParameterTable
+      title="Systolic Pressure"
+      v-model="systolicData"
+      v-model:display-type="systolicDisplayType"
+      v-model:resolution="systolicResolution"
+      :show-range="true"
+    />
+    <TestParameterTable
+      title="Diastolic Pressure"
+      v-model="diastolicData"
+      :show-range="true"
+    />
+    <TestParameterTable
+      title="Temp"
+      v-model="tempData"
+      v-model:display-type="tempDisplayType"
+      v-model:resolution="tempResolution"
+      :show-range="false"
+    />
+    <TestParameterTable
+      title="Heart Rate"
+      v-model="heartRateData"
+      v-model:display-type="heartRateDisplayType"
+      v-model:resolution="heartRateResolution"
+      :show-range="false"
+    />
+    <TestParameterTable
+      title="Spo2"
+      v-model="spo2Data"
+      v-model:display-type="spo2DisplayType"
+      v-model:resolution="spo2Resolution"
+      :show-range="false"
+    />
 
     <!-- Summary Component -->
     <CalibrationSummary
@@ -46,6 +74,16 @@ const ekgItems = ref([
   { id: 'avf', label: 'aVF', status: null as 'pass' | 'fail' | null },
   { id: '1mv', label: '1mV', status: null as 'pass' | 'fail' | null },
 ]);
+
+// Metadata state per parameter
+const systolicDisplayType = ref('');
+const systolicResolution = ref('');
+const tempDisplayType = ref('');
+const tempResolution = ref('');
+const heartRateDisplayType = ref('');
+const heartRateResolution = ref('');
+const spo2DisplayType = ref('');
+const spo2Resolution = ref('');
 
 // Pressure tables: keep range + standard, user fills val1/val2/val3
 const systolicData: Ref<TestRow[]> = ref([
@@ -185,7 +223,22 @@ const spo2Data: Ref<TestRow[]> = ref([
 
 // Sync to store
 watch(
-  [ekgItems, systolicData, diastolicData, tempData, heartRateData, spo2Data],
+  [
+    ekgItems,
+    systolicData,
+    diastolicData,
+    tempData,
+    heartRateData,
+    spo2Data,
+    systolicDisplayType,
+    systolicResolution,
+    tempDisplayType,
+    tempResolution,
+    heartRateDisplayType,
+    heartRateResolution,
+    spo2DisplayType,
+    spo2Resolution,
+  ],
   () => {
     // Map qualitatives
     store.qualitatives = ekgItems.value.map((item) => ({
@@ -195,23 +248,26 @@ watch(
     }));
 
     // Map measurements
-    const mapRows = (rows: TestRow[], param: string) =>
-      rows.map((r) => {
-        const obj: {
-          parameter_name: string;
-          range: number;
-          result: 'PASS' | 'FAIL';
-          standard_value?: number;
-          reading_1?: number;
-          reading_2?: number;
-          reading_3?: number;
-          average_value?: number;
-          error_value?: number;
-        } = {
-          parameter_name: param,
-          range: r.range === 'ต่ำ' ? 1 : r.range === 'กลาง' ? 2 : r.range === 'สูง' ? 3 : 0,
-          result: r.status === 'pass' ? 'PASS' : 'FAIL',
-        };
+  const mapRows = (rows: TestRow[], param: string, displayType: string, resolution: string) => rows.map(r => {
+    const obj: {
+      parameter_name: string;
+      range: number;
+      result: 'PASS' | 'FAIL';
+      standard_value?: number;
+      reading_1?: number;
+      reading_2?: number;
+      reading_3?: number;
+      average_value?: number;
+      error_value?: number;
+      display_type?: string;
+      resolution?: string;
+    } = {
+      parameter_name: param,
+      range: r.range === 'ต่ำ' ? 1 : r.range === 'กลาง' ? 2 : r.range === 'สูง' ? 3 : 0,
+      result: r.status === 'pass' ? 'PASS' : 'FAIL',
+      display_type: displayType,
+      resolution: resolution,
+    };
         if (r.standard !== null && r.standard !== undefined) obj.standard_value = r.standard;
         if (r.val1 !== null && r.val1 !== undefined) obj.reading_1 = r.val1;
         if (r.val2 !== null && r.val2 !== undefined) obj.reading_2 = r.val2;
@@ -222,15 +278,13 @@ watch(
       });
 
     store.measurements = [
-      ...mapRows(systolicData.value, 'Systolic Pressure'),
-      ...mapRows(diastolicData.value, 'Diastolic Pressure'),
-      ...mapRows(tempData.value, 'Temperature'),
-      ...mapRows(heartRateData.value, 'Heart Rate'),
-      ...mapRows(spo2Data.value, 'SpO2'),
-    ];
-  },
-  { deep: true },
-);
+    ...mapRows(systolicData.value, 'Systolic Pressure', systolicDisplayType.value, systolicResolution.value),
+    ...mapRows(diastolicData.value, 'Diastolic Pressure', '', ''),
+    ...mapRows(tempData.value, 'Temperature', tempDisplayType.value, tempResolution.value),
+    ...mapRows(heartRateData.value, 'Heart Rate', heartRateDisplayType.value, heartRateResolution.value),
+    ...mapRows(spo2Data.value, 'SpO2', spo2DisplayType.value, spo2Resolution.value),
+  ];
+}, { deep: true });
 </script>
 
 <style scoped lang="scss"></style>

@@ -4,6 +4,22 @@
     <div class="section-title">{{ title }}</div>
   </div>
 
+  <!-- Parameter Metadata: Display Type and Resolution (Read-only) -->
+  <div
+    v-if="displayType || resolution"
+    class="row q-gutter-x-md q-mb-sm text-grey-7 text-caption items-center q-pl-sm"
+    style="margin-top: -4px"
+  >
+    <div v-if="displayType" class="row items-center">
+      <span class="q-mr-xs">Display Type:</span>
+      <span class="text-weight-bold text-grey-9 text-uppercase">{{ displayType }}</span>
+    </div>
+    <div v-if="resolution" class="row items-center">
+      <span class="q-mr-xs">Resolution:</span>
+      <span class="text-weight-bold text-grey-9">{{ resolution }}</span>
+    </div>
+  </div>
+
   <q-table
     :rows="rows"
     :columns="visibleColumns"
@@ -105,6 +121,8 @@ const props = defineProps<{
   title: string;
   rows: TestRow[];
   showRange?: boolean;
+  displayType?: string;
+  resolution?: string;
 }>();
 
 const showRange = computed(() => props.showRange !== false);

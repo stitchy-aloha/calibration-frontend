@@ -5,6 +5,38 @@
     <q-btn flat dense no-caps icon="add" label="เพิ่มพารามิเตอร์" @click="addRow" class="btn" />
   </div>
 
+  <!-- Parameter Metadata: Display Type and Resolution -->
+  <div
+    v-if="displayType !== undefined || resolution !== undefined"
+    class="row q-gutter-x-md q-mb-sm text-grey-7 text-caption items-center q-pl-sm"
+    style="margin-top: 20px"
+  >
+    <div class="row items-center">
+      <span class="q-mr-xs">Display Type:</span>
+      <q-input
+        :model-value="displayType"
+        @update:model-value="emit('update:displayType', $event as string)"
+        dense
+        borderless
+        hide-bottom-space
+        input-class="text-weight-bold grey-9"
+        style="width: 80px"
+      />
+    </div>
+    <div class="row items-center">
+      <span class="q-mr-xs">Resolution:</span>
+      <q-input
+        :model-value="resolution"
+        @update:model-value="emit('update:resolution', $event as string)"
+        dense
+        borderless
+        hide-bottom-space
+        input-class="text-weight-bold grey-9"
+        style="width: 50px"
+      />
+    </div>
+  </div>
+
   <q-table
     :rows="rows"
     :columns="visibleColumns"
@@ -205,10 +237,14 @@ const props = defineProps<{
   title: string;
   modelValue: TestRow[];
   showRange?: boolean;
+  displayType?: string;
+  resolution?: string;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: TestRow[]): void;
+  (e: 'update:displayType', value: string): void;
+  (e: 'update:resolution', value: string): void;
 }>();
 
 const showRange = computed(() => props.showRange !== false);

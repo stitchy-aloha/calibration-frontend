@@ -27,15 +27,45 @@
     <EkgTestCard :ekg-items="ekgItems" :readonly="true" />
 
     <!-- Parameter Tables (read-only) -->
-    <ApprovalParameterTable title="Systolic Pressure" :rows="systolicData" :show-range="true" />
+    <ApprovalParameterTable
+      title="Systolic Pressure"
+      :rows="systolicData"
+      :show-range="true"
+      :display-type="getMetadata('Systolic Pressure').displayType"
+      :resolution="getMetadata('Systolic Pressure').resolution"
+    />
 
-    <ApprovalParameterTable title="Diastolic Pressure" :rows="diastolicData" :show-range="true" />
+    <ApprovalParameterTable
+      title="Diastolic Pressure"
+      :rows="diastolicData"
+      :show-range="true"
+      :display-type="getMetadata('Diastolic Pressure').displayType"
+      :resolution="getMetadata('Diastolic Pressure').resolution"
+    />
 
-    <ApprovalParameterTable title="Temp" :rows="tempData" :show-range="false" />
+    <ApprovalParameterTable
+      title="Temp"
+      :rows="tempData"
+      :show-range="false"
+      :display-type="getMetadata('Temperature').displayType"
+      :resolution="getMetadata('Temperature').resolution"
+    />
 
-    <ApprovalParameterTable title="Heart Rate" :rows="heartRateData" :show-range="false" />
+    <ApprovalParameterTable
+      title="Heart Rate"
+      :rows="heartRateData"
+      :show-range="false"
+      :display-type="getMetadata('Heart Rate').displayType"
+      :resolution="getMetadata('Heart Rate').resolution"
+    />
 
-    <ApprovalParameterTable title="Spo2" :rows="spo2Data" :show-range="false" />
+    <ApprovalParameterTable
+      title="Spo2"
+      :rows="spo2Data"
+      :show-range="false"
+      :display-type="getMetadata('SpO2').displayType"
+      :resolution="getMetadata('SpO2').resolution"
+    />
 
     <!-- Calibration Summary Component (reused from record) -->
     <CalibrationSummary
@@ -95,6 +125,14 @@ const mapMeasurements = (name: string): TestRow[] => {
     error: m.error_value,
     status: m.result.toLowerCase() as 'pass' | 'fail',
   }));
+};
+
+const getMetadata = (name: string) => {
+  const item = props.task?.measurements?.find((m) => m.parameter_name === name);
+  return {
+    displayType: item?.display_type || '',
+    resolution: item?.resolution || '',
+  };
 };
 
 const ekgItems = computed<EkgItem[]>(() => {
