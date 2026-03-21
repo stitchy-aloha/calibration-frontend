@@ -90,6 +90,20 @@
         </div>
       </div>
 
+      <!-- ===== SPECIFICATIONS (Specific Parameters) ===== -->
+      <div v-if="specificParameters && specificParameters.length > 0" class="cer-specs-grid q-mb-md">
+        <div class="row q-col-gutter-sm">
+          <div v-for="(param, idx) in specificParameters" :key="idx" class="col-3">
+            <div class="spec-box text-center">
+              <div class="spec-label">{{ param.name }}</div>
+              <div class="spec-value">
+                {{ param.value || '-' }} <span class="spec-unit">{{ param.unit || '' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ===== MAIN CONTENT ===== -->
       <div class="cer-body">
         <!-- Reading Table -->
@@ -98,110 +112,48 @@
             <tr>
               <th class="text-left w-25"></th>
               <th>STD Setting</th>
-              <th>UUC Reading</th>
-              <th>Error</th>
-              <th>Accept value</th>
+              <th>UUC Reading <span v-if="hasExtendedReadings" class="text-caption block">(1,2,3) Mean</span></th>
+              <th>Error <span v-if="hasUcbData" class="text-caption block">(Budget) Offset</span></th>
+              <th>Result</th>
             </tr>
           </thead>
           <tbody>
-            <!-- Systolic -->
-            <tr>
-              <td class="text-left label-col">Systolic Pressure</td>
+            <!-- Dynamic Rows -->
+            <tr v-for="(m, idx) in measurements" :key="idx">
+              <td class="text-left label-col">{{ m.parameter_name }}</td>
               <td>
-                <div class="unit">mmHg</div>
-                {{ readings.systolic.std }}
+                <div class="unit">{{ m.display_type || '' }}</div>
+                {{ m.standard_value }}
               </td>
+              <!-- Multiple Readings Support -->
+              <template v-if="m.reading_2 !== null || m.ucb1 !== null">
+                <td>
+                  <div class="column items-center">
+                    <div class="row q-gutter-x-xs no-wrap text-caption text-grey-8">
+                       <span>{{ m.reading_1 }}</span>
+                       <span>{{ m.reading_2 }}</span>
+                       <span>{{ m.reading_3 }}</span>
+                    </div>
+                    <div class="text-weight-bold">{{ m.average_value }}</div>
+                  </div>
+                </td>
+                <td>
+                  <div class="column items-center">
+                    <div class="row q-gutter-x-xs no-wrap text-caption text-grey-7" v-if="m.ucb1">
+                       <span>{{ m.ucb1 }}</span>
+                       <span>{{ m.ucb2 }}</span>
+                       <span>{{ m.ucb3 }}</span>
+                    </div>
+                    <div>{{ m.error_value }}</div>
+                  </div>
+                </td>
+              </template>
+              <template v-else>
+                <td>{{ m.average_value }}</td>
+                <td>{{ m.error_value }}</td>
+              </template>
               <td>
-                <div class="unit">mmHg</div>
-                {{ readings.systolic.uuc }}
-              </td>
-              <td>
-                <div class="unit">mmHg</div>
-                {{ readings.systolic.error }}
-              </td>
-              <td>
-                <div class="unit">mmHg</div>
-                {{ readings.systolic.accept }}
-              </td>
-            </tr>
-            <!-- Diastolic -->
-            <tr>
-              <td class="text-left label-col">Diastolic Pressure</td>
-              <td>
-                <div class="unit">mmHg</div>
-                {{ readings.diastolic.std }}
-              </td>
-              <td>
-                <div class="unit">mmHg</div>
-                {{ readings.diastolic.uuc }}
-              </td>
-              <td>
-                <div class="unit">mmHg</div>
-                {{ readings.diastolic.error }}
-              </td>
-              <td>
-                <div class="unit">mmHg</div>
-                {{ readings.diastolic.accept }}
-              </td>
-            </tr>
-            <!-- Temperature -->
-            <tr>
-              <td class="text-left label-col">Temperature</td>
-              <td>
-                <div class="unit">Celsius</div>
-                {{ readings.temperature.std }}
-              </td>
-              <td>
-                <div class="unit">Celsius</div>
-                {{ readings.temperature.uuc }}
-              </td>
-              <td>
-                <div class="unit">Celsius</div>
-                {{ readings.temperature.error }}
-              </td>
-              <td>
-                <div class="unit">Celsius</div>
-                {{ readings.temperature.accept }}
-              </td>
-            </tr>
-            <!-- Heart Rate -->
-            <tr>
-              <td class="text-left label-col">Heart Rate</td>
-              <td>
-                <div class="unit">Pulse/Minute</div>
-                {{ readings.heartRate.std }}
-              </td>
-              <td>
-                <div class="unit">Pulse/Minute</div>
-                {{ readings.heartRate.uuc }}
-              </td>
-              <td>
-                <div class="unit">Pulse/Minute</div>
-                {{ readings.heartRate.error }}
-              </td>
-              <td>
-                <div class="unit">Pulse/Minute</div>
-                {{ readings.heartRate.accept }}
-              </td>
-            </tr>
-            <!-- SpO2 -->
-            <tr>
-              <td class="text-left label-col">SpO2</td>
-              <td>
-                <div class="unit">%</div>
-                {{ readings.spo2.std }}
-              </td>
-              <td>
-                <div class="unit">%</div>
-                {{ readings.spo2.uuc }}
-              </td>
-              <td>
-                <div class="unit">%</div>
-                {{ readings.spo2.error }}
-              </td>
-              <td>
-                <div class="unit">%</div>
-                {{ readings.spo2.accept }}
+                {{ m.result === 'PASS' ? 'ผ่าน' : 'ไม่ผ่าน' }}
               </td>
             </tr>
           </tbody>
@@ -290,6 +242,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 interface ReadingItem {
   std: string;
   uuc: string;
@@ -297,7 +250,41 @@ interface ReadingItem {
   accept: string;
 }
 
-interface CerCalibrationData {
+interface StandardItem {
+  manufacture: string;
+  model: string;
+  sn: string;
+  calDate: string;
+  certNo: string;
+}
+
+export interface MeasurementApi {
+  id: number;
+  parameter_name: string;
+  range: number;
+  standard_value: number;
+  reading_1: number;
+  reading_2: number;
+  reading_3: number;
+  average_value: number;
+  error_value: number;
+  result: 'PASS' | 'FAIL';
+  display_type?: string;
+  resolution?: string;
+  ucb1?: number | null;
+  ucb2?: number | null;
+  ucb3?: number | null;
+}
+
+export interface SpecificParameterApi {
+  id: number;
+  name: string;
+  value: string | null;
+  unit: string | null;
+  task_id: number;
+}
+
+export interface CerCalibrationData {
   certNo: string;
   detail: string;
   manufacture: string;
@@ -313,16 +300,10 @@ interface CerCalibrationData {
   apprDate: string;
 }
 
-interface StandardItem {
-  manufacture: string;
-  model: string;
-  sn: string;
-  calDate: string;
-  certNo: string;
-}
-
 interface Props {
   data?: CerCalibrationData;
+  specificParameters?: SpecificParameterApi[];
+  measurements?: MeasurementApi[];
   readings?: {
     systolic: ReadingItem;
     diastolic: ReadingItem;
@@ -343,7 +324,8 @@ interface Props {
   standards?: StandardItem[];
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
+  measurements: () => [],
   data: () => ({
     certNo: 'CAL-001',
     detail: 'PATIENT MONITOR',
@@ -393,6 +375,14 @@ withDefaults(defineProps<Props>(), {
     },
   ],
 });
+
+const hasExtendedReadings = computed(() => 
+  props.measurements?.some(m => m.reading_2 !== null && m.reading_2 !== undefined)
+);
+
+const hasUcbData = computed(() => 
+  props.measurements?.some(m => m.ucb1 !== null && m.ucb1 !== undefined)
+);
 </script>
 
 <style scoped lang="scss">
@@ -734,5 +724,36 @@ withDefaults(defineProps<Props>(), {
     box-shadow: none;
     margin: 0;
   }
+}
+
+.cer-specs-grid {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+
+.spec-box {
+  border: 1px solid #eee;
+  padding: 6px;
+  border-radius: 4px;
+  background: #fcfcfc;
+}
+
+.spec-label {
+  font-size: 8pt;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.spec-value {
+  font-size: 10pt;
+  font-weight: 700;
+  color: #000;
+}
+
+.spec-unit {
+  font-size: 8pt;
+  font-weight: 400;
+  color: #888;
 }
 </style>

@@ -64,6 +64,9 @@ export interface MeasurementApi {
   result: 'PASS' | 'FAIL';
   display_type?: string;
   resolution?: string;
+  ucb1?: number;
+  ucb2?: number;
+  ucb3?: number;
   task_id: number;
 }
 
@@ -79,6 +82,14 @@ export interface QualitativeApi {
   parameter_name?: string;
   item_name: string;
   result: 'PASS' | 'FAIL' | 'NA';
+  task_id: number;
+}
+
+export interface SpecificParameterApi {
+  id: number;
+  name: string;
+  value: string | null;
+  unit: string | null;
   task_id: number;
 }
 
@@ -134,6 +145,7 @@ export interface TaskApi {
   qualitatives?: QualitativeApi[];
   checklistResults?: PmChecklistResultApi[];
   checklistRemarks?: PmCategoryRemarkApi[];
+  specificParameters?: SpecificParameterApi[];
   remarks?: string;
   standardTools?: {
     id: number;

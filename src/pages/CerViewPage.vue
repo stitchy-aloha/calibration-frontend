@@ -76,7 +76,11 @@
           <CerCertificate :data="activeCerData" />
         </div>
         <div v-show="selectedCert === 2 || isPrinting">
-          <CerCalibration />
+          <CerCalibration
+            :data="calibrationCertData"
+            :measurements="task?.measurements || []"
+            :specific-parameters="task?.specificParameters || []"
+          />
         </div>
       </div>
     </div>
@@ -93,6 +97,7 @@ import type { TaskApi } from 'src/services/pm.service';
 import CerCertificate from 'src/components/history/CerCertificate.vue';
 import type { CerData } from 'src/components/history/CerCertificate.vue';
 import CerCalibration from 'src/components/history/CerCalibration.vue';
+import type { CerCalibrationData } from 'src/components/history/CerCalibration.vue';
 
 const route = useRoute();
 const selectedCert = ref(1);
@@ -119,6 +124,7 @@ const activeCerData = computed((): CerData => {
       remark2: '',
       remark3: '',
       overallResult: 'pass' as const,
+      specificParameters: [],
     };
   }
 
@@ -160,6 +166,31 @@ const activeCerData = computed((): CerData => {
           role: t.technician.role ?? null,
         }
       : null,
+    specificParameters: t.specificParameters || [],
+  };
+});
+
+const calibrationCertData = computed((): CerCalibrationData => {
+  const t = task.value;
+  return {
+    certNo: t?.pm_no || (t ? `CAL-${t.id}` : '-'),
+    detail: t?.equipment?.name || '-',
+    manufacture: t?.equipment?.manufacturer || '-',
+    model: t?.equipment?.model || '-',
+    serialNo: t?.equipment?.serial_number || '-',
+    idNo: t?.equipment?.asset_code || '-',
+    department: t?.equipment?.section?.hospital?.name || t?.equipment?.location || 'Hospital',
+    address:
+      [t?.equipment?.section?.hospital?.district, t?.equipment?.section?.hospital?.province]
+        .filter(Boolean)
+        .join(' ') || '-',
+    section: t?.equipment?.section
+      ? `${t.equipment.section.name} - ${t.equipment.section.description}`
+      : t?.equipment?.department || '-',
+    temperature: '25', // Should come from environmental data if available
+    humidity: '45',
+    calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-',
+    apprDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-',
   };
 });
 

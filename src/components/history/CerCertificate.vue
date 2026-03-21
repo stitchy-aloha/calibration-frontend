@@ -249,6 +249,14 @@ export interface QualitativeItem {
   display_order?: number | undefined;
 }
 
+export interface SpecificParameterApi {
+  id: number;
+  name: string;
+  value: string | null;
+  unit: string | null;
+  task_id: number;
+}
+
 export interface CerData {
   pmNo: string;
   pmId: string;
@@ -266,6 +274,7 @@ export interface CerData {
   remark3: string;
   overallResult: 'pass' | 'fail';
   qualitatives?: QualitativeItem[];
+  specificParameters?: SpecificParameterApi[];
   technician?: {
     name: string;
     signatureUrl?: string | null;

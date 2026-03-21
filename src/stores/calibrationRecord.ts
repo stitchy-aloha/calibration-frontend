@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { CalibrationService } from 'src/services/calibration.service';
 import type { SubmitTaskPayload } from 'src/services/calibration.service';
+import type { SpecificParameterApi } from 'src/services/pm.service';
 
 export interface EquipmentDetails {
   id: string;
@@ -61,6 +62,12 @@ export interface QualitativeRecord {
   result: 'PASS' | 'FAIL' | 'NA';
 }
 
+export interface SpecificParameter {
+  name: string;
+  value?: string | undefined;
+  unit?: string | undefined;
+}
+
 export const useCalibrationRecordStore = defineStore('calibrationRecord', () => {
   const loading = ref(false);
   const activeTab = ref('general');
@@ -95,6 +102,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
   const standardToolIds = ref<number[]>([]);
   const measurements = ref<MeasurementRecord[]>([]);
   const qualitatives = ref<QualitativeRecord[]>([]);
+  const specificParameters = ref<SpecificParameter[]>([]);
   const overallResult = ref<'Pass' | 'Fail' | 'NA'>('Pass');
 
   async function fetchCalibrationRecord(id: string | number) {
@@ -137,6 +145,11 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       environment.value = { temperature: 25, humidity: 45 };
       measurements.value = [];
       qualitatives.value = [];
+      specificParameters.value = task.specificParameters?.map((p: SpecificParameterApi) => ({
+        name: p.name,
+        value: p.value ?? undefined,
+        unit: p.unit ?? undefined,
+      })) || [];
       standardToolIds.value = [];
     } catch (error) {
       console.error('Failed to fetch calibration record', error);
@@ -156,6 +169,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
         standard_tool_ids: standardToolIds.value,
         measurements: measurements.value,
         qualitatives: qualitatives.value,
+        specific_parameters: specificParameters.value,
         overall_result: overallResult.value,
       };
 
@@ -179,6 +193,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
     standardToolIds,
     measurements,
     qualitatives,
+    specificParameters,
     overallResult,
     fetchCalibrationRecord,
     submitCalibration,

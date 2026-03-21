@@ -18,12 +18,22 @@ export interface SubmitTaskPayload {
         result: 'PASS' | 'FAIL';
         display_type?: string | undefined;
         resolution?: string | undefined;
+        ucb1?: number | undefined;
+        ucb2?: number | undefined;
+        ucb3?: number | undefined;
       }[]
     | undefined;
   qualitatives?:
     | {
         item_name: string;
         result: 'PASS' | 'FAIL' | 'NA';
+      }[]
+    | undefined;
+  specific_parameters?:
+    | {
+        name: string;
+        value?: string | undefined;
+        unit?: string | undefined;
       }[]
     | undefined;
   overall_result: 'Pass' | 'Fail' | 'NA';
