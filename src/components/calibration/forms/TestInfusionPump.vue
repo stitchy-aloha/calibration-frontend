@@ -212,7 +212,15 @@ watch(
     ];
 
     // Sync Measurements
-    const mapRows = (rows: TestRow[], paramName: string, displayType: string, resolution: string): MeasurementRecord[] =>
+    const mapRows = (
+      rows: TestRow[],
+      paramName: string,
+      displayType: string,
+      resolution: string,
+      ucb1?: string | number,
+      ucb2?: string | number,
+      ucb3?: string | number,
+    ): MeasurementRecord[] =>
       rows.map((r) => {
         const row: MeasurementRecord = {
           parameter_name: paramName,
@@ -226,12 +234,15 @@ watch(
         if (r.val3 !== null) row.reading_3 = r.val3;
         if (r.average !== null) row.average_value = r.average;
         if (r.error !== null) row.error_value = r.error;
+        if (ucb1 !== undefined && ucb1 !== '') row.ucb1 = Number(ucb1);
+        if (ucb2 !== undefined && ucb2 !== '') row.ucb2 = Number(ucb2);
+        if (ucb3 !== undefined && ucb3 !== '') row.ucb3 = Number(ucb3);
         return row;
       });
 
     store.measurements = [
-      ...mapRows(flowRate.value.data, 'Flow Rate', flowRate.value.displayType, flowRate.value.resolution),
-      ...mapRows(volume.value.data, 'Volume', volume.value.displayType, volume.value.resolution),
+      ...mapRows(flowRate.value.data, 'Flow Rate', flowRate.value.displayType, flowRate.value.resolution, flowRate.value.ucb1, flowRate.value.ucb2, flowRate.value.ucb3),
+      ...mapRows(volume.value.data, 'Volume', volume.value.displayType, volume.value.resolution, volume.value.ucb1, volume.value.ucb2, volume.value.ucb3),
     ];
 
     store.overallResult = overallPassed.value ? 'Pass' : 'Fail';
