@@ -35,6 +35,7 @@
     </div>
 
     <!-- UCB Fields (Conditional) -->
+    <q-space />
     <template v-if="showUcb">
       <div class="row items-center q-gutter-x-sm q-ml-md">
         <div class="row items-center ucb-input-group">
@@ -43,10 +44,9 @@
             :model-value="ucb1"
             @update:model-value="emit('update:ucb1', $event as string | number)"
             dense
-            outlined
+            borderless
             hide-bottom-space
             class="ucb-input"
-            style="width: 80px"
           />
         </div>
         <div class="row items-center ucb-input-group">
@@ -55,10 +55,9 @@
             :model-value="ucb2"
             @update:model-value="emit('update:ucb2', $event as string | number)"
             dense
-            outlined
+            borderless
             hide-bottom-space
             class="ucb-input"
-            style="width: 80px"
           />
         </div>
         <div class="row items-center ucb-input-group">
@@ -67,16 +66,14 @@
             :model-value="ucb3"
             @update:model-value="emit('update:ucb3', $event as string | number)"
             dense
-            outlined
+            borderless
             hide-bottom-space
             class="ucb-input"
-            style="width: 80px"
           />
         </div>
       </div>
     </template>
 
-    <q-space />
     <q-btn flat dense no-caps icon="add" label="เพิ่มพารามิเตอร์" @click="addRow" class="btn" />
   </div>
 
@@ -286,6 +283,8 @@ const props = defineProps<{
   ucb1?: number | string;
   ucb2?: number | string;
   ucb3?: number | string;
+  errorType?: 'absolute' | 'percent';
+  errorLimit?: number;
 }>();
 
 const emit = defineEmits<{
@@ -364,11 +363,25 @@ const calculate = (index: number) => {
     const avg = (row.val1 + row.val2 + row.val3) / 3;
     row.average = Number(avg.toFixed(1));
 
-    if (row.standard !== null) {
+    if (row.standard !== null && row.standard !== 0) {
+      const type = props.errorType || 'absolute';
+      const limit = props.errorLimit !== undefined ? props.errorLimit : 2;
+
+      if (type === 'percent') {
+        const err = ((row.average - row.standard) / row.standard) * 100;
+        row.error = Number(err.toFixed(1));
+      } else {
+        const err = row.average - row.standard;
+        row.error = Number(err.toFixed(1));
+      }
+
+      row.status = Math.abs(row.error) <= limit ? 'pass' : 'fail';
+    } else if (row.standard === 0) {
+      // Avoid division by zero for percent type
       const err = row.average - row.standard;
       row.error = Number(err.toFixed(1));
-      // Pass/Fail: within ±2 of standard
-      row.status = Math.abs(row.error) <= 2 ? 'pass' : 'fail';
+      const limit = props.errorLimit !== undefined ? props.errorLimit : 2;
+      row.status = Math.abs(row.error) <= limit ? 'pass' : 'fail';
     } else {
       row.error = null;
       row.status = null;
@@ -403,7 +416,8 @@ const errorClass = (error: number | null): string => {
 
 const formatError = (error: number | null): string => {
   if (error === null) return '-';
-  return (error > 0 ? '+' : '') + error;
+  const suffix = props.errorType === 'percent' ? '%' : '';
+  return (error > 0 ? '+' : '') + error + suffix;
 };
 </script>
 
@@ -435,6 +449,7 @@ const formatError = (error: number | null): string => {
 }
 
 .btn {
+  margin-left: 10px;
   background-color: $secondary;
   color: white;
   width: 150px;
@@ -501,8 +516,8 @@ const formatError = (error: number | null): string => {
 }
 
 .ucb-badge {
-  background: #d1d1f0;
-  color: #5c5c8a;
+  background: $secondary;
+  color: white;
   padding: 0 12px;
   font-weight: 700;
   font-size: 12px;
@@ -512,15 +527,17 @@ const formatError = (error: number | null): string => {
 }
 
 .ucb-input :deep(.q-field__control) {
-  border: none !important;
-  box-shadow: none !important;
   height: 32px;
   min-height: 32px;
+  width: 90px;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .ucb-input :deep(.q-field__native) {
   text-align: center;
   font-weight: 600;
   padding: 0;
+  width: 100%;
 }
 </style>

@@ -48,14 +48,34 @@ const emit = defineEmits<{
 // Map device types to their respective form components
 const deviceComponentMap: Record<string, Component> = {
   'Patient Monitor': TestPatientMonitor,
+  'monitor': TestPatientMonitor,
   'Infusion Pump': TestInfusionPump,
-  // Add other equipment types here...
+  'infusion': TestInfusionPump,
+  'syringe': TestInfusionPump,
+  'เครื่องให้สารน้ำทางหลอดเลือด': TestInfusionPump,
 };
 
 // Compute which component to show based on the equipment name in the store
 const currentDeviceComponent = computed(() => {
-  const type = store.equipmentDetails.name;
-  return deviceComponentMap[type] || TestUnknown;
+  const type = (store.equipmentDetails.type || '').toLowerCase();
+  const name = (store.equipmentDetails.name || '').toLowerCase();
+
+  // 1. Try exact/case-insensitive key match on 'type'
+  const match = Object.keys(deviceComponentMap).find(
+    (key) => key.toLowerCase() === type
+  );
+  if (match) return deviceComponentMap[match];
+
+  // 2. Try keyword match on 'type' or 'name'
+  const keywords = Object.keys(deviceComponentMap);
+  for (const kw of keywords) {
+    const lkw = kw.toLowerCase();
+    if (type.includes(lkw) || name.includes(lkw)) {
+      return deviceComponentMap[kw];
+    }
+  }
+
+  return TestUnknown;
 });
 </script>
 

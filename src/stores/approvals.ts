@@ -27,7 +27,7 @@ export const useApprovalsStore = defineStore('approvals', () => {
     { label: 'ปฏิเสธ', value: 'rejected' },
   ];
 
-  async function fetchApprovals() {
+  async function fetchApprovals(): Promise<void> {
     loading.value = true;
     try {
       const res = await api.get<TaskApi[]>('/pm-task');
@@ -75,7 +75,7 @@ export const useApprovalsStore = defineStore('approvals', () => {
     return result;
   });
 
-  async function approveEvent(taskId: number, approverId: number = 1) {
+  async function approveEvent(taskId: number, approverId: number = 1): Promise<boolean> {
     try {
       await api.patch(`/pm-task/${taskId}/approve`, {
         approver_id: approverId,
@@ -90,7 +90,7 @@ export const useApprovalsStore = defineStore('approvals', () => {
     }
   }
 
-  async function rejectEvent(taskId: number, remarks: string, approverId: number = 1) {
+  async function rejectEvent(taskId: number, remarks: string, approverId: number = 1): Promise<boolean> {
     try {
       await api.patch(`/pm-task/${taskId}/approve`, {
         approver_id: approverId,

@@ -79,7 +79,9 @@
             props.row.calibrationCycle
           }}</q-td>
           <q-td key="dueDate" :props="props" class="text-center">{{ props.row.dueDate }}</q-td>
-          <q-td key="department" :props="props" class="text-center">{{ props.row.department }}</q-td>
+          <q-td key="department" :props="props" class="text-center">{{
+            props.row.department
+          }}</q-td>
           <q-td key="status" :props="props" class="text-center">
             <span class="status-badge" :class="statusClass(props.row.status)">
               {{ props.row.status }}

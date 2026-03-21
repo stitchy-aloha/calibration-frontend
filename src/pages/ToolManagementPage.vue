@@ -269,7 +269,7 @@ import CalibrationProcessDialog from 'src/components/tools/CalibrationProcessDia
 import CalibrationCostDialog from 'src/components/tools/CalibrationCostDialog.vue';
 import ConfirmDeleteDialog from 'src/components/common/ConfirmDeleteDialog.vue';
 import { useToolsStore } from 'src/stores/tools';
-import type { CalibrationProcess, CalibrationCost } from 'src/types';
+import type { CalibrationProcess, CalibrationCost } from 'src/types/tool.types';
 
 const router = useRouter();
 const store = useToolsStore();

@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { Ref, ComputedRef } from 'vue';
 import type { MedicalTool, CalibrationProcess, CalibrationCost, ToolStatus } from 'src/types';
 import { ToolService, HospitalService, SectionService } from 'src/services/tool.service';
 import type { BackendEquipment, Hospital, Section } from 'src/services/tool.service';
@@ -150,37 +149,9 @@ const mockCalibrationCosts: CalibrationCost[] = [
   { id: 'CC-014', toolName: 'Ventilator', description: 'เครื่องช่วยหายใจ', price: 2000 },
 ];
 
-export interface ToolsStoreState {
-  tools: Ref<MedicalTool[]>;
-  loading: Ref<boolean>;
-  equipmentTypes: Ref<{ id: number; name: string }[]>;
-  hospitals: Ref<Hospital[]>;
-  sections: Ref<Section[]>;
-  calibrationProcesses: Ref<CalibrationProcess[]>;
-  calibrationCosts: Ref<CalibrationCost[]>;
-  searchQuery: Ref<string>;
-  selectedType: Ref<string>;
-  fetchEquipmentTypes: () => Promise<void>;
-  typeOptions: ComputedRef<{ label: string; value: string }[]>;
-  statusOptions: { label: string; value: ToolStatus }[];
-  locationOptions: { label: string; value: string }[];
-  filteredTools: ComputedRef<MedicalTool[]>;
-  nextId: ComputedRef<string>;
-  fetchTools: () => Promise<void>;
-  fetchHospitals: () => Promise<void>;
-  fetchSections: () => Promise<void>;
-  addTool: (tool: Omit<MedicalTool, 'id'>) => Promise<void>;
-  updateTool: (id: string, data: Partial<MedicalTool>) => Promise<void>;
-  deleteTool: (id: string) => Promise<void>;
-  addCalibrationProcess: (item: Omit<CalibrationProcess, 'id'>) => void;
-  updateCalibrationProcess: (id: string, data: Partial<CalibrationProcess>) => void;
-  deleteCalibrationProcess: (id: string) => void;
-  addCalibrationCost: (item: Omit<CalibrationCost, 'id'>) => void;
-  updateCalibrationCost: (id: string, data: Partial<CalibrationCost>) => void;
-  deleteCalibrationCost: (id: string) => void;
-}
+// Type interface removed to allow better inference in Setup Store pattern
 
-export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
+export const useToolsStore = defineStore('tools', () => {
   const tools = ref<MedicalTool[]>([]);
   const loading = ref(false);
   const equipmentTypes = ref<{ id: number; name: string }[]>([]);
@@ -218,7 +189,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     return d;
   }
 
-  async function fetchEquipmentTypes() {
+  async function fetchEquipmentTypes(): Promise<void> {
     try {
       const res = await ToolService.getEquipmentTypes();
       equipmentTypes.value = res.data;
@@ -226,7 +197,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
       console.error('fetchEquipmentTypes error:', e);
     }
   }
-  async function fetchHospitals() {
+  async function fetchHospitals(): Promise<void> {
     try {
       const res = await HospitalService.getAll();
       hospitals.value = res.data;
@@ -234,7 +205,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
       console.error('fetchHospitals error:', e);
     }
   }
-  async function fetchSections() {
+  async function fetchSections(): Promise<void> {
     try {
       const res = await SectionService.getAll();
       sections.value = res.data;
@@ -243,7 +214,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     }
   }
 
-  async function fetchTools() {
+  async function fetchTools(): Promise<void> {
     loading.value = true;
     try {
       // Ensure types are fetched
@@ -278,7 +249,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     }
   }
 
-  async function addTool(tool: Omit<MedicalTool, 'id'>) {
+  async function addTool(tool: Omit<MedicalTool, 'id'>): Promise<void> {
     await ToolService.create({
       name: tool.name,
       manufacturer: tool.company,
@@ -295,7 +266,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     await fetchTools();
   }
 
-  async function updateTool(id: string, data: Partial<MedicalTool>) {
+  async function updateTool(id: string, data: Partial<MedicalTool>): Promise<void> {
     const target = tools.value.find((t) => t.id === id);
     const backendId = target?.backendId ?? Number(id);
     await ToolService.update(backendId, {
@@ -320,7 +291,7 @@ export const useToolsStore = defineStore('tools', (): ToolsStoreState => {
     await fetchTools();
   }
 
-  async function deleteTool(id: string) {
+  async function deleteTool(id: string): Promise<void> {
     const target = tools.value.find((t) => t.id === id);
     const backendId = target?.backendId ?? Number(id);
     await ToolService.remove(backendId);

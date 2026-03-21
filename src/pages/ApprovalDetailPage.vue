@@ -180,7 +180,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { QInput } from 'quasar';
-import { useApprovalsStore } from 'stores/approvals';
+import { useApprovalsStore } from 'src/stores/approvals';
 import { pmService } from 'src/services/pm.service';
 import type { TaskApi } from 'src/services/pm.service';
 import ApprovalTabGeneralInfo from 'components/calibration/approval/ApprovalTabGeneralInfo.vue';
