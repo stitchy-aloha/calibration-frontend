@@ -142,7 +142,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       };
 
       // Reset results for new entry
-      environment.value = { temperature: 25, humidity: 45 };
+      environment.value = { temperature: null, humidity: null };
       measurements.value = [];
       qualitatives.value = [];
       specificParameters.value = task.specificParameters?.map((p: SpecificParameterApi) => ({

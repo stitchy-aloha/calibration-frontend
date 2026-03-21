@@ -1,79 +1,83 @@
 <template>
-  <!-- Title and add button OUTSIDE the card border -->
-  <div class="row justify-between items-center q-mb-sm">
-    <div class="section-title">{{ title }}</div>
-    <q-btn flat dense no-caps icon="add" label="เพิ่มพารามิเตอร์" @click="addRow" class="btn" />
-  </div>
+  <div class="section-title q-mb-xs">{{ title }}</div>
 
-  <!-- Parameter Metadata: Display Type and Resolution -->
-  <div
-    v-if="displayType !== undefined || resolution !== undefined"
-    class="row q-gutter-x-md q-mb-sm text-grey-7 text-caption items-center q-pl-sm"
-    style="margin-top: 20px"
-  >
-    <div class="row items-center">
-      <span class="q-mr-xs">Display Type:</span>
-      <q-input
-        :model-value="displayType"
-        @update:model-value="emit('update:displayType', $event as string)"
-        dense
-        borderless
-        hide-bottom-space
-        input-class="text-weight-bold grey-9"
-        style="width: 80px"
-      />
-    </div>
-    <div class="row items-center">
-      <span class="q-mr-xs">Resolution:</span>
-      <q-input
-        :model-value="resolution"
-        @update:model-value="emit('update:resolution', $event as string)"
-        dense
-        borderless
-        hide-bottom-space
-        input-class="text-weight-bold grey-9"
-      />
+  <!-- Metadata and Add Button Row -->
+  <div class="row items-center q-mb-sm full-width" style="padding-left: 14px">
+    <!-- Parameter Metadata: Display Type and Resolution -->
+    <div
+      v-if="displayType !== undefined || resolution !== undefined"
+      class="row items-center q-gutter-x-md text-grey-7 text-caption"
+    >
+      <div class="row items-center no-wrap">
+        <span class="q-mr-xs">Display Type:</span>
+        <q-input
+          :model-value="displayType"
+          @update:model-value="emit('update:displayType', $event as string)"
+          dense
+          borderless
+          hide-bottom-space
+          input-class="text-weight-bold grey-9"
+          style="width: 80px"
+        />
+      </div>
+      <div class="row items-center no-wrap">
+        <span class="q-mr-xs">Resolution:</span>
+        <q-input
+          :model-value="resolution"
+          @update:model-value="emit('update:resolution', $event as string)"
+          dense
+          borderless
+          hide-bottom-space
+          input-class="text-weight-bold grey-9"
+          style="width: 60px"
+        />
+      </div>
     </div>
 
     <!-- UCB Fields (Conditional) -->
     <template v-if="showUcb">
-      <div class="row items-center q-mx-sm ucb-input-group">
-        <div class="ucb-badge">UCB1</div>
-        <q-input
-          :model-value="ucb1"
-          @update:model-value="emit('update:ucb1', $event as string | number)"
-          dense
-          outlined
-          hide-bottom-space
-          class="ucb-input"
-          style="width: 100px"
-        />
-      </div>
-      <div class="row items-center q-mx-sm ucb-input-group">
-        <div class="ucb-badge">UCB2</div>
-        <q-input
-          :model-value="ucb2"
-          @update:model-value="emit('update:ucb2', $event as string | number)"
-          dense
-          outlined
-          hide-bottom-space
-          class="ucb-input"
-          style="width: 100px"
-        />
-      </div>
-      <div class="row items-center q-mx-sm ucb-input-group">
-        <div class="ucb-badge">UCB3</div>
-        <q-input
-          :model-value="ucb3"
-          @update:model-value="emit('update:ucb3', $event as string | number)"
-          dense
-          outlined
-          hide-bottom-space
-          class="ucb-input"
-          style="width: 100px"
-        />
+      <div class="row items-center q-gutter-x-sm q-ml-md">
+        <div class="row items-center ucb-input-group">
+          <div class="ucb-badge">UCB1</div>
+          <q-input
+            :model-value="ucb1"
+            @update:model-value="emit('update:ucb1', $event as string | number)"
+            dense
+            outlined
+            hide-bottom-space
+            class="ucb-input"
+            style="width: 80px"
+          />
+        </div>
+        <div class="row items-center ucb-input-group">
+          <div class="ucb-badge">UCB2</div>
+          <q-input
+            :model-value="ucb2"
+            @update:model-value="emit('update:ucb2', $event as string | number)"
+            dense
+            outlined
+            hide-bottom-space
+            class="ucb-input"
+            style="width: 80px"
+          />
+        </div>
+        <div class="row items-center ucb-input-group">
+          <div class="ucb-badge">UCB3</div>
+          <q-input
+            :model-value="ucb3"
+            @update:model-value="emit('update:ucb3', $event as string | number)"
+            dense
+            outlined
+            hide-bottom-space
+            class="ucb-input"
+            style="width: 80px"
+          />
+        </div>
       </div>
     </template>
+
+    <q-space />
+    <q-btn flat dense no-caps icon="add" label="เพิ่มพารามิเตอร์" @click="addRow" class="btn" />
   </div>
 
   <q-table
