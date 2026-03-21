@@ -13,7 +13,7 @@
         <div class="q-mb-md">
           <div class="field-label">รายการ <span class="text-negative">*</span></div>
           <q-input
-            v-model="form.parameter"
+            v-model="form.parameter_name"
             outlined
             dense
             placeholder="ระบุรายการ"
@@ -36,13 +36,18 @@
           </div>
           <div class="col">
             <div class="field-label">เครื่องมือมาตรฐาน <span class="text-negative">*</span></div>
-            <q-input
-              v-model="form.standardEquipment"
+            <q-select
+              v-model="form.standard_tool_id"
+              :options="standardOptions"
+              option-value="value"
+              option-label="label"
+              emit-value
+              map-options
               outlined
               dense
-              placeholder="เช่น Temp - Alpha Technics"
+              placeholder="เลือกเครื่องมือมาตรฐาน"
               bg-color="grey-1"
-              :rules="[(v) => !!v || 'กรุณากรอกเครื่องมือมาตรฐาน']"
+              :rules="[(v) => !!v || 'กรุณาเลือกเครื่องมือมาตรฐาน']"
             />
           </div>
         </div>
@@ -70,8 +75,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue';
-import type { CalibrationProcess } from 'src/types';
+import { reactive, computed, onMounted, ref } from 'vue';
+import type { CalibrationProcess, StandardTool } from 'src/types/tool.types';
+import { StandardToolService } from 'src/services/tool.service';
 
 interface Props {
   process?: CalibrationProcess | null;
@@ -87,14 +93,31 @@ const emit = defineEmits<{
 const isEdit = computed(() => !!props.process);
 
 const form = reactive({
-  parameter: props.process?.parameter ?? '',
+  parameter_name: props.process?.parameter_name ?? '',
   procedure: props.process?.procedure ?? '',
   unit: props.process?.unit ?? '',
-  standardEquipment: props.process?.standardEquipment ?? '',
+  standard_tool_id: props.process?.standard_tool_id ?? null as number | null,
+});
+
+const standardTools = ref<StandardTool[]>([]);
+const standardOptions = computed(() =>
+  standardTools.value.map((t) => ({
+    label: `${t.name}-${t.manufacturer || ''}`,
+    value: t.id,
+  })),
+);
+
+onMounted(async () => {
+  try {
+    const res = await StandardToolService.getAll();
+    standardTools.value = res.data;
+  } catch (e) {
+    console.error('Failed to fetch standard tools:', e);
+  }
 });
 
 function handleSave() {
-  if (!form.parameter || !form.unit || !form.standardEquipment || !form.procedure) return;
+  if (!form.parameter_name || !form.unit || !form.standard_tool_id || !form.procedure) return;
   emit('saved', { ...form });
 }
 </script>

@@ -13,7 +13,7 @@
         <div class="q-mb-md">
           <div class="field-label">ชื่อเครื่องมือ <span class="text-negative">*</span></div>
           <q-input
-            v-model="form.toolName"
+            v-model="form.tool_name"
             outlined
             dense
             placeholder="ระบุชื่อเครื่องมือ"
@@ -21,7 +21,9 @@
             :rules="[(v) => !!v || 'กรุณากรอกชื่อเครื่องมือ']"
           />
         </div>
-
+      </q-card-section>
+      <!-- ... (rest of the card sections - price section remains same) -->
+      <q-card-section class="q-pa-lg">
         <div class="q-mb-md">
           <div class="field-label">รายการ <span class="text-negative">*</span></div>
           <q-input
@@ -58,7 +60,7 @@
 
 <script setup lang="ts">
 import { reactive, computed } from 'vue';
-import type { CalibrationCost } from 'src/types';
+import type { CalibrationCost } from 'src/types/tool.types';
 
 interface Props {
   cost?: CalibrationCost | null;
@@ -74,13 +76,13 @@ const emit = defineEmits<{
 const isEdit = computed(() => !!props.cost);
 
 const form = reactive({
-  toolName: props.cost?.toolName ?? '',
+  tool_name: props.cost?.tool_name ?? '',
   description: props.cost?.description ?? '',
   price: props.cost?.price ?? 0,
 });
 
 function handleSave() {
-  if (!form.toolName || !form.description || form.price <= 0) return;
+  if (!form.tool_name || !form.description || form.price <= 0) return;
   emit('saved', { ...form });
 }
 </script>

@@ -11,16 +11,17 @@ export type ToolStatus =
   | 'ปิดใช้งาน';
 
 export interface CalibrationProcess {
-  id: string;
-  parameter: string;
+  id: number;
+  parameter_name: string;
   procedure: string;
   unit: string;
-  standardEquipment: string;
+  standard_tool_id?: number | null;
+  standardTool?: { name: string; manufacturer?: string; asset_code?: string };
 }
 
 export interface CalibrationCost {
-  id: string;
-  toolName: string;
+  id: number;
+  tool_name: string;
   description: string;
   price: number;
 }
@@ -44,4 +45,16 @@ export interface MedicalTool {
   sectionId?: number | null;
   hospitalId?: number | null;
   backendId?: number;
+}
+
+export interface StandardTool {
+  id: number;
+  name: string;
+  asset_code?: string | null;
+  serial_number?: string | null;
+  manufacturer?: string | null;
+  model?: string | null;
+  certificate_number?: string | null;
+  calibration_date_last?: string | null;
+  unit?: string | null;
 }

@@ -77,14 +77,14 @@
             <template #body="props">
               <q-tr :props="props" class="table-body-row">
                 <q-td key="index" :props="props" class="text-center">{{ props.rowIndex + 1 }}</q-td>
-                <q-td key="parameter" :props="props">{{ props.row.parameter }}</q-td>
-                <q-td key="procedure" :props="props" class="text-truncate-cell">{{
+                <td key="parameter" :props="props">{{ props.row.parameter_name }}</td>
+                <td key="procedure" :props="props" class="text-truncate-cell">{{
                   props.row.procedure
-                }}</q-td>
-                <q-td key="unit" :props="props" class="text-center">{{ props.row.unit }}</q-td>
-                <q-td key="standardEquipment" :props="props">{{
-                  props.row.standardEquipment
-                }}</q-td>
+                }}</td >
+                <td key="unit" :props="props" class="text-center">{{ props.row.unit }}</td>
+                <td key="standardEquipment" :props="props">
+                  {{ props.row.standardTool ? `${props.row.standardTool.name}-${props.row.standardTool.manufacturer}` : '' }}
+                </td>
                 <q-td key="actions" :props="props" class="text-center">
                   <q-btn
                     flat
@@ -100,7 +100,7 @@
                     icon="delete"
                     size="sm"
                     color="negative"
-                    @click="confirmDeleteProcess(props.row.id, props.row.parameter)"
+                    @click="confirmDeleteProcess(props.row.id, props.row.parameter_name)"
                   />
                 </q-td>
               </q-tr>
@@ -198,7 +198,7 @@
             <template #body="props">
               <q-tr :props="props" class="table-body-row">
                 <q-td key="index" :props="props" class="text-center">{{ props.rowIndex + 1 }}</q-td>
-                <q-td key="toolName" :props="props">{{ props.row.toolName }}</q-td>
+                <td key="toolName" :props="props">{{ props.row.tool_name }}</td>
                 <q-td key="description" :props="props">{{ props.row.description }}</q-td>
                 <q-td key="price" :props="props" class="text-center">
                   {{ props.row.price.toLocaleString() }} บาท
@@ -218,7 +218,7 @@
                     icon="delete"
                     size="sm"
                     color="negative"
-                    @click="confirmDeleteCost(props.row.id, props.row.toolName)"
+                    @click="confirmDeleteCost(props.row.id, props.row.tool_name)"
                   />
                 </q-td>
               </q-tr>
@@ -262,7 +262,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import SearchBar from 'src/components/SearchBar.vue';
 import CalibrationProcessDialog from 'src/components/tools/CalibrationProcessDialog.vue';
@@ -273,6 +273,11 @@ import type { CalibrationProcess, CalibrationCost } from 'src/types/tool.types';
 
 const router = useRouter();
 const store = useToolsStore();
+
+onMounted(async () => {
+  await store.fetchCalibrationProcesses();
+  await store.fetchCalibrationCosts();
+});
 
 /* ── Tab ── */
 const activeTab = ref<'calibration' | 'settings' | 'cost'>('calibration');
@@ -287,8 +292,13 @@ const filteredProcesses = computed(() => {
   if (!q) return store.calibrationProcesses;
   return store.calibrationProcesses.filter(
     (p) =>
-      p.parameter.toLowerCase().includes(q) ||
-      p.standardEquipment.toLowerCase().includes(q) ||
+      p.parameter_name.toLowerCase().includes(q) ||
+      (p.standardTool
+        ? `${p.standardTool.name}-${p.standardTool.manufacturer}`
+        : ''
+      )
+        .toLowerCase()
+        .includes(q) ||
       p.unit.toLowerCase().includes(q),
   );
 });
@@ -298,11 +308,11 @@ function openEditProcess(process: CalibrationProcess) {
   showAddProcess.value = true;
 }
 
-function handleProcessSaved(data: Omit<CalibrationProcess, 'id'>) {
+async function handleProcessSaved(data: Omit<CalibrationProcess, 'id'>) {
   if (editingProcess.value) {
-    store.updateCalibrationProcess(editingProcess.value.id, data);
+    await store.updateCalibrationProcess(editingProcess.value.id, data);
   } else {
-    store.addCalibrationProcess(data);
+    await store.addCalibrationProcess(data);
   }
   closeProcessDialog();
 }
@@ -314,17 +324,19 @@ function closeProcessDialog() {
 
 /* ── Delete Process Confirm ── */
 const deleteProcessDialog = ref(false);
-const pendingDeleteProcessId = ref('');
+const pendingDeleteProcessId = ref<number | null>(null);
 const pendingDeleteProcessName = ref('');
 
-function confirmDeleteProcess(id: string, name: string) {
+function confirmDeleteProcess(id: number, name: string) {
   pendingDeleteProcessId.value = id;
   pendingDeleteProcessName.value = name;
   deleteProcessDialog.value = true;
 }
 
-function handleDeleteProcess() {
-  store.deleteCalibrationProcess(pendingDeleteProcessId.value);
+async function handleDeleteProcess() {
+  if (pendingDeleteProcessId.value !== null) {
+    await store.deleteCalibrationProcess(pendingDeleteProcessId.value);
+  }
   deleteProcessDialog.value = false;
 }
 
@@ -337,7 +349,7 @@ const filteredCosts = computed(() => {
   const q = costSearch.value.toLowerCase();
   if (!q) return store.calibrationCosts;
   return store.calibrationCosts.filter(
-    (c) => c.toolName.toLowerCase().includes(q) || c.description.toLowerCase().includes(q),
+    (c) => c.tool_name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q),
   );
 });
 
@@ -346,11 +358,11 @@ function openEditCost(cost: CalibrationCost) {
   showAddCost.value = true;
 }
 
-function handleCostSaved(data: Omit<CalibrationCost, 'id'>) {
+async function handleCostSaved(data: Omit<CalibrationCost, 'id'>) {
   if (editingCost.value) {
-    store.updateCalibrationCost(editingCost.value.id, data);
+    await store.updateCalibrationCost(editingCost.value.id, data);
   } else {
-    store.addCalibrationCost(data);
+    await store.addCalibrationCost(data);
   }
   closeCostDialog();
 }
@@ -362,17 +374,19 @@ function closeCostDialog() {
 
 /* ── Delete Cost Confirm ── */
 const deleteCostDialog = ref(false);
-const pendingDeleteCostId = ref('');
+const pendingDeleteCostId = ref<number | null>(null);
 const pendingDeleteCostName = ref('');
 
-function confirmDeleteCost(id: string, toolName: string) {
+function confirmDeleteCost(id: number, toolName: string) {
   pendingDeleteCostId.value = id;
   pendingDeleteCostName.value = toolName;
   deleteCostDialog.value = true;
 }
 
-function handleDeleteCost() {
-  store.deleteCalibrationCost(pendingDeleteCostId.value);
+async function handleDeleteCost() {
+  if (pendingDeleteCostId.value !== null) {
+    await store.deleteCalibrationCost(pendingDeleteCostId.value);
+  }
   deleteCostDialog.value = false;
 }
 
@@ -408,7 +422,7 @@ const filteredUniqueTools = computed(() =>
 /* ── Column Definitions ── */
 const processColumns = [
   { name: 'index', label: 'ลำดับ', field: 'id', align: 'center' as const, style: 'width: 70px' },
-  { name: 'parameter', label: 'รายการ', field: 'parameter', align: 'left' as const },
+  { name: 'parameter', label: 'รายการ', field: 'parameter_name', align: 'left' as const },
   { name: 'procedure', label: 'กระบวนการสอบเทียบ', field: 'procedure', align: 'left' as const },
   {
     name: 'unit',
@@ -420,7 +434,8 @@ const processColumns = [
   {
     name: 'standardEquipment',
     label: 'เครื่องมือมาตรฐาน',
-    field: 'standardEquipment',
+    field: (row: CalibrationProcess) =>
+      row.standardTool ? `${row.standardTool.name}-${row.standardTool.manufacturer}` : '',
     align: 'left' as const,
   },
   { name: 'actions', label: '', field: 'id', align: 'center' as const, style: 'width: 90px' },
@@ -441,7 +456,7 @@ const settingsColumns = [
 
 const costColumns = [
   { name: 'index', label: 'ลำดับ', field: 'id', align: 'center' as const, style: 'width: 70px' },
-  { name: 'toolName', label: 'ชื่อเครื่องมือ', field: 'toolName', align: 'left' as const },
+  { name: 'toolName', label: 'ชื่อเครื่องมือ', field: 'tool_name', align: 'left' as const },
   { name: 'description', label: 'รายการ', field: 'description', align: 'left' as const },
   { name: 'price', label: 'ราคา', field: 'price', align: 'center' as const, style: 'width: 130px' },
   { name: 'actions', label: '', field: 'id', align: 'center' as const, style: 'width: 90px' },
