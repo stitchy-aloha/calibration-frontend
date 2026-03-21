@@ -156,8 +156,8 @@
           </tbody>
         </table>
 
-        <!-- Alarms Row -->
-        <div class="alarms-row">
+        <!-- Alarms Row (Only for ECG/Patient Monitor items) -->
+        <div class="alarms-row" v-if="alarms">
           <div class="alarm-item">I : {{ alarms.I }}</div>
           <div class="alarm-item">II : {{ alarms.II }}</div>
           <div class="alarm-item">III : {{ alarms.III }}</div>
@@ -352,7 +352,7 @@ interface Props {
     Alarm: string;
     oneMV: string;
   } | undefined;
-  standards?: StandardItem[];
+  standards?: StandardItem[] | undefined;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -378,16 +378,6 @@ const props = withDefaults(defineProps<Props>(), {
     temperature: { std: '36.0', uuc: '36.17', error: '0.17', accept: '+/- 1.00' },
     heartRate: { std: '90.0', uuc: '90.33', error: '0.33', accept: '+/- 2.00' },
     spo2: { std: '98.0', uuc: '98.50', error: '0.50', accept: '+/- 2.00' },
-  }),
-  alarms: () => ({
-    I: 'PASS',
-    II: 'PASS',
-    III: 'PASS',
-    AVR: 'PASS',
-    AVL: 'PASS',
-    AVF: 'PASS',
-    Alarm: 'PASS',
-    oneMV: 'PASS',
   }),
   standards: () => [
     {

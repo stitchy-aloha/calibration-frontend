@@ -80,9 +80,18 @@
             :data="calibrationCertData"
             :measurements="task?.measurements || []"
             :specific-parameters="task?.specificParameters || []"
-            :technician="task?.technician ? { name: task.technician.name, position: task.technician.position, signatureUrl: task.technician.signatureUrl } : null"
-            :approver="task?.approver ? { name: task.approver.name, position: task.approver.position, signatureUrl: task.approver.signatureUrl } : null"
+            :technician="task?.technician ? { 
+              name: task.technician.name, 
+              position: task.technician.position || task.technician.role?.description || 'นายช่างไฟฟ้า', 
+              signatureUrl: task.technician.signatureUrl 
+            } : null"
+            :approver="task?.approver ? { 
+              name: task.approver.name, 
+              position: task.approver.position || task.approver.role?.description || 'หัวหน้างาน', 
+              signatureUrl: task.approver.signatureUrl 
+            } : null"
             :alarms="alarmsData"
+            :standards="standardsData"
           />
         </div>
       </div>
@@ -190,8 +199,8 @@ const calibrationCertData = computed((): CerCalibrationData => {
     section: t?.equipment?.section
       ? `${t.equipment.section.name} - ${t.equipment.section.description}`
       : t?.equipment?.department || '-',
-    temperature: '25', // Should come from environmental data if available
-    humidity: '45',
+    temperature: t?.environments?.[0]?.ambient_temp?.toString() || '25',
+    humidity: t?.environments?.[0]?.ambient_humidity?.toString() || '45',
     calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-',
     apprDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-',
   };
@@ -201,25 +210,35 @@ const alarmsData = computed(() => {
   const t = task.value;
   if (!t) return undefined;
 
+  let foundAtLeastOne = false;
   const findResult = (key: string) => {
     // 1. Check Qualitatives (Cal)
     const q = t.qualitatives?.find((item) => item.item_name === key);
-    if (q) return q.result;
+    if (q) {
+      foundAtLeastOne = true;
+      return q.result;
+    }
 
     // 2. Check Checklist Results (PM)
     const cr = t.checklistResults?.find((item) => item.item?.description === key);
-    if (cr) return cr.status.toUpperCase();
+    if (cr) {
+      foundAtLeastOne = true;
+      return cr.status.toUpperCase();
+    }
 
     // 3. Partial match (case-insensitive) fallback
     const cr2 = t.checklistResults?.find((item) =>
       item.item?.description.toLowerCase().includes(key.toLowerCase()),
     );
-    if (cr2) return cr2.status.toUpperCase();
+    if (cr2) {
+      foundAtLeastOne = true;
+      return cr2.status.toUpperCase();
+    }
 
-    return 'PASS'; // Default/Fallback
+    return null;
   };
 
-  return {
+  const res = {
     I: findResult('I'),
     II: findResult('II'),
     III: findResult('III'),
@@ -229,6 +248,35 @@ const alarmsData = computed(() => {
     Alarm: findResult('Alarm'),
     oneMV: findResult('1mV'),
   };
+
+  if (!foundAtLeastOne) return undefined;
+
+  return {
+    I: res.I || 'PASS',
+    II: res.II || 'PASS',
+    III: res.III || 'PASS',
+    AVR: res.AVR || 'PASS',
+    AVL: res.AVL || 'PASS',
+    AVF: res.AVF || 'PASS',
+    Alarm: res.Alarm || 'PASS',
+    oneMV: res.oneMV || 'PASS',
+  };
+});
+
+const standardsData = computed(() => {
+  return task.value?.standardTools?.map((std) => ({
+    manufacture: std.manufacturer,
+    model: std.model,
+    sn: std.serial_number,
+    calDate: std.calibration_date_last
+      ? new Date(std.calibration_date_last).toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        })
+      : '-',
+    certNo: std.certificate_number,
+  }));
 });
 
 onMounted(async () => {
