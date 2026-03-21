@@ -91,7 +91,10 @@
       </div>
 
       <!-- ===== SPECIFICATIONS (Specific Parameters) ===== -->
-      <div v-if="specificParameters && specificParameters.length > 0" class="cer-specs-grid q-mb-md">
+      <div
+        v-if="specificParameters && specificParameters.length > 0"
+        class="cer-specs-grid q-mb-md"
+      >
         <div class="row q-col-gutter-sm">
           <div v-for="(param, idx) in specificParameters" :key="idx" class="col-3">
             <div class="spec-box text-center">
@@ -112,46 +115,40 @@
             <tr>
               <th class="text-left w-25"></th>
               <th>STD Setting</th>
-              <th>UUC Reading <span v-if="hasExtendedReadings" class="text-caption block">(1,2,3) Mean</span></th>
-              <th>Error <span v-if="hasUcbData" class="text-caption block">(Budget) Offset</span></th>
+              <th>UUC Reading</th>
+              <th>
+                Error <span v-if="hasUcbData" class="text-caption block">(Budget) Offset</span>
+              </th>
+              <th>Accept value</th>
               <th>Result</th>
             </tr>
           </thead>
           <tbody>
-            <!-- Dynamic Rows -->
-            <tr v-for="(m, idx) in measurements" :key="idx">
+            <!-- Aggregated Rows -->
+            <tr v-for="(m, idx) in groupedMeasurements" :key="idx">
               <td class="text-left label-col">{{ m.parameter_name }}</td>
               <td>
-                <div class="unit">{{ m.display_type || '' }}</div>
+                <div class="unit">{{ getParamUnit(m.parameter_name) }}</div>
                 {{ m.standard_value }}
               </td>
-              <!-- Multiple Readings Support -->
-              <template v-if="m.reading_2 !== null || m.ucb1 !== null">
-                <td>
-                  <div class="column items-center">
-                    <div class="row q-gutter-x-xs no-wrap text-caption text-grey-8">
-                       <span>{{ m.reading_1 }}</span>
-                       <span>{{ m.reading_2 }}</span>
-                       <span>{{ m.reading_3 }}</span>
-                    </div>
-                    <div class="text-weight-bold">{{ m.average_value }}</div>
+              <!-- UUC Reading: aggregated average -->
+              <td class="text-weight-bold">{{ m.average_value }}</td>
+              <!-- Error: show aggregated UCB budget as small text above if present -->
+              <td>
+                <div class="column items-center">
+                  <div class="row q-gutter-x-xs no-wrap text-caption text-grey-7" v-if="m.ucb1">
+                    <span>{{ m.ucb1 }}</span>
+                    <span>{{ m.ucb2 }}</span>
+                    <span>{{ m.ucb3 }}</span>
                   </div>
-                </td>
-                <td>
-                  <div class="column items-center">
-                    <div class="row q-gutter-x-xs no-wrap text-caption text-grey-7" v-if="m.ucb1">
-                       <span>{{ m.ucb1 }}</span>
-                       <span>{{ m.ucb2 }}</span>
-                       <span>{{ m.ucb3 }}</span>
-                    </div>
-                    <div>{{ m.error_value }}</div>
-                  </div>
-                </td>
-              </template>
-              <template v-else>
-                <td>{{ m.average_value }}</td>
-                <td>{{ m.error_value }}</td>
-              </template>
+                  <div>{{ m.error_value }}</div>
+                </div>
+              </td>
+              <!-- Accept value: Mocked or from data -->
+              <td>
+                <div class="unit">{{ getParamUnit(m.parameter_name) }}</div>
+                {{ getMockAcceptValue(m) }}
+              </td>
               <td>
                 {{ m.result === 'PASS' ? 'ผ่าน' : 'ไม่ผ่าน' }}
               </td>
@@ -213,17 +210,33 @@
       <!-- ===== FOOTER & SIGNATURE ===== -->
       <div class="cer-bottom">
         <div class="cal-signatures">
+          <!-- Calibration by (Technician) -->
           <div class="signature-box">
             <div class="sig-label">Calibration by :</div>
-            <div class="sig-line">....................................................</div>
-            <div class="sig-name">( นายมนัส กว้างขวาง )</div>
-            <div class="sig-title">นายช่างเทคนิค</div>
+            <div class="signature-wrapper">
+              <div v-if="technician?.signatureUrl" class="signature-img">
+                <img :src="getImageUrl(technician.signatureUrl)" alt="Technician Signature" />
+              </div>
+              <div v-else class="signature-placeholder"></div>
+              <div class="dots-line">....................................................</div>
+            </div>
+            <div class="sig-name">
+              ( {{ technician?.name || '..............................' }} )
+            </div>
+            <div class="sig-title">{{ technician?.position || '' }}</div>
           </div>
+          <!-- Approved by (Approver) -->
           <div class="signature-box">
             <div class="sig-label">Approved by :</div>
-            <div class="sig-line">....................................................</div>
-            <div class="sig-name">( นายวันทชัย นุ้ยนาพญา )</div>
-            <div class="sig-title">นายช่างไฟฟ้า</div>
+            <div class="signature-wrapper">
+              <div v-if="approver?.signatureUrl" class="signature-img">
+                <img :src="getImageUrl(approver.signatureUrl)" alt="Approver Signature" />
+              </div>
+              <div v-else class="signature-placeholder"></div>
+              <div class="dots-line">....................................................</div>
+            </div>
+            <div class="sig-name">( {{ approver?.name || '..............................' }} )</div>
+            <div class="sig-title">{{ approver?.position || '' }}</div>
           </div>
         </div>
 
@@ -243,6 +256,14 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+
+const apiBase = (import.meta.env.VITE_API_BASE_URL as string) || '';
+
+function getImageUrl(path: string | null | undefined) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${apiBase}${path}`;
+}
 interface ReadingItem {
   std: string;
   uuc: string;
@@ -304,6 +325,16 @@ interface Props {
   data?: CerCalibrationData;
   specificParameters?: SpecificParameterApi[];
   measurements?: MeasurementApi[];
+  technician?: {
+    name: string;
+    position?: string;
+    signatureUrl?: string | null | undefined;
+  } | null;
+  approver?: {
+    name: string;
+    position?: string;
+    signatureUrl?: string | null | undefined;
+  } | null;
   readings?: {
     systolic: ReadingItem;
     diastolic: ReadingItem;
@@ -320,7 +351,7 @@ interface Props {
     AVF: string;
     Alarm: string;
     oneMV: string;
-  };
+  } | undefined;
   standards?: StandardItem[];
 }
 
@@ -376,13 +407,77 @@ const props = withDefaults(defineProps<Props>(), {
   ],
 });
 
-const hasExtendedReadings = computed(() => 
-  props.measurements?.some(m => m.reading_2 !== null && m.reading_2 !== undefined)
+const hasUcbData = computed(() =>
+  props.measurements?.some((m) => m.ucb1 !== null && m.ucb1 !== undefined),
 );
 
-const hasUcbData = computed(() => 
-  props.measurements?.some(m => m.ucb1 !== null && m.ucb1 !== undefined)
-);
+const groupedMeasurements = computed((): MeasurementApi[] => {
+  if (!props.measurements) return [];
+  const groups: Record<string, MeasurementApi[]> = {};
+
+  props.measurements.forEach((m) => {
+    if (!m || !m.parameter_name) return;
+    const name = m.parameter_name;
+    if (!groups[name]) groups[name] = [];
+    groups[name].push(m);
+  });
+
+  return Object.keys(groups)
+    .map((name) => {
+      const items = groups[name] || [];
+      const count = items.length;
+      if (count === 0) return null;
+
+      const sum = (key: keyof MeasurementApi) =>
+        items.reduce((acc, curr) => acc + (Number(curr[key]) || 0), 0);
+
+      const avg = (key: keyof MeasurementApi) => (sum(key) / count).toFixed(2);
+
+      const first = items[0];
+      if (!first) return null;
+
+      return {
+        parameter_name: name,
+        standard_value: Number(avg('standard_value')),
+        average_value: Number(avg('average_value')),
+        error_value: Number(avg('error_value')),
+        ucb1: first.ucb1 !== null && first.ucb1 !== undefined ? Number(avg('ucb1')) : null,
+        ucb2: first.ucb2 !== null && first.ucb2 !== undefined ? Number(avg('ucb2')) : null,
+        ucb3: first.ucb3 !== null && first.ucb3 !== undefined ? Number(avg('ucb3')) : null,
+        result: items.every((i) => i.result === 'PASS') ? 'PASS' : 'FAIL',
+        range: first.range,
+      } as MeasurementApi;
+    })
+    .filter((v): v is MeasurementApi => v !== null);
+});
+
+const UNIT_MAP: Record<string, string> = {
+  'Systolic Pressure': 'mmHg',
+  'Diastolic Pressure': 'mmHg',
+  'Temperature': 'Celsius',
+  'Heart Rate': 'Pulse/Minute',
+  'SpO2': '%',
+  'Flow Rate': 'mL/h',
+  'Volume': 'mL',
+};
+
+const getParamUnit = (name: string): string => UNIT_MAP[name] || '';
+
+const MOCK_ACCEPT_VALUES: Record<string, string> = {
+  'Systolic Pressure': '+/- 8.00',
+  'Diastolic Pressure': '+/- 8.00',
+  'Temperature': '+/- 1.00',
+  'Heart Rate': '+/- 2.00',
+  'SpO2': '+/- 2.00',
+};
+
+const getMockAcceptValue = (m: MeasurementApi): string => {
+  const paramName = m.parameter_name;
+  if (MOCK_ACCEPT_VALUES[paramName]) {
+    return MOCK_ACCEPT_VALUES[paramName];
+  }
+  return `+/- ${m.range || '0.00'}`;
+};
 </script>
 
 <style scoped lang="scss">
@@ -690,8 +785,43 @@ const hasUcbData = computed(() =>
   color: #000;
 }
 
+.signature-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.signature-img {
+  height: 45px;
+  margin-bottom: -15px;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+
+  img {
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.signature-placeholder {
+  height: 30px;
+  visibility: hidden;
+}
+
+.dots-line {
+  font-size: 9.5pt;
+  position: relative;
+  z-index: 2;
+  color: #000;
+}
+
 .sig-title {
-  margin-top: -2px;
+  margin-top: 2px;
+  font-weight: 600;
 }
 
 .claim-note {

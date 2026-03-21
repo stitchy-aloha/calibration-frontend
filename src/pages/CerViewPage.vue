@@ -80,6 +80,9 @@
             :data="calibrationCertData"
             :measurements="task?.measurements || []"
             :specific-parameters="task?.specificParameters || []"
+            :technician="task?.technician ? { name: task.technician.name, position: task.technician.position, signatureUrl: task.technician.signatureUrl } : null"
+            :approver="task?.approver ? { name: task.approver.name, position: task.approver.position, signatureUrl: task.approver.signatureUrl } : null"
+            :alarms="alarmsData"
           />
         </div>
       </div>
@@ -191,6 +194,40 @@ const calibrationCertData = computed((): CerCalibrationData => {
     humidity: '45',
     calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-',
     apprDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-',
+  };
+});
+
+const alarmsData = computed(() => {
+  const t = task.value;
+  if (!t) return undefined;
+
+  const findResult = (key: string) => {
+    // 1. Check Qualitatives (Cal)
+    const q = t.qualitatives?.find((item) => item.item_name === key);
+    if (q) return q.result;
+
+    // 2. Check Checklist Results (PM)
+    const cr = t.checklistResults?.find((item) => item.item?.description === key);
+    if (cr) return cr.status.toUpperCase();
+
+    // 3. Partial match (case-insensitive) fallback
+    const cr2 = t.checklistResults?.find((item) =>
+      item.item?.description.toLowerCase().includes(key.toLowerCase()),
+    );
+    if (cr2) return cr2.status.toUpperCase();
+
+    return 'PASS'; // Default/Fallback
+  };
+
+  return {
+    I: findResult('I'),
+    II: findResult('II'),
+    III: findResult('III'),
+    AVR: findResult('AVR'),
+    AVL: findResult('AVL'),
+    AVF: findResult('AVF'),
+    Alarm: findResult('Alarm'),
+    oneMV: findResult('1mV'),
   };
 });
 
