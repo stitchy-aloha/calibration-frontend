@@ -26,29 +26,41 @@
     <!-- Infusion Pump Results -->
     <template v-if="isInfusionPump">
       <!-- Occlusion Alarm Section -->
-      <q-card flat bordered class="q-pa-md q-mb-md">
-        <div class="text-subtitle1 text-weight-bold q-mb-sm">1. Occlusion Alarm Test</div>
-        <div class="row q-col-gutter-md text-center">
-          <div class="col-6">
-            <div class="text-grey-7 q-mb-xs">Result</div>
+      <div class="occlusion-section-title q-mb-md">Occlusion</div>
+      <q-card flat bordered class="q-pa-lg q-mb-xl">
+        <div class="row q-col-gutter-lg">
+          <div class="col-12 col-md-3">
+            <div class="text-caption text-grey-8 q-mb-xs">IV Set:</div>
+            <div class="readonly-field">{{ getSpecificParam('IV Set') || '-' }}</div>
+          </div>
+          <div class="col-12 col-md-3">
+            <div class="text-caption text-grey-8 q-mb-xs">Amount:</div>
+            <div class="readonly-field">
+              {{ getSpecificParam('Amount') || '-' }}
+              <span v-if="getSpecificParam('Amount')" class="text-grey-6">Drop/mL</span>
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            <div class="text-caption text-grey-8 q-mb-xs">Occlusion Pressure:</div>
+            <div class="readonly-field">
+              {{ getSpecificParam('Occlusion Pressure') || '-' }}
+              <span v-if="getSpecificParam('Occlusion Pressure')" class="text-grey-6">mmHg</span>
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            <div class="text-caption text-grey-8 q-mb-xs">Occlusion Alarm:</div>
             <div
-              class="text-h6 text-weight-bold"
+              class="readonly-field text-weight-bold"
               :class="
-                occlusionResult === 'PASS'
+                occlusionAlarmValue === 'Pass'
                   ? 'text-positive'
-                  : occlusionResult === 'FAIL'
+                  : occlusionAlarmValue === 'Fail'
                     ? 'text-negative'
                     : ''
               "
             >
-              {{
-                occlusionResult === 'PASS' ? 'ผ่าน' : occlusionResult === 'FAIL' ? 'ไม่ผ่าน' : '-'
-              }}
+              {{ occlusionAlarmValue || '-' }}
             </div>
-          </div>
-          <div class="col-6">
-            <div class="text-grey-7 q-mb-xs">Value (psi)</div>
-            <div class="text-h6 text-weight-bold">{{ occlusionValue }}</div>
           </div>
         </div>
       </q-card>
@@ -59,6 +71,9 @@
         :show-range="false"
         :display-type="getMetadata('Flow Rate').displayType"
         :resolution="getMetadata('Flow Rate').resolution"
+        :ucb1="getUcb('Flow Rate').ucb1"
+        :ucb2="getUcb('Flow Rate').ucb2"
+        :ucb3="getUcb('Flow Rate').ucb3"
       />
 
       <ApprovalParameterTable
@@ -67,6 +82,17 @@
         :show-range="false"
         :display-type="getMetadata('Volume').displayType"
         :resolution="getMetadata('Volume').resolution"
+        :ucb1="getUcb('Volume').ucb1"
+        :ucb2="getUcb('Volume').ucb2"
+        :ucb3="getUcb('Volume').ucb3"
+      />
+
+      <!-- Summary Section (reuse CalibrationSummary with custom checklist) -->
+      <CalibrationSummary
+        :custom-checklist="ipChecklist"
+        :inspector-name="task?.technician?.name || '-'"
+        :inspector-role="task?.technician?.position || '-'"
+        @save="() => {}"
       />
     </template>
 
@@ -203,6 +229,15 @@ const getMetadata = (name: string) => {
   };
 };
 
+const getUcb = (name: string) => {
+  const item = props.task?.measurements?.find((m) => m.parameter_name === name);
+  return {
+    ucb1: item?.ucb1,
+    ucb2: item?.ucb2,
+    ucb3: item?.ucb3,
+  };
+};
+
 // Patient Monitor Data
 const ekgItems = computed<EkgItem[]>(() => {
   return (props.task?.qualitatives || [])
@@ -226,23 +261,30 @@ const heartRateData = computed(() => mapMeasurements('Heart Rate'));
 const spo2Data = computed(() => mapMeasurements('SpO2'));
 
 // Infusion Pump Data
-const occlusionResult = computed(() => {
-  const item = props.task?.qualitatives?.find((q) => q.parameter_name === 'Occlusion Alarm');
-  return item?.result?.toUpperCase() || '-';
-});
+const getSpecificParam = (name: string): string => {
+  const param = props.task?.specificParameters?.find((p) => p.name === name);
+  return param?.value || '';
+};
 
-const occlusionValue = computed(() => {
-  const qual = props.task?.qualitatives?.find(
-    (q) => q.item_name === 'Value' && q.parameter_name === 'Occlusion Alarm',
-  );
-  if (qual) return qual.result;
-
-  const meas = props.task?.measurements?.find((m) => m.parameter_name === 'Occlusion Alarm');
-  return meas?.reading_1 !== undefined ? meas.reading_1 : '-';
-});
+const occlusionAlarmValue = computed(() => getSpecificParam('Occlusion Alarm'));
 
 const flowRateData = computed(() => mapMeasurements('Flow Rate'));
 const volumeData = computed(() => mapMeasurements('Volume'));
+
+const tablePassed = (rows: TestRow[]): boolean => {
+  const tested = rows.filter((r) => r.status !== null);
+  return tested.length > 0 && tested.every((r) => r.status === 'pass');
+};
+
+const ipChecklist = computed(() => [
+  {
+    label: 'Infusion Set (Occlusion Alarm)',
+    icon: 'vaccines',
+    passed: occlusionAlarmValue.value === 'Pass',
+  },
+  { label: 'Flow Rate', icon: 'waves', passed: tablePassed(flowRateData.value) },
+  { label: 'Volume', icon: 'opacity', passed: tablePassed(volumeData.value) },
+]);
 
 const envData = computed(() => {
   const env = props.task?.environments?.[0];
@@ -260,5 +302,26 @@ const standardToolIds = computed(() => {
 <style scoped lang="scss">
 .section-bar {
   background-color: $secondary !important;
+}
+
+.occlusion-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+  border-left: 4px solid #ffab00;
+  padding-left: 12px;
+}
+
+.readonly-field {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fafafa;
+  font-size: 14px;
+  color: #1a1a2e;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>
