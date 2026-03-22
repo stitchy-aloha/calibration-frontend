@@ -83,14 +83,14 @@
                   'text-negative': props.row.result === 'ไม่ผ่าน',
                   'text-grey-7': props.row.result === 'N/A' || props.row.result === '-',
                 }"
-                class="text-weight-medium flex flex-center gap-xs"
+                class="text-weight-medium row no-wrap items-center justify-center q-gutter-x-xs"
               >
                 <q-icon
                   :name="
                     props.row.result === 'ผ่าน'
                       ? 'check_circle_outline'
                       : props.row.result === 'ไม่ผ่าน'
-                        ? 'cancel_outline'
+                        ? 'cancel'
                         : 'help_outline'
                   "
                   size="18px"

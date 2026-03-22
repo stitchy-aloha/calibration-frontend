@@ -27,14 +27,14 @@
             'text-negative': item.result === 'ไม่ผ่าน',
             'text-grey-7': item.result === 'N/A' || item.result === '-',
           }"
-          class="text-weight-medium flex flex-center gap-xs"
+          class="text-weight-medium row no-wrap items-center q-gutter-x-xs"
         >
           <q-icon
             :name="
               item.result === 'ผ่าน'
                 ? 'check_circle_outline'
                 : item.result === 'ไม่ผ่าน'
-                  ? 'cancel_outline'
+                  ? 'cancel'
                   : 'help_outline'
             "
             size="18px"

@@ -103,7 +103,11 @@ export const useApprovalsStore = defineStore('approvals', () => {
     }
   }
 
-  async function rejectEvent(taskId: number, remarks: string, approverId: number = 1): Promise<boolean> {
+  async function rejectEvent(
+    taskId: number,
+    remarks: string,
+    approverId: number = 1,
+  ): Promise<boolean> {
     try {
       await api.patch(`/pm-task/${taskId}/approve`, {
         approver_id: approverId,
