@@ -201,8 +201,8 @@ const calibrationCertData = computed((): CerCalibrationData => {
       : t?.equipment?.department || '-',
     temperature: t?.environments?.[0]?.ambient_temp?.toString() || '25',
     humidity: t?.environments?.[0]?.ambient_humidity?.toString() || '45',
-    calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-',
-    apprDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString() : '-',
+    calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB') : '-',
+    apprDate: t?.approvedAt ? new Date(t.approvedAt).toLocaleDateString('en-GB') : '-',
   };
 });
 

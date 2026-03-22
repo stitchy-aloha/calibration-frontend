@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { api } from 'src/boot/axios';
+import { useAuthStore } from './auth';
 import type { TaskApi } from 'src/services/pm.service';
 
 export interface ApprovalEvent {
@@ -15,6 +16,7 @@ export interface ApprovalEvent {
 }
 
 export const useApprovalsStore = defineStore('approvals', () => {
+  const authStore = useAuthStore();
   const approvals = ref<ApprovalEvent[]>([]);
   const loading = ref(false);
   const searchQuery = ref('');
@@ -88,10 +90,11 @@ export const useApprovalsStore = defineStore('approvals', () => {
     return result;
   });
 
-  async function approveEvent(taskId: number, approverId: number = 1): Promise<boolean> {
+  async function approveEvent(taskId: number, approverId?: number): Promise<boolean> {
+    const finalApproverId = approverId ?? authStore.user?.id ?? 1;
     try {
       await api.patch(`/pm-task/${taskId}/approve`, {
-        approver_id: approverId,
+        approver_id: finalApproverId,
         decision: 'Approve',
         remarks: 'Approved via frontend',
       });
@@ -106,11 +109,12 @@ export const useApprovalsStore = defineStore('approvals', () => {
   async function rejectEvent(
     taskId: number,
     remarks: string,
-    approverId: number = 1,
+    approverId?: number,
   ): Promise<boolean> {
+    const finalApproverId = approverId ?? authStore.user?.id ?? 1;
     try {
       await api.patch(`/pm-task/${taskId}/approve`, {
-        approver_id: approverId,
+        approver_id: finalApproverId,
         decision: 'Reject',
         remarks,
       });

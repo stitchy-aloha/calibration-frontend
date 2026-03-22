@@ -137,6 +137,7 @@ export interface TaskApi {
   overall_result: string;
   task_user: number;
   createdAt: string;
+  approvedAt?: string;
   technician: TechnicianApi;
   approver?: TechnicianApi;
   equipment?: EquipmentApi;
