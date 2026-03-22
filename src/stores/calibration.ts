@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { api } from 'src/boot/axios';
 import type { TaskApi } from 'src/services/pm.service';
+import { useAuthStore } from './auth';
 
 export interface CalibrationRecord {
   id: string; // รหัสสอบเทียบ  e.g. CAL-01
@@ -26,8 +27,11 @@ export const useCalibrationStore = defineStore('calibration', () => {
     { label: 'Dimension', value: 'Dimension' },
   ];
 
-  const filteredRecords = computed(() =>
-    records.value.filter((r) => {
+  const filteredRecords = computed(() => {
+    const auth = useAuthStore();
+    const currentUserName = auth.user?.fullName;
+
+    const filtered = records.value.filter((r) => {
       const q = searchQuery.value.toLowerCase();
       const matchSearch =
         !q ||
@@ -39,8 +43,18 @@ export const useCalibrationStore = defineStore('calibration', () => {
       const matchType = !selectedType.value || r.type === selectedType.value;
 
       return matchSearch && matchType;
-    }),
-  );
+    });
+
+    // Sort: current user's tasks first, then by task ID or original order
+    return filtered.slice().sort((a, b) => {
+      const isAOwner = a.responsible === currentUserName;
+      const isBOwner = b.responsible === currentUserName;
+
+      if (isAOwner && !isBOwner) return -1;
+      if (!isAOwner && isBOwner) return 1;
+      return 0;
+    });
+  });
 
   async function fetchFromApi() {
     try {
