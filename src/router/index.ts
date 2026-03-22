@@ -34,7 +34,7 @@ export default defineRouter(function ({ store }) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  Router.beforeEach((to, from, next) => {
+  Router.beforeEach(async (to, from, next) => {
     const auth = useAuthStore(store);
     const publicPages = ['/', '/status/'];
     const isPublicPage = publicPages.some((path) => to.path.startsWith(path));
@@ -42,6 +42,9 @@ export default defineRouter(function ({ store }) {
     if (!isPublicPage && !auth.isAuthenticated) {
       next('/');
     } else {
+      if (auth.isAuthenticated && !auth.user) {
+        await auth.fetchProfile();
+      }
       next();
     }
   });

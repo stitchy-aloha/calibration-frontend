@@ -15,7 +15,7 @@
           <!-- Avatar -->
           <div class="profile-card__avatar-wrap">
             <q-avatar size="72px" class="profile-card__avatar">
-              <img src="/image/profile.png" alt="User Avatar" />
+              <img :src="userAvatar" alt="User Avatar" />
             </q-avatar>
           </div>
 
@@ -81,6 +81,15 @@ const cardStyle = computed(() => {
     top: `${rect.bottom + 10}px`,
     right: `${window.innerWidth - rect.right}px`,
   };
+});
+
+const apiBase = import.meta.env.VITE_API_BASE_URL as string;
+
+const userAvatar = computed(() => {
+  const url = authStore.user?.imageUrl;
+  if (!url) return '/image/profile.png';
+  if (url.startsWith('http')) return url;
+  return `${apiBase}${url}`;
 });
 
 function toggleCard() {

@@ -24,7 +24,7 @@ export const RolePermissionsMap: Record<AppRole, RolePermissions> = {
     canManageDepartments: false,
     canApproveCalibration: true,
     // Head of Dept can see approval and dashboard/reports
-    allowedMenus: ['/dashboard', '/schedule', '/calibration', '/approval', '/tools', '/history'],
+    allowedMenus: ['/dashboard', '/schedule', '/approval', '/tools', '/history'],
   },
   [AppRole.ADMIN]: {
     canManageTools: true,
