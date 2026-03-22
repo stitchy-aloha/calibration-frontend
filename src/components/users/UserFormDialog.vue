@@ -94,7 +94,7 @@
           />
         </div>
 
-        <!-- Row 4 — Image Upload -->
+        <!-- Row 4 -->
         <div class="form-field">
           <label class="field-label">รูปภาพ</label>
           <q-file v-model="form.image" outlined dense accept="image/*" label="อัปโหลดรูป">
@@ -102,6 +102,20 @@
               <q-icon name="cloud_upload" color="grey-5" />
             </template>
           </q-file>
+        </div>
+        <div class="form-field">
+          <label class="field-label">LINE User ID</label>
+          <q-input
+            v-model="form.lineUserId"
+            outlined
+            dense
+            placeholder="รหัส User ID (U...)"
+            hint="พิมพ์ 'ID' หาบอทเพื่อดูรหัสของคุณ"
+          >
+            <template #prepend>
+              <q-icon name="chat" color="green-6" />
+            </template>
+          </q-input>
         </div>
 
         <!-- Row 5 — Signature Pad (full width) -->
@@ -265,6 +279,7 @@ const form = ref({
   roleId: null as number | null,
   password: '',
   image: null as File | null,
+  lineUserId: '',
 });
 
 watch(
@@ -279,6 +294,7 @@ watch(
         roleId: u.roleId,
         password: '',
         image: null,
+        lineUserId: u.lineUserId || '',
       };
     } else {
       form.value = {
@@ -289,6 +305,7 @@ watch(
         roleId: null,
         password: '',
         image: null,
+        lineUserId: '',
       };
     }
   },
@@ -318,6 +335,7 @@ function buildFormData(): FormData {
   if (form.value.roleId) fd.append('roleId', String(form.value.roleId));
   if (form.value.password) fd.append('password', form.value.password);
   if (form.value.image) fd.append('image', form.value.image);
+  if (form.value.lineUserId) fd.append('lineUserId', form.value.lineUserId);
   return fd;
 }
 

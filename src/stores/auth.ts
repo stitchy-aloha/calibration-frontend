@@ -9,6 +9,7 @@ interface AuthUser {
   name: string;
   tel: string;
   imageUrl: string;
+  lineUserId: string | null;
   roleId: number;
   role: {
     id: number;
@@ -62,6 +63,7 @@ export const useAuthStore = defineStore('auth', {
       imageUrl: string;
       role: AppRole;
       roleId: number;
+      lineUserId: string | null;
       hospitalId: number | null;
     },
     isAuthenticated: false,
@@ -101,6 +103,7 @@ export const useAuthStore = defineStore('auth', {
         imageUrl: u.imageUrl,
         role: mapRoleName(u.role),
         roleId: u.roleId,
+        lineUserId: u.lineUserId || null,
         hospitalId: (u as unknown as { hospitalId: number | null }).hospitalId || null,
       };
       this.isAuthenticated = true;
@@ -130,6 +133,7 @@ export const useAuthStore = defineStore('auth', {
           imageUrl: u.imageUrl,
           role: mapRoleName(u.role),
           roleId: u.roleId,
+          lineUserId: u.lineUserId || null,
           hospitalId: (u as unknown as { hospitalId: number | null }).hospitalId || null,
         };
         this.isAuthenticated = true;

@@ -9,6 +9,7 @@ export interface User {
   tel: string;
   imageUrl: string | null;
   signatureUrl: string | null;
+  lineUserId: string | null;
   roleId: number;
   role: {
     id: number;
