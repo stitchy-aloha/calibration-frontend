@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {  } from 'vue';
+import {} from 'vue';
 
 interface TestValue {
   label: string;
@@ -51,8 +51,12 @@ function updateTestValue(idx: number, patch: Partial<TestValue>) {
   updateData({ testValues: newItems });
 }
 
-const stdTypeOptions = ['1 - แบบอ้างอิงเครื่องมือมาตรฐาน', '2 - แบบอื่นๆ'];
-const displayOptions = ['Digital', 'Analog', 'None'];
+const stdTypeOptions = [
+  '1 - แบบอ้างอิงเครื่องมาตรฐาน (1 STD : 3 UUT)',
+  '2 - แบบอ้างอิงเครื่องถูกสอบ (1 UUT : 3 STD)',
+  '3 - แบบจับคู่วัดหลายตำแหน่ง (Multi-Point)',
+];
+const displayOptions = ['Digital', 'Analog'];
 </script>
 
 <template>
@@ -68,96 +72,96 @@ const displayOptions = ['Digital', 'Analog', 'None'];
       <!-- ── Left: Parameter Info Table ── -->
       <div class="col-12 col-md-7">
         <div class="param-table">
-          <div class="param-row">
-            <span class="param-label">พารามิเตอร์</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">พารามิเตอร์</span>
             <q-input
               :model-value="data.parameter"
               @update:model-value="updateData({ parameter: $event as string })"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
-          <div class="param-row">
-            <span class="param-label">หน่วย</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">หน่วย</span>
             <q-input
               :model-value="data.unit"
               @update:model-value="updateData({ unit: $event as string })"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
-          <div class="param-row">
-            <span class="param-label">ค่าความคลาดเคลื่อน</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">ค่าความคลาดเคลื่อน</span>
             <q-input
               :model-value="data.tolerance"
               @update:model-value="updateData({ tolerance: $event as string })"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
-          <div class="param-row">
-            <span class="param-label">แบบฟอร์ม</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">แบบฟอร์ม</span>
             <q-select
               :model-value="data.stdType"
               @update:model-value="updateData({ stdType: $event as string })"
               :options="stdTypeOptions"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
-          <div class="param-row">
-            <span class="param-label">การแสดงผล (A/D)</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">การแสดงผล (A/D)</span>
             <q-select
               :model-value="data.display"
               @update:model-value="updateData({ display: $event as string })"
               :options="displayOptions"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
-          <div class="param-row">
-            <span class="param-label">ค่าความละเอียด (R)</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">ค่าความละเอียด (R)</span>
             <q-input
               :model-value="data.uncertainty"
               @update:model-value="updateData({ uncertainty: $event as string })"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
-          <div class="param-row">
-            <span class="param-label">UCB1</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">UCB1</span>
             <q-input
               :model-value="data.ucb1"
               @update:model-value="updateData({ ucb1: $event as string })"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
-          <div class="param-row">
-            <span class="param-label">UCB2</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">UCB2</span>
             <q-input
               :model-value="data.ucb2"
               @update:model-value="updateData({ ucb2: $event as string })"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
-          <div class="param-row">
-            <span class="param-label">UCB3</span>
+          <div class="param-row row items-center no-wrap">
+            <span class="param-label col-5">UCB3</span>
             <q-input
               :model-value="data.ucb3"
               @update:model-value="updateData({ ucb3: $event as string })"
-              borderless
+              outlined
               dense
-              class="param-input"
+              class="param-input col-7"
             />
           </div>
         </div>
@@ -165,43 +169,44 @@ const displayOptions = ['Digital', 'Analog', 'None'];
 
       <!-- ── Right: Test Values ── -->
       <div class="col-12 col-md-5">
-        <div class="test-values-box q-pa-md">
-          <div class="text-subtitle2 text-weight-bold q-mb-md">ค่าทดสอบ</div>
-          <div
-            v-for="(val, idx) in data.testValues"
-            :key="idx"
-            class="test-value-row row items-center no-wrap q-mb-xs"
-          >
-            <div class="dot q-mr-sm"></div>
-            <span class="text-caption text-grey-8 col-5">{{ val.label }}</span>
-            <q-input
-              :model-value="val.value"
-              @update:model-value="updateTestValue(idx, { value: Number($event) })"
-              dense
-              borderless
-              type="number"
-              class="col test-val-input"
-              input-class="text-right"
-            />
-            <q-btn
-              flat
-              round
-              dense
-              icon="delete"
-              size="xs"
-              color="red-4"
-              class="q-ml-xs"
-              @click="removeTestValue(idx)"
-            />
+        <div class="test-values-box">
+          <div class="test-header row justify-center items-center">ค่าทดสอบ</div>
+          <div class="test-content q-pa-sm">
+            <div
+              v-for="(val, idx) in data.testValues"
+              :key="idx"
+              class="test-value-row row items-center no-wrap"
+            >
+              <div class="dot q-mr-sm"></div>
+              <span class="text-caption text-grey-8 col-5">{{ val.label }}</span>
+              <q-input
+                :model-value="val.value"
+                @update:model-value="updateTestValue(idx, { value: Number($event) })"
+                dense
+                borderless
+                type="number"
+                class="col test-val-input"
+                input-class="text-right text-weight-bold"
+              />
+              <q-btn
+                flat
+                round
+                dense
+                icon="delete_outline"
+                size="sm"
+                color="red-5"
+                class="q-ml-sm"
+                @click="removeTestValue(idx)"
+              />
+            </div>
           </div>
-          <div class="q-mt-sm">
+          <div class="test-footer row justify-center">
             <q-btn
               flat
               dense
               icon="add"
               label="เพิ่มค่าทดสอบ"
-              color="primary"
-              size="sm"
+              class="btn-add-test"
               @click="addTestValue"
             />
           </div>
@@ -232,50 +237,58 @@ const displayOptions = ['Digital', 'Analog', 'None'];
   font-size: 15px;
 }
 
-/* ── Left table layout ── */
+/* ── Left form layout ── */
 .param-table {
   width: 100%;
-  display: table;
-  border-collapse: collapse;
 }
 
 .param-row {
-  display: table-row;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 12px;
 
   &:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
   }
 }
 
 .param-label {
-  display: table-cell;
-  padding: 6px 16px 6px 0;
-  color: #555;
-  font-size: 13px;
-  white-space: nowrap;
-  vertical-align: middle;
-  width: 44%;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding-right: 16px;
 }
 
 .param-input {
-  display: table-cell;
-  width: 56%;
-  vertical-align: middle;
-  padding: 2px 0;
+  :deep(.q-field__control) {
+    border-radius: 8px;
+    background: #fff;
+  }
 }
 
 /* ── Right test values ── */
 .test-values-box {
-  background: #fafafa;
-  border-radius: 10px;
-  border: 1px solid #eee;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e0e6ed;
   min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.test-header {
+  height: 48px;
+  border-bottom: 1px solid #f0f4f8;
+  color: $secondary;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.test-content {
+  flex-grow: 1;
 }
 
 .test-value-row {
-  border-bottom: 1px dashed #eee;
-  padding: 4px 0;
+  border-bottom: 1px solid #f8fafc;
+  padding: 8px 12px;
 
   &:last-child {
     border-bottom: none;
@@ -283,17 +296,39 @@ const displayOptions = ['Digital', 'Analog', 'None'];
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: #ffcc00;
+  background: #ffd600;
   flex-shrink: 0;
+  box-shadow: 0 0 4px rgba(255, 214, 0, 0.4);
+}
+
+.test-footer {
+  padding: 12px;
+  border-top: 1px solid #f0f4f8;
+}
+
+.btn-add-test {
+  color: $secondary;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+
+  :deep(.q-icon) {
+    font-size: 18px;
+    margin-right: 4px;
+  }
 }
 
 .test-val-input {
   :deep(.q-field__control) {
-    height: 28px;
+    height: 32px;
     min-height: unset;
+  }
+  :deep(input) {
+    font-size: 14px;
+    color: #334155;
   }
 }
 

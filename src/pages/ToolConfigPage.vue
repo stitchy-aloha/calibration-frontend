@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import type { CalibrationProcess } from 'src/types/tool.types';
 import { useStandardToolStore } from 'src/stores/standardTools';
 import type { StandardTool } from 'src/stores/standardTools';
 import ConfigStandardToolCard from 'src/components/tools/config/ConfigStandardToolCard.vue';
 import ConfigQualitativeBlock from 'src/components/tools/config/ConfigQualitativeBlock.vue';
 import ConfigQuantitativeBlock from 'src/components/tools/config/ConfigQuantitativeBlock.vue';
-import AddProcessDialog from 'src/components/tools/config/AddProcessDialog.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -52,7 +50,7 @@ const quantitativeParams = ref<QuantitativeParam[]>([
   },
 ]);
 
-const showAddProcessDialog = ref(false);
+// No longer using showAddProcessDialog
 const showAddStandardDialog = ref(false);
 const selectedToolToAdd = ref<StandardTool | null>(null);
 
@@ -72,10 +70,10 @@ function removeStandard(i: number) {
   selectedStandardTools.value.splice(i, 1);
 }
 
-function handleProcessSelected(p: CalibrationProcess) {
+function addQuantitative() {
   quantitativeParams.value.push({
-    parameter: p.parameter_name,
-    unit: p.unit,
+    parameter: '',
+    unit: '',
     tolerance: '1.0',
     stdType: '1 - แบบอ้างอิงเครื่องมือมาตรฐาน',
     display: 'Digital',
@@ -190,7 +188,7 @@ function saveConfig() {
           icon="add"
           label="เพิ่มพารามิเตอร์"
           class="btn-add q-px-md text-capitalize"
-          @click="showAddProcessDialog = true"
+          @click="addQuantitative"
         />
       </div>
       <div class="q-pa-md">
@@ -241,12 +239,8 @@ function saveConfig() {
       </q-card>
     </q-dialog>
 
-    <!-- ── Dialog: Add Process ── -->
-    <AddProcessDialog
-      v-if="showAddProcessDialog"
-      @close="showAddProcessDialog = false"
-      @select="handleProcessSelected"
-    />
+    <!-- Dialog: Add Standard Tool already here -->
+
   </q-page>
 </template>
 

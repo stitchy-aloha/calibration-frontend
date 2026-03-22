@@ -34,7 +34,7 @@ function removeTestItem(idx: number) {
     <div class="row items-center q-mb-md">
       <div class="index-circle q-mr-md">{{ index }}</div>
       <div class="flex-grow">
-        <label class="text-caption text-weight-bold">ชื่อพารามิเตอร์ *</label>
+        <label class="text-caption text-weight-bold">ชื่อพารามิเตอร์</label>
         <q-input
           :model-value="parameterName"
           @update:model-value="emit('update:parameterName', $event)"
@@ -45,7 +45,7 @@ function removeTestItem(idx: number) {
           style="max-width: 300px"
         />
       </div>
-      <q-btn flat round dense icon="remove" size="sm" color="grey-6" @click="emit('remove')" />
+      <q-btn flat round dense icon="close" size="sm" color="grey-6" @click="emit('remove')" />
     </div>
 
     <div class="q-pl-md">
