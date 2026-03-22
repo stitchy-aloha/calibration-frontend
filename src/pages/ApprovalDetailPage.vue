@@ -30,7 +30,11 @@
               <div class="row items-center q-gutter-x-xs">
                 <span class="text-grey-6">สถานะ :</span>
                 <span
-                  :class="task?.overall_result === 'Pass' ? 'text-positive' : 'text-negative'"
+                  :class="{
+                    'text-positive': task?.overall_result === 'Pass',
+                    'text-negative': task?.overall_result === 'Fail',
+                    'text-grey-7': task?.overall_result === 'NA' || !task?.overall_result,
+                  }"
                   class="text-weight-bold"
                 >
                   {{
@@ -38,12 +42,26 @@
                       ? 'ผ่าน'
                       : task?.overall_result === 'Fail'
                         ? 'ไม่ผ่าน'
-                        : '-'
+                        : task?.overall_result === 'NA'
+                          ? 'N/A'
+                          : '-'
                   }}
                 </span>
                 <q-icon
-                  :name="task?.overall_result === 'Pass' ? 'check_circle' : 'cancel'"
-                  :color="task?.overall_result === 'Pass' ? 'positive' : 'negative'"
+                  :name="
+                    task?.overall_result === 'Pass'
+                      ? 'check_circle'
+                      : task?.overall_result === 'Fail'
+                        ? 'cancel'
+                        : 'help'
+                  "
+                  :color="
+                    task?.overall_result === 'Pass'
+                      ? 'positive'
+                      : task?.overall_result === 'Fail'
+                        ? 'negative'
+                        : 'grey-7'
+                  "
                   size="16px"
                 />
               </div>

@@ -21,8 +21,24 @@
       </div>
       <div class="cal-card__row flex justify-between items-center q-mt-xs">
         <span class="cal-card__label">ผลการสอบเทียบ:</span>
-        <div class="text-positive text-weight-medium flex flex-center gap-xs">
-          <q-icon name="check_circle_outline" size="18px" />
+        <div
+          :class="{
+            'text-positive': item.result === 'ผ่าน',
+            'text-negative': item.result === 'ไม่ผ่าน',
+            'text-grey-7': item.result === 'N/A' || item.result === '-',
+          }"
+          class="text-weight-medium flex flex-center gap-xs"
+        >
+          <q-icon
+            :name="
+              item.result === 'ผ่าน'
+                ? 'check_circle_outline'
+                : item.result === 'ไม่ผ่าน'
+                  ? 'cancel_outline'
+                  : 'help_outline'
+            "
+            size="18px"
+          />
           {{ item.result }}
         </div>
       </div>

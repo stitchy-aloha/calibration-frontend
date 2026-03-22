@@ -77,8 +77,24 @@
             <q-td key="location" :props="props" class="text-center">{{ props.row.location }}</q-td>
             <q-td key="calDate" :props="props" class="text-center">{{ props.row.calDate }}</q-td>
             <q-td key="result" :props="props">
-              <div class="text-positive text-weight-medium flex flex-center gap-xs">
-                <q-icon name="check_circle_outline" size="18px" />
+              <div
+                :class="{
+                  'text-positive': props.row.result === 'ผ่าน',
+                  'text-negative': props.row.result === 'ไม่ผ่าน',
+                  'text-grey-7': props.row.result === 'N/A' || props.row.result === '-',
+                }"
+                class="text-weight-medium flex flex-center gap-xs"
+              >
+                <q-icon
+                  :name="
+                    props.row.result === 'ผ่าน'
+                      ? 'check_circle_outline'
+                      : props.row.result === 'ไม่ผ่าน'
+                        ? 'cancel_outline'
+                        : 'help_outline'
+                  "
+                  size="18px"
+                />
                 {{ props.row.result }}
               </div>
             </q-td>

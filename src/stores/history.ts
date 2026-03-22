@@ -4,7 +4,7 @@ import { ref, computed } from 'vue';
 import { api } from 'src/boot/axios';
 import type { TaskApi } from 'src/services/pm.service';
 
-export type CalibrationResult = 'pass' | 'fail';
+export type CalibrationResult = 'pass' | 'fail' | 'na';
 export type CertType = 'all' | 'external' | 'calibration';
 export type ExportFormat = 'csv' | 'pdf';
 
@@ -35,6 +35,7 @@ export const useHistoryStore = defineStore('history', () => {
       );
 
       const mappedRecords: HistoryRecord[] = approvedOrRejected.map((task) => {
+        const resVal = task.overall_result?.toLowerCase();
         return {
           id: String(task.pm_no || `CAL-${task.id}`),
           taskId: Number(task.id),
@@ -42,7 +43,7 @@ export const useHistoryStore = defineStore('history', () => {
           deviceName: String(task.equipment?.name || 'Unknown'),
           deviceCode: String(task.equipment?.asset_code || '-'),
           inspector: String(task.technician?.name || '-'),
-          result: (task.overall_result?.toLowerCase() === 'pass' ? 'pass' : 'fail') as CalibrationResult,
+          result: (resVal === 'pass' ? 'pass' : resVal === 'fail' ? 'fail' : resVal === 'na' ? 'na' : 'fail') as CalibrationResult,
         };
       });
       records.value = mappedRecords;
@@ -65,6 +66,7 @@ export const useHistoryStore = defineStore('history', () => {
     { label: 'ทุกผลลัพธ์', value: '' },
     { label: 'ผ่าน', value: 'pass' },
     { label: 'ไม่ผ่าน', value: 'fail' },
+    { label: 'N/A', value: 'na' },
   ];
 
   const filteredRecords = computed(() =>

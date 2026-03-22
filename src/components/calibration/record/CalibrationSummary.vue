@@ -32,9 +32,6 @@
             <q-icon name="cancel" size="22px" class="q-mr-sm" />
             ไม่ผ่าน
           </div>
-          <div class="text-negative text-caption q-mt-sm text-center">
-            ยังมีรายการที่ไม่ผ่าน — กรุณาตรวจสอบผลการทดสอบ
-          </div>
         </template>
       </div>
 

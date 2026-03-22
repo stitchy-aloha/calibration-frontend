@@ -33,8 +33,9 @@ export const useApprovalsStore = defineStore('approvals', () => {
       const res = await api.get<TaskApi[]>('/pm-task');
       // Only show tasks that have been submitted (PendingApproval, Approved, Rejected)
       // 'Pending' means calibration hasn't been done yet — hide those
+      // แสดงงานที่ส่งมาขออนุมัติทั้งหมด (รวมถึงสถานะ Done ที่อาจค้างอยู่)
       const submitted = res.data.filter((task) =>
-        ['PendingApproval'].includes(task.status),
+        ['PendingApproval', 'Done'].includes(task.status),
       );
       approvals.value = submitted.map((task) => ({
         id: task.pm_no || `CAL-${task.id}`,
@@ -43,10 +44,22 @@ export const useApprovalsStore = defineStore('approvals', () => {
         toolCode: task.equipment?.asset_code || '-',
         location: task.equipment?.section?.name || task.equipment?.location || '-',
         calDate: task.createdAt ? new Date(task.createdAt).toLocaleDateString('th-TH') : '-',
-        result: task.overall_result === 'Pass' ? 'ผ่าน' : task.overall_result === 'Fail' ? 'ไม่ผ่าน' : '-',
-        status: task.status === 'PendingApproval' ? 'pending' :
-                task.status === 'Approved' ? 'approved' :
-                task.status === 'Rejected' ? 'rejected' : 'pending',
+        result:
+          task.overall_result === 'Pass'
+            ? 'ผ่าน'
+            : task.overall_result === 'Fail'
+              ? 'ไม่ผ่าน'
+              : task.overall_result === 'NA'
+                ? 'N/A'
+                : '-',
+        status:
+          task.status === 'PendingApproval'
+            ? 'pending'
+            : task.status === 'Approved'
+              ? 'approved'
+              : task.status === 'Rejected'
+                ? 'rejected'
+                : 'pending',
       }));
     } catch (error) {
       console.error('fetchApprovals error:', error);

@@ -62,11 +62,22 @@
       <template #body-cell-result="{ value }">
         <q-td class="text-center">
           <div
-            class="flex flex-center gap-xs text-weight-medium"
-            :class="value === 'pass' ? 'text-positive' : 'text-negative'"
+            v-if="value === 'pass'"
+            class="flex flex-center gap-xs text-weight-medium text-positive"
           >
-            <q-icon :name="value === 'pass' ? 'check_circle_outline' : 'cancel'" size="18px" />
-            {{ value === 'pass' ? 'ผ่าน' : 'ไม่ผ่าน' }}
+            <q-icon name="check_circle_outline" size="18px" />
+            ผ่าน
+          </div>
+          <div
+            v-else-if="value === 'fail'"
+            class="flex flex-center gap-xs text-weight-medium text-negative"
+          >
+            <q-icon name="cancel" size="18px" />
+            ไม่ผ่าน
+          </div>
+          <div v-else class="flex flex-center gap-xs text-weight-medium text-grey-7">
+            <q-icon name="help_outline" size="18px" />
+            N/A
           </div>
         </q-td>
       </template>

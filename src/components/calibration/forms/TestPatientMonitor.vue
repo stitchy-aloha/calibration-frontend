@@ -291,6 +291,12 @@ watch(
       ),
       ...mapRows(spo2Data.value, 'SpO2', spo2DisplayType.value, spo2Resolution.value),
     ];
+
+    // ตรวจสอบว่ามีรายการใดไม่ผ่านหรือไม่ เพื่อส่งค่า overallResult ที่ถูกต้องไปบันทึก
+    const hasFail =
+      store.measurements.some((m) => m.result === 'FAIL') ||
+      store.qualitatives.some((q) => q.result === 'FAIL');
+    store.overallResult = hasFail ? 'Fail' : 'Pass';
   },
   { deep: true },
 );
