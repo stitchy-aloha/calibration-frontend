@@ -149,7 +149,14 @@
                 @touchend.prevent="stopDrawing"
               ></canvas>
               <div class="sig-actions">
-                <q-btn flat dense icon="delete" label="ล้าง" color="grey-7" @click="clearSignature" />
+                <q-btn
+                  flat
+                  dense
+                  icon="delete"
+                  label="ล้าง"
+                  color="grey-7"
+                  @click="clearSignature"
+                />
               </div>
             </div>
           </div>

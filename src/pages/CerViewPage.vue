@@ -80,15 +80,15 @@
             :data="calibrationCertData"
             :measurements="task?.measurements || []"
             :specific-parameters="task?.specificParameters || []"
-            :technician="task?.technician ? { 
-              name: task.technician.name, 
-              position: task.technician.position || task.technician.role?.description || 'นายช่างไฟฟ้า', 
-              signatureUrl: task.technician.signatureUrl 
+            :technician="task ? { 
+              name: task.technician_name || task.technician?.name || '-', 
+              position: task.technician_position || task.technician?.position || task.technician?.role?.description || 'นายช่างไฟฟ้า', 
+              signatureUrl: task.technician_signature_url || task.technician?.signatureUrl || null 
             } : null"
-            :approver="task?.approver ? { 
-              name: task.approver.name, 
-              position: task.approver.position || task.approver.role?.description || 'หัวหน้างาน', 
-              signatureUrl: task.approver.signatureUrl 
+            :approver="task ? { 
+              name: task.approver_name || task.approver?.name || '-', 
+              position: task.approver_position || task.approver?.position || task.approver?.role?.description || 'หัวหน้างาน', 
+              signatureUrl: task.approver_signature_url || task.approver?.signatureUrl || null 
             } : null"
             :alarms="alarmsData"
             :standards="standardsData"
@@ -100,8 +100,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useQuasar } from 'quasar';
 import html2pdf from 'html2pdf.js';
 import type { jsPDF } from 'jspdf';
 import { pmService } from 'src/services/pm.service';
@@ -113,6 +114,7 @@ import type { CerCalibrationData } from 'src/components/history/CerCalibration.v
 
 const route = useRoute();
 const selectedCert = ref(1);
+const $q = useQuasar();
 const isPrinting = ref(false);
 const cerRef = ref<HTMLElement | null>(null);
 const loading = ref(false);
@@ -171,11 +173,13 @@ const activeCerData = computed((): CerData => {
         category_id: r.item?.category_id,
         display_order: r.item?.display_order,
       })) || [],
-    technician: t.technician
+    technician: t
       ? {
-          name: t.technician.name,
-          signatureUrl: t.technician.signatureUrl ?? null,
-          role: t.technician.role ?? null,
+          name: t.technician_name || t.technician?.name || '-',
+          signatureUrl: t.technician_signature_url || t.technician?.signatureUrl || null,
+          role: {
+            description: t.technician_position || t.technician?.position || t.technician?.role?.description || '-',
+          },
         }
       : null,
     specificParameters: t.specificParameters || [],
@@ -284,15 +288,47 @@ onMounted(async () => {
   if (taskId) {
     loading.value = true;
     try {
-      const res = await pmService.getTaskById(parseInt(taskId));
-      task.value = res.data;
-    } catch (err) {
-      console.error('Failed to fetch task for CER:', err);
+      const data = await pmService.getTaskById(parseInt(taskId));
+      task.value = data.data;
+      console.log('[DEBUG] Task Loaded in CER View:', {
+        technician_name: data.data.technician_name,
+        technician_signature_url: data.data.technician_signature_url,
+        approver_name: data.data.approver_name,
+        approver_signature_url: data.data.approver_signature_url,
+      });
+    } catch (error) {
+      console.error('Failed to fetch task for CER:', error);
     } finally {
       loading.value = false;
     }
   }
 });
+
+watch(
+  () => task.value,
+  (t) => {
+    if (t?.status === 'Approved' && !t.path_pdf_cer) {
+      // Auto-upload in background after rendering
+      setTimeout(() => {
+        void autoUploadPdf();
+      }, 3000);
+    }
+  },
+);
+
+async function autoUploadPdf() {
+  if (!cerRef.value || !task.value?.id || task.value.path_pdf_cer) return;
+  console.log('触发自动上传 PDF...');
+  const opt = getPdfOptions();
+  try {
+    const blob = await html2pdf().set(opt).from(cerRef.value).output('blob');
+    await pmService.uploadCerPdf(task.value.id, blob);
+    task.value.path_pdf_cer = 'uploaded-auto';
+    console.log('自动上传 PDF 成功');
+  } catch (e) {
+    console.error('Auto-upload PDF failed:', e);
+  }
+}
 
 function getPdfOptions() {
   return {
@@ -345,13 +381,32 @@ async function downloadPdf() {
 
   const opt = getPdfOptions();
 
-  void html2pdf()
-    .set(opt)
-    .from(cerRef.value)
-    .save()
-    .finally(() => {
-      isPrinting.value = false;
+  try {
+    const blob = await html2pdf().set(opt).from(cerRef.value).output('blob');
+    
+    // Save locally for the user
+    void html2pdf().set(opt).from(cerRef.value).save();
+
+    // Upload to backend
+    if (task.value?.id) {
+      await pmService.uploadCerPdf(task.value.id, blob);
+      $q.notify({
+        type: 'positive',
+        message: 'บันทึกใบ CER ลงระบบเรียบร้อยแล้ว',
+        position: 'top',
+      });
+      // Update local task state to reflect it's saved (optional)
+      task.value.path_pdf_cer = 'uploaded'; 
+    }
+  } catch (error) {
+    console.error('PDF Generation/Upload Error:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'เกิดข้อผิดพลาดในการบันทึก PDF',
     });
+  } finally {
+    isPrinting.value = false;
+  }
 }
 </script>
 <style scoped lang="scss">

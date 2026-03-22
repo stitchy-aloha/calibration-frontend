@@ -16,6 +16,7 @@ export interface HistoryRecord {
   deviceCode: string;
   inspector: string;
   result: CalibrationResult;
+  pathPdfCer: string | null;
 }
 
 export const useHistoryStore = defineStore('history', () => {
@@ -42,8 +43,9 @@ export const useHistoryStore = defineStore('history', () => {
           date: String((task.createdAt || '').split('T')[0]),
           deviceName: String(task.equipment?.name || 'Unknown'),
           deviceCode: String(task.equipment?.asset_code || '-'),
-          inspector: String(task.technician?.name || '-'),
+          inspector: String(task.technician_name || task.technician?.name || '-'),
           result: (resVal === 'pass' ? 'pass' : resVal === 'fail' ? 'fail' : resVal === 'na' ? 'na' : 'fail') as CalibrationResult,
+          pathPdfCer: task.path_pdf_cer || null,
         };
       });
       records.value = mappedRecords;

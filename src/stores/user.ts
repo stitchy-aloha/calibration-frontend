@@ -10,6 +10,7 @@ export interface User {
   imageUrl: string | null;
   signatureUrl: string | null;
   lineUserId: string | null;
+  position: string | null;
   roleId: number;
   role: {
     id: number;

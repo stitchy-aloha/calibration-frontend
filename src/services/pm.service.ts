@@ -138,6 +138,13 @@ export interface TaskApi {
   task_user: number;
   createdAt: string;
   approvedAt?: string;
+  path_pdf_cer?: string;
+  technician_name?: string;
+  technician_position?: string;
+  technician_signature_url?: string;
+  approver_name?: string;
+  approver_position?: string;
+  approver_signature_url?: string;
   technician: TechnicianApi;
   approver?: TechnicianApi;
   equipment?: EquipmentApi;
@@ -182,4 +189,12 @@ export const pmService = {
 
   savePmForm: (payload: SavePmPayload) =>
     api.post<{ success: boolean; task_id: number }>('/pm-save', payload),
+
+  uploadCerPdf: (taskId: number, blob: Blob) => {
+    const formData = new FormData();
+    formData.append('file', blob, `cer-${taskId}.pdf`);
+    return api.post(`/pm-task/${taskId}/upload-cer`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };

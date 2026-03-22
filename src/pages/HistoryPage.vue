@@ -103,7 +103,7 @@
             icon="qr_code_2"
             color="black"
             size="md"
-            @click="openQr(props.row)"
+            @click.stop="openQr(props.row)"
           >
             <q-tooltip>QR Code</q-tooltip>
           </q-btn>
