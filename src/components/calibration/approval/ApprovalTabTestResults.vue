@@ -91,7 +91,7 @@
       <CalibrationSummary
         :custom-checklist="ipChecklist"
         :inspector-name="task?.technician?.name || '-'"
-        :inspector-role="task?.technician?.position || '-'"
+        :inspector-role="task?.technician?.position || task?.technician?.role?.name || '-'"
         @save="() => {}"
       />
     </template>
@@ -151,7 +151,7 @@
         :heart-rate-data="heartRateData"
         :spo2-data="spo2Data"
         :inspector-name="task?.technician?.name || '-'"
-        :inspector-role="task?.technician?.position || '-'"
+        :inspector-role="task?.technician?.position || task?.technician?.role?.name || '-'"
         @save="() => {}"
       />
     </template>

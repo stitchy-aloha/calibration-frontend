@@ -45,7 +45,8 @@ const roleLabelMap: Record<string, string> = {
 const displayName = computed(() => props.inspectorName ?? user.value?.name ?? '-');
 
 const displayRole = computed(() => {
-  if (props.inspectorRole) return props.inspectorRole;
+  const role = props.inspectorRole;
+  if (role && role !== '-') return role;
   return user.value?.role ? (roleLabelMap[user.value.role] ?? user.value.role) : '-';
 });
 </script>
