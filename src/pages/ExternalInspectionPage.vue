@@ -104,13 +104,22 @@ async function onSubmit() {
   isSubmitting.value = false;
 
   if (res.success) {
+    const result = store.pmResult;
     $q.notify({
-      type: store.pmResult === 'ไม่ผ่าน' ? 'warning' : 'positive',
-      message: `บันทึกผล PM สำเร็จ — ผลลัพธ์: ${store.pmResult}`,
+      type: result === 'ไม่ผ่าน' ? 'warning' : 'positive',
+      message: `บันทึกผล PM สำเร็จ — ผลลัพธ์: ${result}`,
       position: 'bottom',
       timeout: 3000,
     });
-    void router.push(`/calibration/record/${route.params.id as string}`);
+    
+    // Clear form data
+    store.resetAll();
+    
+    if (result === 'ไม่ผ่าน') {
+      void router.push('/calibration');
+    } else {
+      void router.push(`/calibration/record/${route.params.id as string}`);
+    }
   } else {
     $q.notify({
       type: 'negative',

@@ -12,6 +12,7 @@ export interface CalibrationRecord {
   type: string; // ประเภท       e.g. Medical
   dueDate: string; // ครบกำหนด    YYYY-MM-DD
   responsible: string; // ผู้รับผิดชอบ
+  status: string; // Task status
 }
 
 export const useCalibrationStore = defineStore('calibration', () => {
@@ -44,8 +45,10 @@ export const useCalibrationStore = defineStore('calibration', () => {
   async function fetchFromApi() {
     try {
       const res = await api.get<TaskApi[]>('/pm-task');
-      // Only show tasks that are yet to be calibrated (status = 'Pending')
-      const pendingTasks = res.data.filter((task) => task.status === 'Pending');
+      // Only show tasks that are yet to be calibrated (status = 'Pending' or 'ReCalibrate')
+      const pendingTasks = res.data.filter(
+        (task) => task.status === 'Pending' || task.status === 'ReCalibrate',
+      );
       
       records.value = pendingTasks.map((task) => ({
         id: task.pm_no || `TASK-${task.id}`,
@@ -56,6 +59,7 @@ export const useCalibrationStore = defineStore('calibration', () => {
         type: 'Medical',
         dueDate: task.equipment?.calibration_due_date ?? '-',
         responsible: task.technician?.name ?? '-',
+        status: task.status,
       }));
     } catch {
       // keep mock data on error

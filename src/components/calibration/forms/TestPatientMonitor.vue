@@ -9,11 +9,7 @@
       v-model:resolution="systolicResolution"
       :show-range="true"
     />
-    <TestParameterTable
-      title="Diastolic Pressure"
-      v-model="diastolicData"
-      :show-range="true"
-    />
+    <TestParameterTable title="Diastolic Pressure" v-model="diastolicData" :show-range="true" />
     <TestParameterTable
       title="Temp"
       v-model="tempData"
@@ -248,26 +244,27 @@ watch(
     }));
 
     // Map measurements
-  const mapRows = (rows: TestRow[], param: string, displayType: string, resolution: string) => rows.map(r => {
-    const obj: {
-      parameter_name: string;
-      range: number;
-      result: 'PASS' | 'FAIL';
-      standard_value?: number;
-      reading_1?: number;
-      reading_2?: number;
-      reading_3?: number;
-      average_value?: number;
-      error_value?: number;
-      display_type?: string;
-      resolution?: string;
-    } = {
-      parameter_name: param,
-      range: r.range === 'ต่ำ' ? 1 : r.range === 'กลาง' ? 2 : r.range === 'สูง' ? 3 : 0,
-      result: r.status === 'pass' ? 'PASS' : 'FAIL',
-      display_type: displayType,
-      resolution: resolution,
-    };
+    const mapRows = (rows: TestRow[], param: string, displayType: string, resolution: string) =>
+      rows.map((r) => {
+        const obj: {
+          parameter_name: string;
+          range: number;
+          result: 'PASS' | 'FAIL';
+          standard_value?: number;
+          reading_1?: number;
+          reading_2?: number;
+          reading_3?: number;
+          average_value?: number;
+          error_value?: number;
+          display_type?: string;
+          resolution?: string;
+        } = {
+          parameter_name: param,
+          range: r.range === 'ต่ำ' ? 1 : r.range === 'กลาง' ? 2 : r.range === 'สูง' ? 3 : 0,
+          result: r.status === 'pass' ? 'PASS' : 'FAIL',
+          display_type: displayType,
+          resolution: resolution,
+        };
         if (r.standard !== null && r.standard !== undefined) obj.standard_value = r.standard;
         if (r.val1 !== null && r.val1 !== undefined) obj.reading_1 = r.val1;
         if (r.val2 !== null && r.val2 !== undefined) obj.reading_2 = r.val2;
@@ -278,13 +275,25 @@ watch(
       });
 
     store.measurements = [
-    ...mapRows(systolicData.value, 'Systolic Pressure', systolicDisplayType.value, systolicResolution.value),
-    ...mapRows(diastolicData.value, 'Diastolic Pressure', '', ''),
-    ...mapRows(tempData.value, 'Temperature', tempDisplayType.value, tempResolution.value),
-    ...mapRows(heartRateData.value, 'Heart Rate', heartRateDisplayType.value, heartRateResolution.value),
-    ...mapRows(spo2Data.value, 'SpO2', spo2DisplayType.value, spo2Resolution.value),
-  ];
-}, { deep: true });
+      ...mapRows(
+        systolicData.value,
+        'Systolic Pressure',
+        systolicDisplayType.value,
+        systolicResolution.value,
+      ),
+      ...mapRows(diastolicData.value, 'Diastolic Pressure', '', ''),
+      ...mapRows(tempData.value, 'Temperature', tempDisplayType.value, tempResolution.value),
+      ...mapRows(
+        heartRateData.value,
+        'Heart Rate',
+        heartRateDisplayType.value,
+        heartRateResolution.value,
+      ),
+      ...mapRows(spo2Data.value, 'SpO2', spo2DisplayType.value, spo2Resolution.value),
+    ];
+  },
+  { deep: true },
+);
 </script>
 
 <style scoped lang="scss"></style>

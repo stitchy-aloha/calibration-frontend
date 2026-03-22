@@ -30,7 +30,7 @@
       unelevated
       :class="['cal-card__btn', isOwner ? 'cal-card__btn--active' : 'cal-card__btn--disabled']"
       :disable="!isOwner"
-      label="เริ่มการสอบเทียบ"
+      :label="record.status === 'ReCalibrate' ? 'สอบเทียบใหม่' : 'เริ่มการสอบเทียบ'"
       @click.stop="goToInspection"
     />
   </div>

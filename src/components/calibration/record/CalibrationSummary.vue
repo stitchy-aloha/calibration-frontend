@@ -41,7 +41,11 @@
       <!-- RIGHT: Checklist -->
       <div class="col-12 col-md-7">
         <div class="checklist">
-          <div v-for="item in checklistItems" :key="'key' in item ? item.key : item.label" class="checklist-item">
+          <div
+            v-for="item in checklistItems"
+            :key="'key' in item ? item.key : item.label"
+            class="checklist-item"
+          >
             <q-icon :name="item.icon" size="18px" color="grey-6" class="q-mr-sm" />
             <span class="checklist-item__label">{{ item.label }}</span>
             <q-space />
@@ -109,30 +113,36 @@ const tablePassed = (rows: TestRow[]): boolean => {
   return tested.length > 0 && tested.every((r) => r.status === 'pass');
 };
 
-const checklistItems = computed(() =>
-  props.customChecklist ?? [
-    { key: 'ekg', label: 'EKG', icon: 'monitor_heart', passed: ekgPassed.value },
-    {
-      key: 'systolic',
-      label: 'Systolic Pressure',
-      icon: 'speed',
-      passed: tablePassed(props.systolicData),
-    },
-    {
-      key: 'diastolic',
-      label: 'Diastolic Pressure',
-      icon: 'speed',
-      passed: tablePassed(props.diastolicData),
-    },
-    { key: 'temp', label: 'Temp', icon: 'device_thermostat', passed: tablePassed(props.tempData) },
-    {
-      key: 'heartRate',
-      label: 'Heart Rate',
-      icon: 'favorite',
-      passed: tablePassed(props.heartRateData),
-    },
-    { key: 'spo2', label: 'SPO2', icon: 'app:med', passed: tablePassed(props.spo2Data) },
-  ],
+const checklistItems = computed(
+  () =>
+    props.customChecklist ?? [
+      { key: 'ekg', label: 'EKG', icon: 'monitor_heart', passed: ekgPassed.value },
+      {
+        key: 'systolic',
+        label: 'Systolic Pressure',
+        icon: 'speed',
+        passed: tablePassed(props.systolicData),
+      },
+      {
+        key: 'diastolic',
+        label: 'Diastolic Pressure',
+        icon: 'speed',
+        passed: tablePassed(props.diastolicData),
+      },
+      {
+        key: 'temp',
+        label: 'Temp',
+        icon: 'device_thermostat',
+        passed: tablePassed(props.tempData),
+      },
+      {
+        key: 'heartRate',
+        label: 'Heart Rate',
+        icon: 'favorite',
+        passed: tablePassed(props.heartRateData),
+      },
+      { key: 'spo2', label: 'SPO2', icon: 'app:med', passed: tablePassed(props.spo2Data) },
+    ],
 );
 
 const allPassed = computed(() => checklistItems.value.every((i) => i.passed));

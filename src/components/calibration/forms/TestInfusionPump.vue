@@ -100,11 +100,7 @@
             class="full-width q-mt-md q-py-md result-btn"
             no-caps
           >
-            <q-icon
-              :name="overallPassed ? 'check_circle' : 'cancel'"
-              size="28px"
-              class="q-mr-sm"
-            />
+            <q-icon :name="overallPassed ? 'check_circle' : 'cancel'" size="28px" class="q-mr-sm" />
             <span class="text-h6">{{ overallPassed ? 'ผ่าน' : 'ไม่ผ่าน' }}</span>
           </q-btn>
         </div>
@@ -158,9 +154,36 @@ const flowRate = ref({
   ucb2: '0.000000',
   ucb3: '0.000000',
   data: [
-    { standard: 10, val1: null, val2: null, val3: null, average: null, error: null, status: null, range: '' },
-    { standard: 50, val1: null, val2: null, val3: null, average: null, error: null, status: null, range: '' },
-    { standard: 100, val1: null, val2: null, val3: null, average: null, error: null, status: null, range: '' },
+    {
+      standard: 10,
+      val1: null,
+      val2: null,
+      val3: null,
+      average: null,
+      error: null,
+      status: null,
+      range: '',
+    },
+    {
+      standard: 50,
+      val1: null,
+      val2: null,
+      val3: null,
+      average: null,
+      error: null,
+      status: null,
+      range: '',
+    },
+    {
+      standard: 100,
+      val1: null,
+      val2: null,
+      val3: null,
+      average: null,
+      error: null,
+      status: null,
+      range: '',
+    },
   ] as TestRow[],
 });
 
@@ -172,9 +195,36 @@ const volume = ref({
   ucb2: '0.000000',
   ucb3: '0.000000',
   data: [
-    { standard: 50, val1: null, val2: null, val3: null, average: null, error: null, status: null, range: '' },
-    { standard: 100, val1: null, val2: null, val3: null, average: null, error: null, status: null, range: '' },
-    { standard: 200, val1: null, val2: null, val3: null, average: null, error: null, status: null, range: '' },
+    {
+      standard: 50,
+      val1: null,
+      val2: null,
+      val3: null,
+      average: null,
+      error: null,
+      status: null,
+      range: '',
+    },
+    {
+      standard: 100,
+      val1: null,
+      val2: null,
+      val3: null,
+      average: null,
+      error: null,
+      status: null,
+      range: '',
+    },
+    {
+      standard: 200,
+      val1: null,
+      val2: null,
+      val3: null,
+      average: null,
+      error: null,
+      status: null,
+      range: '',
+    },
   ] as TestRow[],
 });
 
@@ -188,12 +238,12 @@ const checklist = computed(() => [
   {
     label: 'Flow Rate',
     icon: 'waves',
-    passed: flowRate.value.data.every(r => r.status === 'pass'),
+    passed: flowRate.value.data.every((r) => r.status === 'pass'),
   },
   {
     label: 'Volume',
     icon: 'opacity',
-    passed: volume.value.data.every(r => r.status === 'pass'),
+    passed: volume.value.data.every((r) => r.status === 'pass'),
   },
 ]);
 
@@ -241,8 +291,24 @@ watch(
       });
 
     store.measurements = [
-      ...mapRows(flowRate.value.data, 'Flow Rate', flowRate.value.displayType, flowRate.value.resolution, flowRate.value.ucb1, flowRate.value.ucb2, flowRate.value.ucb3),
-      ...mapRows(volume.value.data, 'Volume', volume.value.displayType, volume.value.resolution, volume.value.ucb1, volume.value.ucb2, volume.value.ucb3),
+      ...mapRows(
+        flowRate.value.data,
+        'Flow Rate',
+        flowRate.value.displayType,
+        flowRate.value.resolution,
+        flowRate.value.ucb1,
+        flowRate.value.ucb2,
+        flowRate.value.ucb3,
+      ),
+      ...mapRows(
+        volume.value.data,
+        'Volume',
+        volume.value.displayType,
+        volume.value.resolution,
+        volume.value.ucb1,
+        volume.value.ucb2,
+        volume.value.ucb3,
+      ),
     ];
 
     store.overallResult = overallPassed.value ? 'Pass' : 'Fail';
@@ -253,7 +319,8 @@ watch(
 onMounted(() => {
   // Initialize from store if needed
   if (store.specificParameters.length > 0) {
-    const findValue = (name: string) => store.specificParameters.find((p) => p.name === name)?.value || '';
+    const findValue = (name: string) =>
+      store.specificParameters.find((p) => p.name === name)?.value || '';
     occlusion.value.ivSet = findValue('IV Set') || 'Covex';
     occlusion.value.amount = findValue('Amount') || '200';
     occlusion.value.pressure = findValue('Occlusion Pressure') || '300';
@@ -301,4 +368,3 @@ onMounted(() => {
   border-radius: 8px;
 }
 </style>
-

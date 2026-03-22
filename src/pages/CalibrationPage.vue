@@ -86,7 +86,7 @@
                   'action-btn',
                   isOwner(props.row.responsible) ? 'action-btn--active' : 'action-btn--disabled',
                 ]"
-                label="เริ่มการสอบเทียบ"
+                :label="props.row.status === 'ReCalibrate' ? 'สอบเทียบใหม่' : 'เริ่มการสอบเทียบ'"
                 :disable="!isOwner(props.row.responsible)"
                 @click="goToInspection(props.row)"
               />

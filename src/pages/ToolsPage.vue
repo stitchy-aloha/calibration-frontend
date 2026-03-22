@@ -287,6 +287,10 @@ function statusClass(status: ToolStatus): string {
     กำลังใช้งาน: 'status--active',
     ส่งซ่อม: 'status--repair',
     ปิดใช้งาน: 'status--disabled',
+    ready: 'status--ready',
+    calibrating: 'status--calibrating',
+    repair: 'status--repair',
+    disabled: 'status--disabled',
   };
   return map[status] ?? '';
 }

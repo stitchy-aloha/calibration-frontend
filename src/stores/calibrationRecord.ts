@@ -148,11 +148,12 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       environment.value = { temperature: null, humidity: null };
       measurements.value = [];
       qualitatives.value = [];
-      specificParameters.value = task.specificParameters?.map((p: SpecificParameterApi) => ({
-        name: p.name,
-        value: p.value ?? undefined,
-        unit: p.unit ?? undefined,
-      })) || [];
+      specificParameters.value =
+        task.specificParameters?.map((p: SpecificParameterApi) => ({
+          name: p.name,
+          value: p.value ?? undefined,
+          unit: p.unit ?? undefined,
+        })) || [];
       standardToolIds.value = [];
     } catch (error) {
       console.error('Failed to fetch calibration record', error);

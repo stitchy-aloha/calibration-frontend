@@ -8,7 +8,11 @@ export type ToolStatus =
   | 'จำหน่ายแล้ว'
   | 'กำลังใช้งาน'
   | 'ส่งซ่อม'
-  | 'ปิดใช้งาน';
+  | 'ปิดใช้งาน'
+  | 'ready'
+  | 'calibrating'
+  | 'repair'
+  | 'disabled';
 
 export interface CalibrationProcess {
   id: number;

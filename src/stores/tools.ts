@@ -20,6 +20,9 @@ export const useToolsStore = defineStore('tools', () => {
       inactive: 'ปิดใช้งาน',
       maintenance: 'กำลังสอบเทียบ',
       ready: 'พร้อมใช้งาน',
+      calibrating: 'กำลังสอบเทียบ',
+      repair: 'ส่งซ่อม',
+      disabled: 'ปิดใช้งาน',
     };
     return map[s] ?? 'พร้อมใช้งาน';
   }
@@ -34,6 +37,10 @@ export const useToolsStore = defineStore('tools', () => {
       รอดำเนินการ: 'inactive',
       ส่งซ่อม: 'maintenance',
       จำหน่ายแล้ว: 'inactive',
+      ready: 'ready',
+      calibrating: 'calibrating',
+      repair: 'repair',
+      disabled: 'disabled',
     };
     return map[s] ?? 'active';
   }
