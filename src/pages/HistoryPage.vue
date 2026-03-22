@@ -56,6 +56,7 @@
       :rows-per-page-options="[10, 20, 50, 0]"
       rows-per-page-label="แถวต่อหน้า"
       no-data-label="ไม่พบข้อมูลที่ค้นหา"
+      @row-click="goToStatus"
     >
       <!-- Result column custom slot -->
       <template #body-cell-result="{ value }">
@@ -84,7 +85,15 @@
           >
             <q-tooltip>ดูใบรับรอง (CER)</q-tooltip>
           </q-btn>
-          <q-btn flat round dense icon="qr_code_2" color="grey-6" size="md">
+          <q-btn
+            flat
+            round
+            dense
+            icon="qr_code_2"
+            color="black"
+            size="md"
+            @click="openQr(props.row)"
+          >
             <q-tooltip>QR Code</q-tooltip>
           </q-btn>
         </q-td>
@@ -106,11 +115,8 @@
       :result-options="store.resultOptions"
     />
 
-    <ExportDialog
-      v-model="showExport"
-      :device-options="store.deviceOptions"
-      :result-options="store.resultOptions"
-    />
+    <!-- QR Dialog -->
+    <ToolQrDialog v-if="selectedTool" v-model="showQr" :tool="selectedTool" />
   </q-page>
 </template>
 
@@ -119,12 +125,41 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { QTableProps } from 'quasar';
 import { useHistoryStore } from 'src/stores/history';
+import type { HistoryRecord } from 'src/stores/history';
 import ExportDialog from 'src/components/history/ExportDialog.vue';
+import ToolQrDialog from 'src/components/history/ToolQrDialog.vue';
 import SearchBar from 'src/components/SearchBar.vue';
+
+interface ToolRecord {
+  id: number;
+  taskId: number;
+  deviceName: string;
+  deviceCode: string;
+  date: string;
+}
 
 const router = useRouter();
 const store = useHistoryStore();
 const showExport = ref(false);
+const showQr = ref(false);
+const selectedTool = ref<ToolRecord | null>(null);
+
+function openQr(row: HistoryRecord) {
+  selectedTool.value = {
+    id: Number(row.id.replace('CAL-', '')),
+    taskId: row.taskId,
+    deviceName: row.deviceName,
+    deviceCode: row.deviceCode,
+    date: row.date,
+  };
+  showQr.value = true;
+}
+
+async function goToStatus(evt: Event, row: HistoryRecord) {
+  const target = evt.target as HTMLElement;
+  if (target.closest('.q-btn')) return;
+  await router.push(`/status/${row.deviceCode}`);
+}
 
 onMounted(async () => {
   await store.fetchRecords();
@@ -147,6 +182,8 @@ const columns: QTableProps['columns'] = [
 </script>
 
 <style scoped lang="scss">
+@use 'sass:color';
+
 .toolbar-row {
   display: flex;
   align-items: center;
@@ -165,6 +202,10 @@ const columns: QTableProps['columns'] = [
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.2px;
+  }
+
+  :deep(tbody tr) {
+    cursor: pointer;
   }
 
   :deep(tbody tr:hover td) {
@@ -188,11 +229,11 @@ const columns: QTableProps['columns'] = [
 
   &--pass {
     background: rgba($positive, 0.12);
-    color: darken(#61c6ab, 8%);
+    color: color.scale(#61c6ab, $lightness: -8%);
   }
   &--fail {
     background: rgba($negative, 0.12);
-    color: darken(#fb7171, 12%);
+    color: color.scale(#fb7171, $lightness: -12%);
   }
 }
 </style>

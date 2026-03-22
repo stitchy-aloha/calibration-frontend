@@ -36,8 +36,10 @@ export default defineRouter(function ({ store }) {
 
   Router.beforeEach((to, from, next) => {
     const auth = useAuthStore(store);
+    const publicPages = ['/', '/status/'];
+    const isPublicPage = publicPages.some((path) => to.path.startsWith(path));
 
-    if (to.path !== '/' && !auth.isAuthenticated) {
+    if (!isPublicPage && !auth.isAuthenticated) {
       next('/');
     } else {
       next();

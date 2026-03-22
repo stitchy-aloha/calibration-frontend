@@ -8,7 +8,10 @@
     </div>
 
     <!-- Inner frosted card -->
-    <q-card-section class="q-pt-xl q-px-md q-pb-md">
+    <q-card-section
+      class="q-pt-xl q-px-md q-pb-md cursor-pointer ripple"
+      @click="showScanner = true"
+    >
       <div class="inner-card q-pa-lg column flex-center">
         <div class="q-mb-md" style="position: relative; width: 64px; height: 64px">
           <!-- พื้นหลังปุ่ม -->
@@ -27,11 +30,22 @@
           </div>
         </div>
         <div class="text-h6 text-weight-bold text-white">สแกน QR Code</div>
-        <div class="text-caption text-whiteasad">เพื่อดูข้อมูล</div>
+        <div class="text-caption text-white opacity-80">เพื่อดูข้อมูลสถานะเครื่องมือ</div>
       </div>
     </q-card-section>
+
+    <!-- Scanner Dialog -->
+    <QrScannerDialog v-model="showScanner" />
   </q-card>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import QrScannerDialog from './QrScannerDialog.vue';
+
+const showScanner = ref(false);
+</script>
+
 <style scoped>
 .quick-actions-card {
   border-radius: 20px;
@@ -43,5 +57,14 @@
   background: rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   backdrop-filter: blur(4px);
+  transition: transform 0.2s ease;
+}
+
+.inner-card:hover {
+  transform: scale(1.02);
+}
+
+.opacity-80 {
+  opacity: 0.8;
 }
 </style>
