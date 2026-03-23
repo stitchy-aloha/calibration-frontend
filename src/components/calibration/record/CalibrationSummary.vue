@@ -24,7 +24,6 @@
             label="ผ่าน"
             class="confirm-btn q-mt-md"
             no-caps
-            @click="handleSave"
           />
         </template>
         <template v-else>
@@ -145,10 +144,6 @@ const checklistItems = computed(
 const allPassed = computed(() => checklistItems.value.every((i) => i.passed));
 
 const showSaveDialog = ref(false);
-
-const handleSave = () => {
-  showSaveDialog.value = true;
-};
 
 const onConfirmSave = () => {
   emit('save');

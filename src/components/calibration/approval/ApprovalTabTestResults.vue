@@ -92,7 +92,6 @@
         :custom-checklist="ipChecklist"
         :inspector-name="task?.technician?.name || '-'"
         :inspector-role="task?.technician?.position || task?.technician?.role?.name || '-'"
-        @save="() => {}"
       />
     </template>
 

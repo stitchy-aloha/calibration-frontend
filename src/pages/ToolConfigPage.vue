@@ -252,7 +252,6 @@ function saveConfig() {
     </q-dialog>
 
     <!-- Dialog: Add Standard Tool already here -->
-
   </q-page>
 </template>
 
