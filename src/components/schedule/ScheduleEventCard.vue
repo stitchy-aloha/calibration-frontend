@@ -22,21 +22,21 @@
       </div>
 
       <div class="row q-col-gutter-y-sm text-grey-10 font-size-13 q-mb-lg">
-        <div class="col-12 col-sm-6 flex items-center gap-sm">
-          <q-icon name="location_on" size="18px" class="q-mr-xs text-grey-9" />
-          {{ event.location }}
+        <div class="col-12 col-sm-6 flex items-center gap-sm no-wrap">
+          <q-icon name="location_on" size="18px" class="q-mr-xs text-grey-9 flex-shrink-0" />
+          <span class="ellipsis">{{ event.location }}</span>
         </div>
-        <div class="col-12 col-sm-6 flex items-center gap-sm">
-          <q-icon name="person" size="18px" class="q-mr-xs text-grey-9" />
-          <span class="ellipsis" style="max-width: 160px">{{ event.assignedTo }}</span>
+        <div class="col-12 col-sm-6 flex items-center gap-sm no-wrap">
+          <q-icon name="person" size="18px" class="q-mr-xs text-grey-9 flex-shrink-0" />
+          <span class="ellipsis">{{ event.assignedTo }}</span>
         </div>
-        <div class="col-12 col-sm-6 flex items-center gap-sm">
-          <q-icon name="sync" size="18px" class="q-mr-xs text-grey-9" />
-          {{ event.frequency }}
+        <div class="col-12 col-sm-6 flex items-center gap-sm no-wrap">
+          <q-icon name="sync" size="18px" class="q-mr-xs text-grey-9 flex-shrink-0" />
+          <span class="ellipsis">{{ event.frequency }}</span>
         </div>
-        <div class="col-12 col-sm-6 flex items-center gap-sm">
-          <q-icon name="alarm" size="18px" class="q-mr-xs text-grey-9" />
-          ครั้งล่าสุด: {{ lastCalDateFormatted }}
+        <div class="col-12 col-sm-6 flex items-center gap-sm no-wrap">
+          <q-icon name="alarm" size="18px" class="q-mr-xs text-grey-9 flex-shrink-0" />
+          <span class="ellipsis">ครั้งล่าสุด: {{ lastCalDateFormatted }}</span>
         </div>
       </div>
 
@@ -128,5 +128,9 @@ async function goToHistory() {
 
 .gap-sm {
   gap: 8px;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
 }
 </style>

@@ -1,58 +1,57 @@
 <template>
-  <div class="schedule-calendar bg-white rounded-borders border-grey flex column overflow-hidden">
+  <div class="calendar-container bg-white rounded-borders border-grey overflow-hidden shadow-1">
     <!-- Header -->
-    <div class="calendar-header">
-      <q-btn flat round dense icon="chevron_left" @click="prevMonth" />
-      <div class="text-subtitle1 text-weight-medium">{{ monthYearString }}</div>
-      <q-btn flat round dense icon="chevron_right" @click="nextMonth" />
-      <div class="q-ml-auto text-grey-6 text-caption">แสดง {{ totalEventsInMonth }} รายการ</div>
+    <div class="calendar-header row items-center q-px-md q-py-sm">
+      <q-btn flat round dense icon="chevron_left" color="grey-8" @click="prevMonth" />
+      <div class="text-subtitle1 text-weight-bold q-mx-sm">{{ monthYearString }}</div>
+      <q-btn flat round dense icon="chevron_right" color="grey-8" @click="nextMonth" />
+      <q-space />
+      <div class="text-grey-6 text-caption hide-on-mobile">แสดง {{ totalEventsInMonth }} รายการ</div>
     </div>
 
     <q-separator />
 
-    <!-- Grid -->
-    <div class="calendar-grid">
-      <!-- Weekdays -->
-      <div class="weekdays-row">
+    <!-- Unified Grid System -->
+    <div class="calendar-main column">
+      <div class="calendar-grid">
+        <!-- Weekdays Row -->
         <div
-          v-for="day in ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์']"
+          v-for="day in ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.']"
           :key="day"
-          class="weekday-cell"
+          class="weekday-cell text-center text-weight-medium text-grey-7 q-py-sm"
         >
           {{ day }}
         </div>
-      </div>
 
-      <!-- Days Grid -->
-      <div class="days-row">
+        <!-- Blank Days -->
         <div v-for="i in blankDays" :key="'blank-' + i" class="day-cell day-cell--blank"></div>
 
+        <!-- Actual Days -->
         <div
           v-for="date in daysInMonth"
           :key="date"
-          class="day-cell cursor-pointer"
+          class="day-cell cursor-pointer relative-position"
           :class="{
             'day-cell--active': isSelected(date),
             'day-cell--today': isToday(date),
           }"
           @click="selectDate(date)"
         >
-          <div class="date-number-wrapper">
+          <div class="day-content column items-center full-width">
             <div
               class="date-number"
-              :class="{ 'text-primary text-weight-bold': isToday(date) || isSelected(date) }"
+              :class="{ 'today-ring': isToday(date), 'text-primary text-weight-bolder': isSelected(date) }"
             >
               {{ date }}
             </div>
-            <!-- Red circle for today if needed, or we just bold it -->
-          </div>
 
-          <div class="calendar-badges full-width column items-center q-gutter-y-xs q-px-xs">
-            <div v-if="getOtherEventCount(date) > 0" class="date-badge bg-grey-4 text-grey-8">
-              {{ getOtherEventCount(date) }} เครื่อง
-            </div>
-            <div v-if="getMyEventCount(date) > 0" class="date-badge bg-secondary text-white">
-              {{ getMyEventCount(date) }} เครื่อง
+            <div class="calendar-badges column items-center q-gutter-y-xs full-width q-px-xs q-mt-xs">
+              <div v-if="getOtherEventCount(date) > 0" class="date-badge badge-other">
+                {{ getOtherEventCount(date) }} เครื่อง
+              </div>
+              <div v-if="getMyEventCount(date) > 0" class="date-badge badge-mine">
+                {{ getMyEventCount(date) }} เครื่อง
+              </div>
             </div>
           </div>
         </div>
@@ -62,14 +61,14 @@
     <q-separator />
 
     <!-- Footer Legend -->
-    <div class="calendar-footer row items-center q-gutter-x-md">
-      <div class="legend-item">
-        <div class="legend-dot bg-grey-4"></div>
-        <span class="text-caption text-grey-8">งานทั้งหมด</span>
+    <div class="calendar-footer row items-center q-px-md q-py-sm q-gutter-x-md no-wrap overflow-hidden">
+      <div class="legend-item flex items-center no-wrap">
+        <div class="legend-dot bg-grey-4 q-mr-xs"></div>
+        <span class="text-caption text-grey-8 no-wrap">งานทั้งหมด</span>
       </div>
-      <div class="legend-item">
-        <div class="legend-dot bg-secondary"></div>
-        <span class="text-caption text-grey-8">งานของฉัน</span>
+      <div class="legend-item flex items-center no-wrap">
+        <div class="legend-dot bg-secondary q-mr-xs"></div>
+        <span class="text-caption text-grey-8 no-wrap">งานของฉัน</span>
       </div>
     </div>
   </div>
@@ -81,38 +80,19 @@ import { useScheduleStore } from 'src/stores/schedule';
 
 const store = useScheduleStore();
 
-// Calendar state based on current date since we mock data around current month
 const currentDate = new Date();
 const currentYear = ref(currentDate.getFullYear());
-const currentMonth = ref(currentDate.getMonth()); // 0-11
+const currentMonth = ref(currentDate.getMonth());
 
-// Thai months array
 const thaiMonths = [
-  'มกราคม',
-  'กุมภาพันธ์',
-  'มีนาคม',
-  'เมษายน',
-  'พฤษภาคม',
-  'มิถุนายน',
-  'กรกฎาคม',
-  'สิงหาคม',
-  'กันยายน',
-  'ตุลาคม',
-  'พฤศจิกายน',
-  'ธันวาคม',
+  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
 ];
 
-const monthYearString = computed(() => {
-  return `${thaiMonths[currentMonth.value]} ${currentYear.value + 543}`;
-});
+const monthYearString = computed(() => `${thaiMonths[currentMonth.value]} ${currentYear.value + 543}`);
 
-const daysInMonth = computed(() => {
-  return new Date(currentYear.value, currentMonth.value + 1, 0).getDate();
-});
-
-const blankDays = computed(() => {
-  return new Date(currentYear.value, currentMonth.value, 1).getDay();
-});
+const daysInMonth = computed(() => new Date(currentYear.value, currentMonth.value + 1, 0).getDate());
+const blankDays = computed(() => new Date(currentYear.value, currentMonth.value, 1).getDay());
 
 const totalEventsInMonth = computed(() => {
   let total = 0;
@@ -130,14 +110,12 @@ function getDateStr(day: number) {
 
 function getMyEventCount(day: number) {
   const dateStr = getDateStr(day);
-  return store.events.filter((e) => e.dueDate === dateStr && e.assignedTo === store.currentUserName)
-    .length;
+  return store.events.filter(e => e.dueDate === dateStr && e.assignedTo === store.currentUserName).length;
 }
 
 function getOtherEventCount(day: number) {
   const dateStr = getDateStr(day);
-  return store.events.filter((e) => e.dueDate === dateStr && e.assignedTo !== store.currentUserName)
-    .length;
+  return store.events.filter(e => e.dueDate === dateStr && e.assignedTo !== store.currentUserName).length;
 }
 
 function isSelected(day: number) {
@@ -146,11 +124,7 @@ function isSelected(day: number) {
 
 function isToday(day: number) {
   const d = new Date();
-  return (
-    d.getDate() === day &&
-    d.getMonth() === currentMonth.value &&
-    d.getFullYear() === currentYear.value
-  );
+  return d.getDate() === day && d.getMonth() === currentMonth.value && d.getFullYear() === currentYear.value;
 }
 
 function selectDate(day: number) {
@@ -177,149 +151,137 @@ function nextMonth() {
 </script>
 
 <style scoped lang="scss">
-.border-grey {
-  border: 1px solid #e0e0e0;
+.calendar-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .calendar-header {
-  display: flex;
-  align-items: center;
-  padding: 12px 20px;
+  min-height: 56px;
+}
+
+.calendar-main {
+  flex: 1;
+  background: white;
+  padding: 8px 12px;
+  overflow-y: auto;
 }
 
 .calendar-grid {
-  padding: 16px 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.weekdays-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  margin-bottom: 20px;
+  width: 100%;
+  border-top: 1px solid #f1f5f9;
+  border-left: 1px solid #f1f5f9;
 }
 
 .weekday-cell {
-  font-size: 14px;
-  font-weight: 500;
-  color: #424242;
-}
-
-.days-row {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 110px;
-  row-gap: 4px;
-  flex: 1;
+  font-size: 13px;
+  color: #64748b;
+  border-bottom: 2px solid #f1f5f9;
+  border-right: 1px solid #f1f5f9;
+  background: #f8fafc;
 }
 
 .day-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 6px 4px;
-  transition: background 0.2s;
-  border-radius: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  border-right: 1px solid #f1f5f9;
+  min-height: 100px;
+  padding: 8px 4px;
+  transition: background 0.2s ease;
 
-  &:hover {
-    background: #f5f5f5;
-  }
-}
-
-.day-cell--blank {
-  cursor: default;
-  &:hover {
-    background: transparent;
+  &:hover:not(.day-cell--blank) {
+    background: #f1f5f9;
   }
 }
 
 .day-cell--active {
-  background: #f0f0f0; /* Slight highlight for selected day */
+  background: #f0f7ff;
+  box-shadow: inset 0 0 0 1px $primary;
 }
 
-.date-number-wrapper {
-  margin-bottom: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.day-cell--today {
+  background: #fffcf0;
+}
+
+.day-content {
+  height: 100%;
 }
 
 .date-number {
-  font-size: 15px;
-  color: #333;
-}
-
-.day-cell--today .date-number {
-  border: 2px solid $negative; /* Red circle around today per mockup */
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  font-size: 14px;
+  color: #1e293b;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 4px;
+}
+
+.today-ring {
+  background: $negative;
+  color: white !important;
+  border-radius: 50%;
+  font-weight: bold;
 }
 
 .date-badge {
-  font-size: 11px;
+  font-size: 10px;
   padding: 2px 6px;
-  border-radius: 12px;
-  font-weight: 500;
-  width: 92%;
+  border-radius: 999px;
+  width: 100%;
   text-align: center;
+  font-weight: 600;
   white-space: nowrap;
-  line-height: 1.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
-.calendar-footer {
-  padding: 10px 20px;
+.badge-other {
+  background: #e2e8f0;
+  color: #475569;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.badge-mine {
+  background: $secondary;
+  color: white;
 }
 
 .legend-dot {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
 }
 
+/* Responsive Scaling */
+@media (max-width: 1023px) {
+  .day-cell {
+    min-height: 80px;
+  }
+  .calendar-main {
+    padding: 4px;
+  }
+}
+
 @media (max-width: 599px) {
-  .calendar-header {
-    padding: 8px 12px;
+  .hide-on-mobile {
+    display: none;
   }
-  .calendar-grid {
-    padding: 8px;
+  .day-cell {
+    min-height: 60px;
+    padding: 4px 2px;
   }
-  .weekdays-row {
-    margin-bottom: 8px;
-  }
-  .weekday-cell {
+  .date-number {
     font-size: 12px;
-  }
-  .days-row {
-    grid-auto-rows: 85px;
+    width: 22px;
+    height: 22px;
   }
   .date-badge {
     font-size: 9px;
-    padding: 2px 4px;
-    white-space: normal;
-    word-break: break-word;
-  }
-  .day-cell {
-    padding: 4px 2px;
-  }
-  .calendar-footer {
-    padding: 10px;
-  }
-  .day-cell--today .date-number {
-    width: 24px;
-    height: 24px;
-    font-size: 13px;
+    padding: 1px 4px;
   }
 }
 </style>

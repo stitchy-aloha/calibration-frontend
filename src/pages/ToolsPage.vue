@@ -304,6 +304,12 @@ function statusClass(status: ToolStatus): string {
   align-items: center;
 }
 
+@media (max-width: 599px) {
+  .filters-row {
+    flex-wrap: wrap;
+  }
+}
+
 .type-select {
   width: 180px;
 }
