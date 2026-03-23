@@ -2,14 +2,22 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStandardToolStore } from 'src/stores/standardTools';
+import { useCalibrationSettingStore } from 'src/stores/calibrationSetting';
 import type { StandardTool } from 'src/stores/standardTools';
+import type {
+  CalibrationSetting,
+  CalibrationTestValue,
+} from 'src/services/calibration-setting.service';
 import ConfigStandardToolCard from 'src/components/tools/config/ConfigStandardToolCard.vue';
 import ConfigQualitativeBlock from 'src/components/tools/config/ConfigQualitativeBlock.vue';
 import ConfigQuantitativeBlock from 'src/components/tools/config/ConfigQuantitativeBlock.vue';
+import { useQuasar } from 'quasar';
 
 const route = useRoute();
 const router = useRouter();
+const $q = useQuasar();
 const standardToolStore = useStandardToolStore();
+const settingStore = useCalibrationSettingStore();
 
 import { computed } from 'vue';
 const toolName = computed(() => decodeURIComponent(String(route.params.name ?? '')));
@@ -41,25 +49,10 @@ interface QuantitativeParam {
 
 /* ── State ── */
 const selectedStandardTools = ref<StandardTool[]>([]);
-const qualitativeParams = ref<{ name: string }[]>([{ name: 'EKG' }]);
-const quantitativeParams = ref<QuantitativeParam[]>([
-  {
-    parameter: 'Systolic Pressure',
-    unit: 'mmHg',
-    tolerance: '0.8',
-    stdType: '1 - แบบอ้างอิงเครื่องมือมาตรฐาน',
-    display: 'Digital',
-    uncertainty: '1',
-    ucb1: '0',
-    ucb2: '0',
-    ucb3: '0',
-    testValues: [
-      { label: 'ค่าทดสอบที่ 1', value: 80 },
-      { label: 'ค่าทดสอบที่ 2', value: 120 },
-      { label: 'ค่าทดสอบที่ 3', value: 140 },
-    ],
-  },
-]);
+const qualitativeParams = ref<
+  { name: string; testItems: { name: string; result: 'pass' | 'fail' | null }[] }[]
+>([]);
+const quantitativeParams = ref<QuantitativeParam[]>([]);
 
 // No longer using showAddProcessDialog
 const showAddStandardDialog = ref(false);
@@ -67,6 +60,49 @@ const selectedToolToAdd = ref<StandardTool | null>(null);
 
 onMounted(async () => {
   await standardToolStore.fetchTools();
+  if (toolName.value) {
+    const existing = await settingStore.fetchSettings(toolName.value);
+    if (existing && existing.length > 0) {
+      // Map backend to frontend
+      qualitativeParams.value = existing
+        .filter((s) => s.type === 'qualitative')
+        .map((s) => ({
+          name: s.parameter_name,
+          testItems: s.test_values
+            ? s.test_values.map((v: CalibrationTestValue) => ({
+                name: v.label,
+                result: null,
+              }))
+            : [],
+        }));
+
+      quantitativeParams.value = existing
+        .filter((s) => s.type === 'quantitative')
+        .map((s) => ({
+          parameter: s.parameter_name,
+          unit: s.unit || '',
+          tolerance: s.tolerance || '1.0',
+          stdType: s.std_type || '1 - แบบอ้างอิงเครื่องมือมาตรฐาน',
+          display: s.display_type || 'Digital',
+          uncertainty: s.resolution || '0', // mapped resolution to uncertainty in UI
+          ucb1: s.ucb1 || '0',
+          ucb2: s.ucb2 || '0',
+          ucb3: s.ucb3 || '0',
+          testValues: s.test_values || [],
+        }));
+
+      // Standard tools - current backend implementation stores one tool per setting
+      // We'll collect unique standard tools from the settings
+      const toolIds = new Set(
+        existing
+          .map((s) => s.standard_tool_id)
+          .filter((id): id is number => id !== undefined && id !== null),
+      );
+      selectedStandardTools.value = Array.from(toolIds)
+        .map((id) => standardToolStore.tools.find((t) => t.id === id))
+        .filter((t): t is StandardTool => !!t);
+    }
+  }
 });
 
 function confirmAddStandard() {
@@ -101,7 +137,14 @@ function addQuantitative() {
 }
 
 function addQualitative() {
-  qualitativeParams.value.push({ name: '' });
+  qualitativeParams.value.push({
+    name: '',
+    testItems: [
+      { name: '', result: null },
+      { name: '', result: null },
+      { name: '', result: null },
+    ],
+  });
 }
 
 function removeQualitative(i: number) {
@@ -112,8 +155,60 @@ function removeQuantitative(i: number) {
   quantitativeParams.value.splice(i, 1);
 }
 
-function saveConfig() {
-  router.push('/tools/manage?tab=settings').catch(console.error);
+async function saveConfig() {
+  if (!toolName.value) return;
+
+  try {
+    const payload: CalibrationSetting[] = [];
+
+    // Map quantitative
+    quantitativeParams.value.forEach((qp) => {
+      payload.push({
+        equipment_name: toolName.value,
+        type: 'quantitative',
+        parameter_name: qp.parameter,
+        unit: qp.unit,
+        tolerance: qp.tolerance,
+        std_type: qp.stdType,
+        display_type: qp.display,
+        resolution: qp.uncertainty,
+        ucb1: qp.ucb1,
+        ucb2: qp.ucb2,
+        ucb3: qp.ucb3,
+        test_values: qp.testValues,
+        standard_tool_id: selectedStandardTools.value[0]?.id, // For now, assume first tool
+      });
+    });
+
+    // Map qualitative
+    qualitativeParams.value.forEach((qp) => {
+      payload.push({
+        equipment_name: toolName.value,
+        type: 'qualitative',
+        parameter_name: qp.name,
+        test_values: qp.testItems.map((item) => ({ label: item.name, value: 0 })),
+        standard_tool_id: selectedStandardTools.value[0]?.id,
+      });
+    });
+
+    console.log('Final Payload to save:', JSON.stringify(payload, null, 2));
+    await settingStore.saveSettings(toolName.value, payload);
+
+    $q.notify({
+      type: 'positive',
+      message: 'บันทึกการตั้งค่าสำเร็จ',
+      position: 'top-right',
+    });
+
+    void router.push('/tools/manage?tab=settings');
+  } catch (error) {
+    console.error('Save error:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'ไม่สามารถบันทึกการตั้งค่าได้',
+      position: 'top-right',
+    });
+  }
 }
 </script>
 
@@ -183,6 +278,7 @@ function saveConfig() {
           <ConfigQualitativeBlock
             :index="i + 1"
             v-model:parameterName="param.name"
+            v-model:testItems="param.testItems"
             @remove="removeQualitative(i)"
           />
         </div>

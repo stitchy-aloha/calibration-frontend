@@ -1,7 +1,7 @@
 <template>
   <div class="q-mb-lg">
     <div class="row items-center q-mb-md">
-      <div class="section-title">EKG</div>
+      <div class="section-title">{{ title || 'EKG' }}</div>
     </div>
 
     <div class="row q-col-gutter-md">
@@ -85,6 +85,7 @@ export interface EkgItem {
 
 defineProps<{
   ekgItems: EkgItem[];
+  title?: string;
   readonly?: boolean;
 }>();
 </script>

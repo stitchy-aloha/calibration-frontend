@@ -20,7 +20,12 @@
     </q-card>
 
     <!-- Dynamic Detailed Tests -->
+    <TestDynamic 
+      v-if="hasSettings"
+      @save="emit('save')"
+    />
     <component
+      v-else
       :is="currentDeviceComponent"
       :equipment-type="store.equipmentDetails.name"
       @save="emit('save')"
@@ -38,8 +43,13 @@ import StandardEquipmentSelector from './StandardEquipmentSelector.vue';
 import TestPatientMonitor from '../forms/TestPatientMonitor.vue';
 import TestInfusionPump from '../forms/TestInfusionPump.vue';
 import TestUnknown from '../forms/TestUnknown.vue';
+import TestDynamic from '../forms/TestDynamic.vue';
+import { useCalibrationSettingStore } from 'src/stores/calibrationSetting';
 
 const store = useCalibrationRecordStore();
+const settingStore = useCalibrationSettingStore();
+
+const hasSettings = computed(() => settingStore.settings.length > 0);
 
 const emit = defineEmits<{
   (e: 'save'): void;

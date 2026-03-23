@@ -1,34 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-
-interface TestItem {
-  name: string;
-  result: 'pass' | 'fail' | null;
-}
-
-interface Props {
-  index: number;
-  parameterName: string;
-}
-
-defineProps<Props>();
-const emit = defineEmits(['remove', 'update:parameterName']);
-
-const testItems = ref<TestItem[]>([
-  { name: '', result: null },
-  { name: '', result: null },
-  { name: '', result: null },
-]);
-
-function addTestItem() {
-  testItems.value.push({ name: '', result: null });
-}
-
-function removeTestItem(idx: number) {
-  testItems.value.splice(idx, 1);
-}
-</script>
-
 <template>
   <div class="qualitative-block q-mb-md">
     <div class="row items-center q-mb-md">
@@ -79,7 +48,8 @@ function removeTestItem(idx: number) {
             <div class="row q-pa-sm items-center">
               <div class="item-index q-mr-sm">{{ idx + 1 }}</div>
               <q-input
-                v-model="item.name"
+                :model-value="item.name"
+                @update:model-value="updateItemName(idx, $event as string)"
                 borderless
                 dense
                 placeholder="ระบุรายการ..."
@@ -87,13 +57,17 @@ function removeTestItem(idx: number) {
                 input-style="font-size: 13px"
               />
             </div>
+            <!-- result buttons can remain local or be removed if purely for design in config -->
             <div class="row border-top-dashed session-buttons">
               <q-btn
                 flat
                 label="ผ่าน"
                 class="col btn-pass"
                 :class="{ 'active-pass': item.result === 'pass' }"
-                @click="item.result = 'pass'"
+                @click="
+                  item.result = 'pass';
+                  updateItems([...testItems]);
+                "
               />
               <div class="vertical-divider"></div>
               <q-btn
@@ -101,7 +75,10 @@ function removeTestItem(idx: number) {
                 label="ไม่ผ่าน"
                 class="col btn-fail"
                 :class="{ 'active-fail': item.result === 'fail' }"
-                @click="item.result = 'fail'"
+                @click="
+                  item.result = 'fail';
+                  updateItems([...testItems]);
+                "
               />
             </div>
           </q-card>
@@ -110,7 +87,38 @@ function removeTestItem(idx: number) {
     </div>
   </div>
 </template>
+<script setup lang="ts">
+interface TestItem {
+  name: string;
+  result: 'pass' | 'fail' | null;
+}
 
+interface Props {
+  index: number;
+  parameterName: string;
+  testItems: TestItem[];
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits(['remove', 'update:parameterName', 'update:testItems']);
+
+function updateItems(newItems: TestItem[]) {
+  emit('update:testItems', newItems);
+}
+
+function addTestItem() {
+  updateItems([...props.testItems, { name: '', result: null }]);
+}
+
+function removeTestItem(idx: number) {
+  updateItems(props.testItems.filter((_, i) => i !== idx));
+}
+
+function updateItemName(idx: number, name: string) {
+  const newItems = props.testItems.map((item, i) => (i === idx ? { ...item, name } : item));
+  updateItems(newItems);
+}
+</script>
 <style scoped lang="scss">
 .qualitative-block {
   padding: 20px;

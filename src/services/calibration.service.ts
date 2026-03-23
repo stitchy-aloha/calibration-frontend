@@ -1,41 +1,14 @@
 import { api } from 'src/boot/axios';
 import type { TaskApi } from './pm.service';
+import type { MeasurementRecord, QualitativeRecord, SpecificParameter } from 'src/stores/calibrationRecord';
 
 export interface SubmitTaskPayload {
-  ambient_temp?: number | undefined;
-  ambient_humidity?: number | undefined;
+  ambient_temp?: number | null | undefined;
+  ambient_humidity?: number | null | undefined;
   standard_tool_ids?: number[] | undefined;
-  measurements?:
-    | {
-        parameter_name: string;
-        range?: number | undefined;
-        standard_value?: number | undefined;
-        reading_1?: number | undefined;
-        reading_2?: number | undefined;
-        reading_3?: number | undefined;
-        average_value?: number | undefined;
-        error_value?: number | undefined;
-        result: 'PASS' | 'FAIL';
-        display_type?: string | undefined;
-        resolution?: string | undefined;
-        ucb1?: number | undefined;
-        ucb2?: number | undefined;
-        ucb3?: number | undefined;
-      }[]
-    | undefined;
-  qualitatives?:
-    | {
-        item_name: string;
-        result: 'PASS' | 'FAIL' | 'NA';
-      }[]
-    | undefined;
-  specific_parameters?:
-    | {
-        name: string;
-        value?: string | undefined;
-        unit?: string | undefined;
-      }[]
-    | undefined;
+  measurements?: MeasurementRecord[] | undefined;
+  qualitatives?: QualitativeRecord[] | undefined;
+  specific_parameters?: SpecificParameter[] | undefined;
   overall_result: 'Pass' | 'Fail' | 'NA';
 }
 

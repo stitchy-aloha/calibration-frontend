@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { CalibrationService } from 'src/services/calibration.service';
+import { useCalibrationSettingStore } from './calibrationSetting';
 import type { SubmitTaskPayload } from 'src/services/calibration.service';
 import type { SpecificParameterApi } from 'src/services/pm.service';
 
@@ -44,31 +45,31 @@ export interface StandardEquipment {
 
 export interface MeasurementRecord {
   parameter_name: string;
-  range?: number;
-  standard_value?: number;
-  reading_1?: number;
-  reading_2?: number;
-  reading_3?: number;
-  average_value?: number | undefined;
-  error_value?: number | undefined;
+  range?: number | null | undefined;
+  standard_value?: number | null | undefined;
+  reading_1?: number | null | undefined;
+  reading_2?: number | null | undefined;
+  reading_3?: number | null | undefined;
+  average_value?: number | null | undefined;
+  error_value?: number | null | undefined;
   result: 'PASS' | 'FAIL';
-  display_type?: string | undefined;
-  resolution?: string | undefined;
-  ucb1?: number | undefined;
-  ucb2?: number | undefined;
-  ucb3?: number | undefined;
+  display_type?: string | null | undefined;
+  resolution?: string | null | undefined;
+  ucb1?: number | null | undefined;
+  ucb2?: number | null | undefined;
+  ucb3?: number | null | undefined;
 }
 
 export interface QualitativeRecord {
-  parameter_name?: string;
+  parameter_name?: string | null | undefined;
   item_name: string;
   result: 'PASS' | 'FAIL' | 'NA';
 }
 
 export interface SpecificParameter {
   name: string;
-  value?: string | undefined;
-  unit?: string | undefined;
+  value?: string | null | undefined;
+  unit?: string | null | undefined;
 }
 
 export const useCalibrationRecordStore = defineStore('calibrationRecord', () => {
@@ -110,6 +111,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
 
   async function fetchCalibrationRecord(id: string | number) {
     loading.value = true;
+    const settingStore = useCalibrationSettingStore();
     try {
       const res = await CalibrationService.getRecord(id);
       const task = res.data;
@@ -155,6 +157,11 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
           unit: p.unit ?? undefined,
         })) || [];
       standardToolIds.value = [];
+
+      // Fetch settings for this equipment
+      if (task.equipment?.name) {
+        await settingStore.fetchSettings(task.equipment.name);
+      }
     } catch (error) {
       console.error('Failed to fetch calibration record', error);
     } finally {

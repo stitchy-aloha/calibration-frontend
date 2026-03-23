@@ -23,137 +23,56 @@
       ข้อมูลผลการทดสอบ
     </q-card>
 
-    <!-- Infusion Pump Results -->
-    <template v-if="isInfusionPump">
-      <!-- Occlusion Alarm Section -->
-      <div class="occlusion-section-title q-mb-md">Occlusion</div>
-      <q-card flat bordered class="q-pa-lg q-mb-xl">
+    <!-- 1. Specific Parameters (e.g., for Infusion Pump) -->
+    <div v-if="task?.specificParameters?.length" class="q-mb-xl">
+      <div class="occlusion-section-title q-mb-md">พารามิเตอร์เฉพาะ (Specific Parameters)</div>
+      <q-card flat bordered class="q-pa-lg">
         <div class="row q-col-gutter-lg">
-          <div class="col-12 col-md-3">
-            <div class="text-caption text-grey-8 q-mb-xs">IV Set:</div>
-            <div class="readonly-field">{{ getSpecificParam('IV Set') || '-' }}</div>
-          </div>
-          <div class="col-12 col-md-3">
-            <div class="text-caption text-grey-8 q-mb-xs">Amount:</div>
-            <div class="readonly-field">
-              {{ getSpecificParam('Amount') || '-' }}
-              <span v-if="getSpecificParam('Amount')" class="text-grey-6">Drop/mL</span>
-            </div>
-          </div>
-          <div class="col-12 col-md-3">
-            <div class="text-caption text-grey-8 q-mb-xs">Occlusion Pressure:</div>
-            <div class="readonly-field">
-              {{ getSpecificParam('Occlusion Pressure') || '-' }}
-              <span v-if="getSpecificParam('Occlusion Pressure')" class="text-grey-6">mmHg</span>
-            </div>
-          </div>
-          <div class="col-12 col-md-3">
-            <div class="text-caption text-grey-8 q-mb-xs">Occlusion Alarm:</div>
+          <div v-for="sp in task.specificParameters" :key="sp.id" class="col-12 col-sm-6 col-md-3">
+            <div class="text-caption text-grey-8 q-mb-xs">{{ sp.name }}:</div>
             <div
-              class="readonly-field text-weight-bold"
-              :class="
-                occlusionAlarmValue === 'Pass'
-                  ? 'text-positive'
-                  : occlusionAlarmValue === 'Fail'
-                    ? 'text-negative'
-                    : ''
-              "
+              class="readonly-field"
+              :class="{
+                'text-positive text-weight-bold': sp.value === 'Pass' || sp.value === 'PASS',
+                'text-negative text-weight-bold': sp.value === 'Fail' || sp.value === 'FAIL',
+              }"
             >
-              {{ occlusionAlarmValue || '-' }}
+              {{ sp.value || '-' }}
             </div>
           </div>
         </div>
       </q-card>
+    </div>
 
-      <ApprovalParameterTable
-        title="Flow Rate Test"
-        :rows="flowRateData"
-        :show-range="false"
-        :display-type="getMetadata('Flow Rate').displayType"
-        :resolution="getMetadata('Flow Rate').resolution"
-        :ucb1="getUcb('Flow Rate').ucb1"
-        :ucb2="getUcb('Flow Rate').ucb2"
-        :ucb3="getUcb('Flow Rate').ucb3"
-      />
+    <!-- 2. Qualitative Parameters (Cards) -->
+    <div v-if="Object.keys(groupedQualitatives).length > 0" class="q-mb-xl">
+      <div v-for="(items, groupName) in groupedQualitatives" :key="groupName" class="q-mb-md">
+        <EkgTestCard :ekg-items="items" :title="String(groupName)" :readonly="true" />
+      </div>
+    </div>
 
-      <ApprovalParameterTable
-        title="Volume Test"
-        :rows="volumeData"
-        :show-range="false"
-        :display-type="getMetadata('Volume').displayType"
-        :resolution="getMetadata('Volume').resolution"
-        :ucb1="getUcb('Volume').ucb1"
-        :ucb2="getUcb('Volume').ucb2"
-        :ucb3="getUcb('Volume').ucb3"
-      />
+    <!-- 3. Quantitative Parameters (Tables) -->
+    <div v-if="Object.keys(groupedMeasurements).length > 0">
+      <div v-for="(rows, name) in groupedMeasurements" :key="name">
+        <ApprovalParameterTable
+          :title="String(name)"
+          :rows="rows"
+          :show-range="rows.some((r) => !!r.range)"
+          :display-type="getMetadata(String(name)).displayType"
+          :resolution="getMetadata(String(name)).resolution"
+          :ucb1="getUcb(String(name)).ucb1"
+          :ucb2="getUcb(String(name)).ucb2"
+          :ucb3="getUcb(String(name)).ucb3"
+        />
+      </div>
+    </div>
 
-      <!-- Summary Section (reuse CalibrationSummary with custom checklist) -->
-      <CalibrationSummary
-        :custom-checklist="ipChecklist"
-        :inspector-name="task?.technician?.name || '-'"
-        :inspector-role="task?.technician?.position || task?.technician?.role?.name || '-'"
-      />
-    </template>
-
-    <!-- Patient Monitor Results (Default Example) -->
-    <template v-else>
-      <!-- EKG Results (read-only) using existing EkgTestCard component -->
-      <EkgTestCard :ekg-items="ekgItems" :readonly="true" />
-
-      <!-- Parameter Tables (read-only) -->
-      <ApprovalParameterTable
-        title="Systolic Pressure"
-        :rows="systolicData"
-        :show-range="true"
-        :display-type="getMetadata('Systolic Pressure').displayType"
-        :resolution="getMetadata('Systolic Pressure').resolution"
-      />
-
-      <ApprovalParameterTable
-        title="Diastolic Pressure"
-        :rows="diastolicData"
-        :show-range="true"
-        :display-type="getMetadata('Diastolic Pressure').displayType"
-        :resolution="getMetadata('Diastolic Pressure').resolution"
-      />
-
-      <ApprovalParameterTable
-        title="Temp"
-        :rows="tempData"
-        :show-range="false"
-        :display-type="getMetadata('Temperature').displayType"
-        :resolution="getMetadata('Temperature').resolution"
-      />
-
-      <ApprovalParameterTable
-        title="Heart Rate"
-        :rows="heartRateData"
-        :show-range="false"
-        :display-type="getMetadata('Heart Rate').displayType"
-        :resolution="getMetadata('Heart Rate').resolution"
-      />
-
-      <ApprovalParameterTable
-        title="Spo2"
-        :rows="spo2Data"
-        :show-range="false"
-        :display-type="getMetadata('SpO2').displayType"
-        :resolution="getMetadata('SpO2').resolution"
-      />
-
-      <!-- Calibration Summary Component (reused from record) -->
-      <CalibrationSummary
-        :ekg-items="ekgItems"
-        :systolic-data="systolicData"
-        :diastolic-data="diastolicData"
-        :temp-data="tempData"
-        :heart-rate-data="heartRateData"
-        :spo2-data="spo2Data"
-        :inspector-name="task?.technician?.name || '-'"
-        :inspector-role="task?.technician?.position || task?.technician?.role?.name || '-'"
-        @save="() => {}"
-      />
-    </template>
+    <!-- 4. Summary Section -->
+    <CalibrationSummary
+      :custom-checklist="checklistItems"
+      :inspector-name="task?.technician_name || task?.technician?.name || '-'"
+      :inspector-role="task?.technician_position || task?.technician?.position || '-'"
+    />
   </div>
 </template>
 
@@ -187,38 +106,49 @@ const props = defineProps<{
   task: TaskApi | null;
 }>();
 
-// Equipment Type detection
-const isInfusionPump = computed(() => {
-  const typeName = props.task?.equipment?.equipmentType?.name?.toLowerCase() || '';
-  const modelName = props.task?.equipment?.name?.toLowerCase() || '';
-  return (
-    typeName.includes('infusion') ||
-    typeName.includes('syringe') ||
-    modelName.includes('infusion') ||
-    modelName.includes('syringe') ||
-    typeName.includes('เครื่องให้สารน้ำ')
-  );
+// Dynamic Data Grouping
+const groupedQualitatives = computed(() => {
+  const groups: Record<string, EkgItem[]> = {};
+  (props.task?.qualitatives || []).forEach((q) => {
+    const pName = q.parameter_name || 'พารามิเตอร์เชิงคุณภาพ';
+    if (!groups[pName]) groups[pName] = [];
+    groups[pName].push({
+      id: String(q.id),
+      label: q.item_name,
+      status:
+        q.result?.toUpperCase() === 'PASS'
+          ? 'pass'
+          : q.result?.toUpperCase() === 'FAIL'
+            ? 'fail'
+            : null,
+    });
+  });
+  return groups;
 });
 
-// Helper to map DB measurements to UI rows
-const mapMeasurements = (name: string): TestRow[] => {
-  const items = props.task?.measurements?.filter((m) => m.parameter_name === name) || [];
-  return items.map((m) => ({
-    range: m.range ? String(m.range) : '',
-    standard: m.standard_value,
-    val1: m.reading_1,
-    val2: m.reading_2,
-    val3: m.reading_3,
-    average: m.average_value,
-    error: m.error_value,
-    status:
-      m.result?.toUpperCase() === 'PASS'
-        ? 'pass'
-        : m.result?.toUpperCase() === 'FAIL'
-          ? 'fail'
-          : null,
-  }));
-};
+const groupedMeasurements = computed(() => {
+  const groups: Record<string, TestRow[]> = {};
+  (props.task?.measurements || []).forEach((m) => {
+    const pName = m.parameter_name;
+    if (!groups[pName]) groups[pName] = [];
+    groups[pName].push({
+      range: m.range ? String(m.range) : '',
+      standard: m.standard_value,
+      val1: m.reading_1,
+      val2: m.reading_2,
+      val3: m.reading_3,
+      average: m.average_value,
+      error: m.error_value,
+      status:
+        m.result?.toUpperCase() === 'PASS'
+          ? 'pass'
+          : m.result?.toUpperCase() === 'FAIL'
+            ? 'fail'
+            : null,
+    });
+  });
+  return groups;
+});
 
 const getMetadata = (name: string) => {
   const item = props.task?.measurements?.find((m) => m.parameter_name === name);
@@ -237,53 +167,24 @@ const getUcb = (name: string) => {
   };
 };
 
-// Patient Monitor Data
-const ekgItems = computed<EkgItem[]>(() => {
-  return (props.task?.qualitatives || [])
-    .filter((q) => q.parameter_name === 'EKG')
-    .map((q) => ({
-      id: q.item_name,
-      label: q.item_name,
-      status:
-        q.result?.toUpperCase() === 'PASS'
-          ? 'pass'
-          : q.result?.toUpperCase() === 'FAIL'
-            ? 'fail'
-            : null,
-    }));
+const checklistItems = computed(() => {
+  const items: { label: string; icon: string; passed: boolean }[] = [];
+
+  // Grouped results for checklist
+  Object.entries(groupedQualitatives.value).forEach(([name, values]) => {
+    const tested = values.filter((v) => v.status !== null);
+    const passed = tested.length > 0 && tested.every((v) => v.status === 'pass');
+    items.push({ label: name, icon: 'fact_check', passed });
+  });
+
+  Object.entries(groupedMeasurements.value).forEach(([name, rows]) => {
+    const tested = rows.filter((r) => r.status !== null);
+    const passed = tested.length > 0 && tested.every((r) => r.status === 'pass');
+    items.push({ label: name, icon: 'analytics', passed });
+  });
+
+  return items;
 });
-
-const systolicData = computed(() => mapMeasurements('Systolic Pressure'));
-const diastolicData = computed(() => mapMeasurements('Diastolic Pressure'));
-const tempData = computed(() => mapMeasurements('Temperature'));
-const heartRateData = computed(() => mapMeasurements('Heart Rate'));
-const spo2Data = computed(() => mapMeasurements('SpO2'));
-
-// Infusion Pump Data
-const getSpecificParam = (name: string): string => {
-  const param = props.task?.specificParameters?.find((p) => p.name === name);
-  return param?.value || '';
-};
-
-const occlusionAlarmValue = computed(() => getSpecificParam('Occlusion Alarm'));
-
-const flowRateData = computed(() => mapMeasurements('Flow Rate'));
-const volumeData = computed(() => mapMeasurements('Volume'));
-
-const tablePassed = (rows: TestRow[]): boolean => {
-  const tested = rows.filter((r) => r.status !== null);
-  return tested.length > 0 && tested.every((r) => r.status === 'pass');
-};
-
-const ipChecklist = computed(() => [
-  {
-    label: 'Infusion Set (Occlusion Alarm)',
-    icon: 'vaccines',
-    passed: occlusionAlarmValue.value === 'Pass',
-  },
-  { label: 'Flow Rate', icon: 'waves', passed: tablePassed(flowRateData.value) },
-  { label: 'Volume', icon: 'opacity', passed: tablePassed(volumeData.value) },
-]);
 
 const envData = computed(() => {
   const env = props.task?.environments?.[0];
