@@ -30,6 +30,30 @@ export interface CalibrationCost {
   price: number;
 }
 
+export interface ICalibrationTestValue {
+  label: string;
+  value: number;
+}
+
+export interface CalibrationSetting {
+  id?: number;
+  equipment_name: string;
+  type: 'quantitative' | 'qualitative';
+  parameter_name: string;
+  unit?: string;
+  tolerance?: string;
+  std_type?: string;
+  display_type?: string;
+  resolution?: string;
+  uncertainty?: string;
+  ucb1?: string;
+  ucb2?: string;
+  ucb3?: string;
+  test_values?: ICalibrationTestValue[];
+  standard_tool_id?: number | null;
+  standardTool?: StandardTool;
+}
+
 export interface MedicalTool {
   id: string;
   name: string;

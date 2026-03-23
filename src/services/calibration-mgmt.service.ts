@@ -1,5 +1,5 @@
 import { api } from 'src/boot/axios';
-import type { CalibrationProcess, CalibrationCost } from 'src/types/tool.types';
+import type { CalibrationProcess, CalibrationCost, CalibrationSetting } from '../types/tool.types';
 
 export const CalibrationProcessService = {
   getAll: () => api.get<CalibrationProcess[]>('/calibration-processes'),
@@ -14,9 +14,18 @@ export const CalibrationProcessService = {
 export const CalibrationCostService = {
   getAll: () => api.get<CalibrationCost[]>('/calibration-costs'),
   getById: (id: number) => api.get<CalibrationCost>(`/calibration-costs/${id}`),
-  create: (data: Partial<CalibrationCost>) =>
-    api.post<CalibrationCost>('/calibration-costs', data),
+  create: (data: Partial<CalibrationCost>) => api.post<CalibrationCost>('/calibration-costs', data),
   update: (id: number, data: Partial<CalibrationCost>) =>
     api.patch<CalibrationCost>(`/calibration-costs/${id}`, data),
   remove: (id: number) => api.delete(`/calibration-costs/${id}`),
+};
+
+export const CalibrationSettingService = {
+  getByEquipment: (equipmentName: string) =>
+    api.get<CalibrationSetting[]>(`/calibration-setting/${encodeURIComponent(equipmentName)}`),
+  saveBatch: (equipmentName: string, data: CalibrationSetting[]) =>
+    api.post<CalibrationSetting[]>(
+      `/calibration-setting/batch/${encodeURIComponent(equipmentName)}`,
+      data,
+    ),
 };
