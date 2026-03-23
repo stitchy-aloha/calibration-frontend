@@ -22,7 +22,7 @@
 
   <!-- UCB Values (Read-only) -->
   <div
-    v-if="ucb1 !== undefined || ucb2 !== undefined || ucb3 !== undefined"
+    v-if="showUcb && (ucb1 !== undefined || ucb2 !== undefined || ucb3 !== undefined)"
     class="row q-gutter-x-lg q-mb-sm text-grey-7 text-caption items-center q-pl-sm"
   >
     <span v-if="ucb1 !== undefined"><strong class="text-grey-9">UCB1:</strong> {{ ucb1 }}</span>
@@ -131,6 +131,7 @@ const props = defineProps<{
   title: string;
   rows: TestRow[];
   showRange?: boolean;
+  showUcb?: boolean;
   displayType?: string;
   resolution?: string;
   ucb1?: number | string | undefined;
@@ -141,6 +142,7 @@ const props = defineProps<{
 const showRange = computed(() => props.showRange !== false);
 
 const allColumns: QTableProps['columns'] = [
+  { name: 'range', label: 'ช่วง', field: 'range', align: 'center' },
   { name: 'standard', label: 'STD', field: 'standard', align: 'center' },
   { name: 'val1', label: 'UUC-1', field: 'val1', align: 'center' },
   { name: 'val2', label: 'UUC-2', field: 'val2', align: 'center' },

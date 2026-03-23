@@ -63,6 +63,7 @@
           :ucb1="getUcb(String(name)).ucb1"
           :ucb2="getUcb(String(name)).ucb2"
           :ucb3="getUcb(String(name)).ucb3"
+          :show-ucb="isUcbShown(String(name))"
         />
       </div>
     </div>
@@ -165,6 +166,15 @@ const getUcb = (name: string) => {
     ucb2: item?.ucb2,
     ucb3: item?.ucb3,
   };
+};
+
+const isUcbShown = (name: string) => {
+  const ucb = getUcb(name);
+  return !!(
+    (ucb.ucb1 !== undefined && ucb.ucb1 !== null && ucb.ucb1 !== 0) ||
+    (ucb.ucb2 !== undefined && ucb.ucb2 !== null && ucb.ucb2 !== 0) ||
+    (ucb.ucb3 !== undefined && ucb.ucb3 !== null && ucb.ucb3 !== 0)
+  );
 };
 
 const checklistItems = computed(() => {

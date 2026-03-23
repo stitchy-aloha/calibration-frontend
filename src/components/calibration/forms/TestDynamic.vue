@@ -124,11 +124,11 @@ function initializeData() {
 }
 
 function isUcbActive(param: CalibrationSetting) {
-  // Show UCB only if at least one field is non-zero and non-empty
-  const u1 = param.ucb1;
-  const u2 = param.ucb2;
-  const u3 = param.ucb3;
-  return !!((u1 && u1 !== '0') || (u2 && u2 !== '0') || (u3 && u3 !== '0'));
+  // Show UCB only if at least one field is non-zero
+  const u1 = parseFloat(param.ucb1 || '0');
+  const u2 = parseFloat(param.ucb2 || '0');
+  const u3 = parseFloat(param.ucb3 || '0');
+  return u1 !== 0 || u2 !== 0 || u3 !== 0;
 }
 
 const groupedQualitatives = computed(() => qualValues.value);
