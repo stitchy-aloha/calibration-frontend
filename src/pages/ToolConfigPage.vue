@@ -13,6 +13,17 @@ const standardToolStore = useStandardToolStore();
 
 import { computed } from 'vue';
 const toolName = computed(() => decodeURIComponent(String(route.params.name ?? '')));
+const isInfusionPump = computed(() => {
+  const name = toolName.value.toLowerCase();
+  // Include common variations and Thai keywords for Infusion/Syringe Pumps
+  return (
+    name.includes('infusion') ||
+    name.includes('syringe') ||
+    name.includes('pump') ||
+    name.includes('เครื่องให้สารระลาย') ||
+    name.includes('เครื่องให้ยา')
+  );
+});
 
 /* ── Types ── */
 interface QuantitativeParam {
@@ -197,6 +208,7 @@ function saveConfig() {
             v-if="quantitativeParams[i]"
             :index="i + 1"
             v-model:data="quantitativeParams[i]"
+            :show-ucb="isInfusionPump"
             @remove="removeQuantitative(i)"
           />
         </div>

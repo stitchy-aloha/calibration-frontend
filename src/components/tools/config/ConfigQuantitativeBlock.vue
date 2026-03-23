@@ -22,6 +22,7 @@ interface QuantData {
 const props = defineProps<{
   index: number;
   data: QuantData;
+  showUcb?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -134,36 +135,40 @@ const displayOptions = ['Digital', 'Analog'];
               class="param-input col-7"
             />
           </div>
-          <div class="param-row row items-center no-wrap">
-            <span class="param-label col-5">UCB1</span>
-            <q-input
-              :model-value="data.ucb1"
-              @update:model-value="updateData({ ucb1: $event as string })"
-              outlined
-              dense
-              class="param-input col-7"
-            />
-          </div>
-          <div class="param-row row items-center no-wrap">
-            <span class="param-label col-5">UCB2</span>
-            <q-input
-              :model-value="data.ucb2"
-              @update:model-value="updateData({ ucb2: $event as string })"
-              outlined
-              dense
-              class="param-input col-7"
-            />
-          </div>
-          <div class="param-row row items-center no-wrap">
-            <span class="param-label col-5">UCB3</span>
-            <q-input
-              :model-value="data.ucb3"
-              @update:model-value="updateData({ ucb3: $event as string })"
-              outlined
-              dense
-              class="param-input col-7"
-            />
-          </div>
+
+          <!-- Conditional UCb Fields -->
+          <template v-if="showUcb">
+            <div class="param-row row items-center no-wrap">
+              <span class="param-label col-5">UCB1</span>
+              <q-input
+                :model-value="data.ucb1"
+                @update:model-value="updateData({ ucb1: $event as string })"
+                outlined
+                dense
+                class="param-input col-7"
+              />
+            </div>
+            <div class="param-row row items-center no-wrap">
+              <span class="param-label col-5">UCB2</span>
+              <q-input
+                :model-value="data.ucb2"
+                @update:model-value="updateData({ ucb2: $event as string })"
+                outlined
+                dense
+                class="param-input col-7"
+              />
+            </div>
+            <div class="param-row row items-center no-wrap">
+              <span class="param-label col-5">UCB3</span>
+              <q-input
+                :model-value="data.ucb3"
+                @update:model-value="updateData({ ucb3: $event as string })"
+                outlined
+                dense
+                class="param-input col-7"
+              />
+            </div>
+          </template>
         </div>
       </div>
 
