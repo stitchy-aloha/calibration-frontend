@@ -19,6 +19,7 @@ install_dependencies:
   artifacts:
     paths:
       - node_modules/
+      - .quasar/
     expire_in: 1 hour
 
 lint:
