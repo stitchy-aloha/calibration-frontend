@@ -25,6 +25,7 @@ install_dependencies:
 lint:
   stage: lint
   script:
+    - npx quasar prepare
     - npm run lint
 
 build:

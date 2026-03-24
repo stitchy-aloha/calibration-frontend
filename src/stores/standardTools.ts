@@ -1,18 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { StandardToolService } from 'src/services/standard-tool.service';
+import type { StandardTool } from 'src/types/tool.types';
+export type { StandardTool };
 
-export interface StandardTool {
-  id: number;
-  name: string;
-  assetCode: string;
-  serialNumber: string;
-  manufacturer: string;
-  model: string;
-  certificateNumber: string;
-  lastCalibrationDate: string;
-  unit: string;
-}
+import { StandardToolService } from 'src/services/standard-tool.service';
 
 export const useStandardToolStore = defineStore('standardTools', () => {
   const tools = ref<StandardTool[]>([]);

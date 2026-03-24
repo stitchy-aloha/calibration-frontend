@@ -355,6 +355,17 @@ watch(
   { deep: true },
 );
 
+// Allow external updates (like mock data filling) to sync to local state
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (JSON.stringify(newVal) !== JSON.stringify(rows.value)) {
+      rows.value = JSON.parse(JSON.stringify(newVal)) as TestRow[];
+    }
+  },
+  { deep: true },
+);
+
 const calculate = (index: number) => {
   const row = rows.value[index];
   if (!row) return;

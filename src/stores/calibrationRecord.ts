@@ -76,6 +76,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
   const loading = ref(false);
   const activeTab = ref('general');
   const taskId = ref<number | null>(null);
+  const mockTrigger = ref(0);
 
   const equipmentDetails = ref<EquipmentDetails>({
     id: '',
@@ -194,6 +195,55 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
     }
   }
 
+  function fillMockData() {
+    mockTrigger.value++;
+    const settingStore = useCalibrationSettingStore();
+
+    // 1. Environment
+    environment.value = {
+      temperature: 24.5 + Math.random(),
+      humidity: 45 + Math.random() * 10,
+    };
+
+    // 2. Standard Tools (Assume first one is selected)
+    standardToolIds.value = [1];
+
+    // 3. Measurements (Quantitative)
+    measurements.value = settingStore.settings
+      .filter((s) => s.type === 'quantitative')
+      .map((s) => {
+        const stdVal = s.test_values?.[0]?.value ?? 100;
+        const r1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const r2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const r3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const avg = (r1 + r2 + r3) / 3;
+        const err = avg - stdVal;
+
+        return {
+          parameter_name: s.parameter_name,
+          standard_value: stdVal,
+          reading_1: Number(r1.toFixed(2)),
+          reading_2: Number(r2.toFixed(2)),
+          reading_3: Number(r3.toFixed(2)),
+          average_value: Number(avg.toFixed(2)),
+          error_value: Number(err.toFixed(2)),
+          result: 'PASS',
+          display_type: s.display_type,
+          resolution: s.resolution,
+        };
+      });
+
+    // 4. Qualitatives
+    qualitatives.value = settingStore.settings
+      .filter((s) => s.type === 'qualitative')
+      .map((s) => ({
+        item_name: s.parameter_name,
+        result: 'PASS',
+      }));
+
+    overallResult.value = 'Pass';
+  }
+
   return {
     loading,
     activeTab,
@@ -208,5 +258,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
     overallResult,
     fetchCalibrationRecord,
     submitCalibration,
+    fillMockData,
+    mockTrigger,
   };
 });

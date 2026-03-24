@@ -123,6 +123,47 @@ function initializeData() {
   qualValues.value = qualGroup;
 }
 
+function fillLocalMockData() {
+  // 1. Quantitative
+  paramValues.value = paramValues.value.map((rows) => {
+    return rows.map((row) => {
+      const stdVal = typeof row.standard === 'number' ? row.standard : 0;
+      const r1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+      const r2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+      const r3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+      const avg = (r1 + r2 + r3) / 3;
+      const err = avg - stdVal;
+
+      return {
+        ...row,
+        val1: Number(r1.toFixed(2)),
+        val2: Number(r2.toFixed(2)),
+        val3: Number(r3.toFixed(2)),
+        average: Number(avg.toFixed(2)),
+        error: Number(err.toFixed(2)),
+        status: 'pass',
+      };
+    });
+  });
+
+  // 2. Qualitative
+  Object.entries(qualValues.value).forEach(([key, items]) => {
+    qualValues.value[key] = items.map((item) => ({
+      ...item,
+      status: 'pass',
+    }));
+  });
+}
+
+watch(
+  () => store.mockTrigger,
+  () => {
+    if (store.mockTrigger > 0) {
+      fillLocalMockData();
+    }
+  },
+);
+
 function isUcbActive(param: CalibrationSetting) {
   // Show UCB only if at least one field is non-zero
   const u1 = parseFloat(param.ucb1 || '0');

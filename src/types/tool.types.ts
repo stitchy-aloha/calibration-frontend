@@ -75,14 +75,28 @@ export interface MedicalTool {
   backendId?: number;
 }
 
+export interface BackendStandardTool {
+  id: number;
+  name: string;
+  asset_code: string | null;
+  serial_number: string | null;
+  manufacturer: string | null;
+  model: string | null;
+  path_pdf?: string | null;
+  certificate_number: string | null;
+  calibration_date_last: string | null;
+  unit: string | null;
+  category_id?: number | null;
+}
+
 export interface StandardTool {
   id: number;
   name: string;
-  asset_code?: string | null;
-  serial_number?: string | null;
+  assetCode?: string | null;
+  serialNumber?: string | null;
   manufacturer?: string | null;
   model?: string | null;
-  certificate_number?: string | null;
-  calibration_date_last?: string | null;
+  certificateNumber?: string | null;
+  lastCalibrationDate?: string | null;
   unit?: string | null;
 }

@@ -6,7 +6,20 @@
     </q-inner-loading>
 
     <!-- Page Header -->
-    <div class="text-h6 q-mb-xs text-weight-bold">การตรวจสอบสภาพภายนอก</div>
+    <div class="row items-center q-mb-xs">
+      <div class="text-h6 text-weight-bold">การตรวจสอบสภาพภายนอก</div>
+      <q-space />
+      <q-btn
+        flat
+        dense
+        color="amber-9"
+        label="จำลองข้อมูล"
+        icon="auto_awesome"
+        @click="store.fillMockData()"
+        no-caps
+        class="text-weight-bold"
+      />
+    </div>
     <div class="text-caption text-grey-6 q-mb-sm">การตรวจสอบเครื่องมือแพทย์</div>
 
     <!-- PM No -->

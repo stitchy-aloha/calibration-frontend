@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 import { reactive, computed, onMounted, ref } from 'vue';
-import type { CalibrationProcess, StandardTool } from 'src/types/tool.types';
+import type { CalibrationProcess, BackendStandardTool } from 'src/types/tool.types';
 import { StandardToolService } from 'src/services/tool.service';
 
 interface Props {
@@ -99,7 +99,7 @@ const form = reactive({
   standard_tool_id: props.process?.standard_tool_id ?? null as number | null,
 });
 
-const standardTools = ref<StandardTool[]>([]);
+const standardTools = ref<BackendStandardTool[]>([]);
 const standardOptions = computed(() =>
   standardTools.value.map((t) => ({
     label: `${t.name}-${t.manufacturer || ''}`,

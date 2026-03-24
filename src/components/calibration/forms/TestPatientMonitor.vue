@@ -217,6 +217,39 @@ const spo2Data: Ref<TestRow[]> = ref([
   },
 ]);
 
+function fillLocalMockData() {
+  const fillRows = (rows: TestRow[]) => {
+    rows.forEach((row) => {
+      const stdVal = row.standard ?? 0;
+      row.val1 = Number((stdVal + (Math.random() - 0.5) * (stdVal * 0.005)).toFixed(2));
+      row.val2 = Number((stdVal + (Math.random() - 0.5) * (stdVal * 0.005)).toFixed(2));
+      row.val3 = Number((stdVal + (Math.random() - 0.5) * (stdVal * 0.005)).toFixed(2));
+      row.average = Number(((row.val1 + row.val2 + row.val3) / 3).toFixed(2));
+      row.error = Number((row.average - stdVal).toFixed(2));
+      row.status = 'pass';
+    });
+  };
+
+  fillRows(systolicData.value);
+  fillRows(diastolicData.value);
+  fillRows(tempData.value);
+  fillRows(heartRateData.value);
+  fillRows(spo2Data.value);
+
+  ekgItems.value.forEach((item) => {
+    item.status = 'pass';
+  });
+}
+
+watch(
+  () => store.mockTrigger,
+  () => {
+    if (store.mockTrigger > 0) {
+      fillLocalMockData();
+    }
+  },
+);
+
 // Sync to store
 watch(
   [

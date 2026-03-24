@@ -249,6 +249,34 @@ const checklist = computed(() => [
 
 const overallPassed = computed(() => checklist.value.every((item) => item.passed));
 
+function fillLocalMockData() {
+  occlusion.value.alarm = 'Pass';
+  
+  const fillRows = (rows: TestRow[]) => {
+    rows.forEach((row) => {
+      const stdVal = row.standard ?? 0;
+      row.val1 = Number((stdVal + (Math.random() - 0.5) * (stdVal * 0.005)).toFixed(2));
+      row.val2 = Number((stdVal + (Math.random() - 0.5) * (stdVal * 0.005)).toFixed(2));
+      row.val3 = Number((stdVal + (Math.random() - 0.5) * (stdVal * 0.005)).toFixed(2));
+      row.average = Number(((row.val1 + row.val2 + row.val3) / 3).toFixed(2));
+      row.error = Number((row.average - stdVal).toFixed(2));
+      row.status = 'pass';
+    });
+  };
+
+  fillRows(flowRate.value.data);
+  fillRows(volume.value.data);
+}
+
+watch(
+  () => store.mockTrigger,
+  () => {
+    if (store.mockTrigger > 0) {
+      fillLocalMockData();
+    }
+  },
+);
+
 // Sync to store
 watch(
   [occlusion, flowRate, volume, overallPassed],

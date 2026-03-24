@@ -1,5 +1,5 @@
 import { api } from 'src/boot/axios';
-import type { StandardTool } from 'src/types/tool.types';
+import type { BackendStandardTool } from 'src/types/tool.types';
 
 export interface BackendEquipment {
   id: number;
@@ -74,5 +74,11 @@ export const ToolService = {
 };
 
 export const StandardToolService = {
-  getAll: () => api.get<StandardTool[]>('/standard-tool'),
+  getAll: () => api.get<BackendStandardTool[]>('/standard-tool'),
+  getById: (id: number) => api.get<BackendStandardTool>(`/standard-tool/${id}`),
+  create: (data: Partial<BackendStandardTool>) =>
+    api.post<BackendStandardTool>('/standard-tool', data),
+  update: (id: number, data: Partial<BackendStandardTool>) =>
+    api.patch<BackendStandardTool>(`/standard-tool/${id}`, data),
+  remove: (id: number) => api.delete(`/standard-tool/${id}`),
 };

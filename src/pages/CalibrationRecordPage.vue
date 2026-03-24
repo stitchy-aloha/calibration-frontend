@@ -71,7 +71,15 @@
 
     <!-- Floating Footer Actions -->
     <div class="row q-mt-lg q-pb-xl q-px-md items-center justify-between q-col-gutter-y-md">
-      <div class="col-12 col-sm-auto text-center xs-full-width">
+      <div class="col-12 col-sm-auto row justify-center q-gutter-x-md xs-full-width">
+        <q-btn
+          outline
+          color="amber-9"
+          label="จำลองข้อมูล"
+          icon="auto_awesome"
+          class="bg-white action-btn"
+          @click="store.fillMockData()"
+        />
         <q-btn
           outline
           color="primary"

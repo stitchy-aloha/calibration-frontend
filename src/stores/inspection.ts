@@ -215,6 +215,14 @@ export const useInspectionStore = defineStore('inspection', () => {
     pmByPosition.value = '';
     error.value = null;
   }
+    
+  function fillMockData() {
+    sections.value.forEach((section) => {
+      section.items.forEach((item) => {
+        item.value = 'ผ่าน';
+      });
+    });
+  }
 
   return {
     pmNo,
@@ -239,5 +247,6 @@ export const useInspectionStore = defineStore('inspection', () => {
     setItemValue,
     submitPmForm,
     resetAll,
+    fillMockData,
   };
 });

@@ -198,7 +198,7 @@ function handlePrint() {
 .print-btn {
   border-radius: 12px;
   font-size: 15px;
-  background: #a78bfa !important; // Custom purple shade from image
+  background: $secondary !important; // Custom purple shade from image
 }
 
 .close-btn {
