@@ -235,6 +235,7 @@ const columns: QTableProps['columns'] = [
   padding: 6px 18px;
   font-size: 13px;
   font-weight: 600;
+  min-width: 140px;
 }
 
 .action-btn--active {
