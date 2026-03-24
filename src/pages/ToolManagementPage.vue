@@ -398,12 +398,13 @@ const uniqueTools = computed(() => {
   const seen = new Set<string>();
   return store.tools
     .filter((t) => {
-      if (seen.has(t.name)) return false;
-      seen.add(t.name);
+      const normalizedName = t.name.trim().toLowerCase();
+      if (seen.has(normalizedName)) return false;
+      seen.add(normalizedName);
       return true;
     })
     .map((t) => ({
-      name: t.name,
+      name: t.name.trim(),
       type: t.type,
       location: t.location,
       department: t.department,
