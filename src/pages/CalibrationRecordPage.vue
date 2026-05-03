@@ -179,7 +179,7 @@ const onConfirmSave = async () => {
     $q.notify({
       type: 'positive',
       message: 'บันทึกผลการสอบเทียบสำเร็จ!',
-      position: 'top-right',
+      position: 'bottom',
     });
     void router.push('/calibration');
   } catch (err) {
@@ -187,7 +187,7 @@ const onConfirmSave = async () => {
     $q.notify({
       type: 'negative',
       message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
-      position: 'top-right',
+      position: 'bottom',
     });
   }
 };

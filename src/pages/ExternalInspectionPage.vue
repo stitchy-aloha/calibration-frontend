@@ -137,7 +137,7 @@ async function onSubmit() {
     $q.notify({
       type: 'negative',
       message: res.error ?? 'บันทึกไม่สำเร็จ กรุณาลองใหม่',
-      position: 'top',
+      position: 'bottom',
       timeout: 4000,
     });
   }

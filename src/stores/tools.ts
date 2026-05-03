@@ -4,7 +4,10 @@ import type { MedicalTool, CalibrationProcess, CalibrationCost, ToolStatus } fro
 import { ToolService, HospitalService, SectionService } from 'src/services/tool.service';
 import type { BackendEquipment, Hospital, Section } from 'src/services/tool.service';
 
-import { CalibrationProcessService, CalibrationCostService } from 'src/services/calibration-mgmt.service';
+import {
+  CalibrationProcessService,
+  CalibrationCostService,
+} from 'src/services/calibration-mgmt.service';
 
 export const useToolsStore = defineStore('tools', () => {
   const tools = ref<MedicalTool[]>([]);

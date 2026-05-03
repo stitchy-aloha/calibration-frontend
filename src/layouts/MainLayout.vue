@@ -20,7 +20,10 @@
               style="margin-right: 25px"
             />
             <div class="column">
-              <span class="text-subtitle1 text-weight-bold" style="font-size: clamp(14px, 4vw, 16px)">
+              <span
+                class="text-subtitle1 text-weight-bold"
+                style="font-size: clamp(14px, 4vw, 16px)"
+              >
                 ระบบบริหารจัดการสอบเทียบเครื่องมือแพทย์
               </span>
               <span class="text-caption text-weight-regular opacity-70 gt-xs">
@@ -141,7 +144,6 @@ const allLinks: EssentialLinkProps[] = [
     icon: 'app:save',
     link: '/history',
   },
-  { title: 'การทำงานในระบบ', caption: 'Audit Log', icon: 'shield', link: '/audit' },
 ];
 
 const linksList = computed<EssentialLinkProps[]>(() => {

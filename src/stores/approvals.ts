@@ -87,7 +87,8 @@ export const useApprovalsStore = defineStore('approvals', () => {
       result = result.filter((a) => a.status === selectedType.value);
     }
 
-    return result;
+    // Always sort by taskId descending (Newest at top)
+    return [...result].sort((a, b) => b.taskId - a.taskId);
   });
 
   async function approveEvent(taskId: number, approverId?: number): Promise<boolean> {

@@ -48,6 +48,7 @@ export const useHistoryStore = defineStore('history', () => {
           pathPdfCer: task.path_pdf_cer || null,
         };
       });
+
       records.value = mappedRecords;
     } catch (error) {
       console.error('fetchRecords error:', error);
@@ -71,8 +72,8 @@ export const useHistoryStore = defineStore('history', () => {
     { label: 'N/A', value: 'na' },
   ];
 
-  const filteredRecords = computed(() =>
-    records.value.filter((r) => {
+  const filteredRecords = computed(() => {
+    const filtered = records.value.filter((r) => {
       const q = searchQuery.value.toLowerCase();
       const matchSearch =
         !q ||
@@ -82,8 +83,11 @@ export const useHistoryStore = defineStore('history', () => {
       const matchDevice = !selectedDevice.value || r.deviceName === selectedDevice.value;
       const matchResult = !selectedResult.value || r.result === selectedResult.value;
       return matchSearch && matchDevice && matchResult;
-    }),
-  );
+    });
+
+    // Always sort by taskId descending (Newest at top)
+    return [...filtered].sort((a, b) => b.taskId - a.taskId);
+  });
 
   return {
     records,
