@@ -36,6 +36,12 @@ export default defineRouter(function ({ store }) {
 
   Router.beforeEach(async (to, from, next) => {
     const auth = useAuthStore(store);
+
+    // Restore session from storage if present
+    if (!auth.isAuthenticated && localStorage.getItem('auth_token')) {
+      auth.loadFromStorage();
+    }
+
     const publicPages = ['/', '/status/'];
     const isPublicPage = publicPages.some((path) => to.path.startsWith(path));
 
@@ -43,7 +49,10 @@ export default defineRouter(function ({ store }) {
       next('/');
     } else {
       if (auth.isAuthenticated && !auth.user) {
-        await auth.fetchProfile();
+        const success = await auth.fetchProfile();
+        if (!success && !isPublicPage) {
+          return next('/');
+        }
       }
       next();
     }
