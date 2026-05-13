@@ -8,7 +8,7 @@
     </div>
 
     <!-- 2. Quantitative Parameters -->
-    <div v-for="(param, i) in quantitativeParams" :key="i">
+    <div v-for="(param, i) in quantitativeParams" :key="(param.id || i) + '-' + (param.std_type || '')">
       <TestParameterTable
         v-if="paramValues[i] && paramMetadata[i]"
         :title="param.parameter_name"
@@ -21,6 +21,7 @@
         :show-range="true"
         :show-ucb="isUcbActive(param)"
         :error-limit="parseFloat(param.tolerance || '2.0')"
+        :stdType="param.std_type || (param as any).stdType"
       />
     </div>
 
@@ -74,6 +75,8 @@ watch(
   () => settingStore.settings,
   (newSettings) => {
     if (newSettings && newSettings.length > 0) {
+      console.log('[TestDynamic] settings loaded:', newSettings);
+      console.log('[TestDynamic] quantitativeParams:', quantitativeParams.value);
       initializeData();
     }
   },
@@ -244,6 +247,7 @@ watch(
           ucb1: parseFloat(meta.ucb1 || '0'),
           ucb2: parseFloat(meta.ucb2 || '0'),
           ucb3: parseFloat(meta.ucb3 || '0'),
+          std_type: param.std_type,
         });
       });
     });

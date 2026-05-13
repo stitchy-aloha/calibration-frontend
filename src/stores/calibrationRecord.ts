@@ -58,6 +58,7 @@ export interface MeasurementRecord {
   ucb1?: number | null | undefined;
   ucb2?: number | null | undefined;
   ucb3?: number | null | undefined;
+  std_type?: string | null | undefined;
 }
 
 export interface QualitativeRecord {

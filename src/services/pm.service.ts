@@ -67,6 +67,7 @@ export interface MeasurementApi {
   ucb1?: number;
   ucb2?: number;
   ucb3?: number;
+  std_type?: string;
   task_id: number;
 }
 

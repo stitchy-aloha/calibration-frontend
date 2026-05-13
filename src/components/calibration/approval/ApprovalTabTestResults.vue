@@ -64,6 +64,7 @@
           :ucb2="getUcb(String(name)).ucb2"
           :ucb3="getUcb(String(name)).ucb3"
           :show-ucb="isUcbShown(String(name))"
+          :std-type="rows[0]?.std_type || ''"
         />
       </div>
     </div>
@@ -101,6 +102,7 @@ interface TestRow {
   average: number | null;
   error: number | null;
   status: 'pass' | 'fail' | null;
+  std_type?: string | undefined;
 }
 
 const props = defineProps<{
@@ -146,6 +148,7 @@ const groupedMeasurements = computed(() => {
           : m.result?.toUpperCase() === 'FAIL'
             ? 'fail'
             : null,
+      std_type: m.std_type,
     });
   });
   return groups;

@@ -114,8 +114,8 @@
           <thead>
             <tr>
               <th class="text-left w-25"></th>
-              <th>STD Setting</th>
-              <th>UUC Reading</th>
+              <th>{{ (groupedMeasurements[0]?.std_type?.includes('2') && groupedMeasurements[0]?.std_type?.includes('UUT')) ? 'UUC Setting' : 'STD Setting' }}</th>
+              <th>{{ (groupedMeasurements[0]?.std_type?.includes('2') && groupedMeasurements[0]?.std_type?.includes('UUT')) ? 'STD Reading' : 'UUC Reading' }}</th>
               <th>
                 Error <span v-if="hasUcbData" class="text-caption block">(Budget) Offset</span>
               </th>
@@ -295,6 +295,7 @@ export interface MeasurementApi {
   ucb1?: number | null;
   ucb2?: number | null;
   ucb3?: number | null;
+  std_type?: string;
 }
 
 export interface SpecificParameterApi {
@@ -436,6 +437,7 @@ const groupedMeasurements = computed((): MeasurementApi[] => {
         ucb3: first.ucb3 !== null && first.ucb3 !== undefined ? Number(avg('ucb3')) : null,
         result: items.every((i) => i.result === 'PASS') ? 'PASS' : 'FAIL',
         range: first.range,
+        std_type: first.std_type,
       } as MeasurementApi;
     })
     .filter((v): v is MeasurementApi => v !== null);

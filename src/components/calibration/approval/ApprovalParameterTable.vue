@@ -113,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import type { QTableProps } from 'quasar';
 
 interface TestRow {
@@ -125,6 +125,7 @@ interface TestRow {
   average: number | null;
   error: number | null;
   status: 'pass' | 'fail' | null;
+  std_type?: string | undefined;
 }
 
 const props = defineProps<{
@@ -137,23 +138,54 @@ const props = defineProps<{
   ucb1?: number | string | undefined;
   ucb2?: number | string | undefined;
   ucb3?: number | string | undefined;
+  stdType?: string | undefined;
 }>();
+
+watch(() => props.stdType, (newVal) => {
+  console.log(`[ApprovalParameterTable] stdType prop changed:`, newVal);
+}, { immediate: true });
 
 const showRange = computed(() => props.showRange !== false);
 
-const allColumns: QTableProps['columns'] = [
-  { name: 'range', label: 'ช่วง', field: 'range', align: 'center' },
-  { name: 'standard', label: 'STD', field: 'standard', align: 'center' },
-  { name: 'val1', label: 'UUC-1', field: 'val1', align: 'center' },
-  { name: 'val2', label: 'UUC-2', field: 'val2', align: 'center' },
-  { name: 'val3', label: 'UUC-3', field: 'val3', align: 'center' },
-  { name: 'average', label: 'Mean', field: 'average', align: 'center' },
-  { name: 'error', label: 'Error', field: 'error', align: 'center' },
-  { name: 'status', label: 'Result', field: 'status', align: 'center' },
-];
+const allColumns = computed<QTableProps['columns']>(() => {
+  // Flexible detection: look for '2' and 'UUT'/'STD' keywords
+  const isMode2 = props.stdType?.includes('2') && 
+                 (props.stdType?.includes('UUT') || props.stdType?.includes('STD'));
+  
+  return [
+    { name: 'range', label: 'ช่วง', field: 'range', align: 'center' },
+    {
+      name: 'standard', 
+      label: isMode2 ? 'UUC Setting' : 'STD Setting', 
+      field: 'standard', 
+      align: 'center' 
+    },
+    {
+      name: 'val1', 
+      label: isMode2 ? 'STD-1' : 'UUC-1', 
+      field: 'val1', 
+      align: 'center' 
+    },
+    { 
+      name: 'val2', 
+      label: isMode2 ? 'STD-2' : 'UUC-2', 
+      field: 'val2', 
+      align: 'center' 
+    },
+    { 
+      name: 'val3', 
+      label: isMode2 ? 'STD-3' : 'UUC-3', 
+      field: 'val3', 
+      align: 'center' 
+    },
+    { name: 'average', label: 'Mean', field: 'average', align: 'center' },
+    { name: 'error', label: 'Error', field: 'error', align: 'center' },
+    { name: 'status', label: 'Result', field: 'status', align: 'center' },
+  ];
+});
 
 const visibleColumns = computed(() =>
-  showRange.value ? allColumns : allColumns.filter((c) => c.name !== 'range'),
+  showRange.value ? allColumns.value : allColumns.value?.filter((c) => c.name !== 'range'),
 );
 
 const errorClass = (error: number | null): string => {

@@ -1,5 +1,7 @@
 <template>
-  <div class="section-title q-mb-xs">{{ title }}</div>
+  <div class="section-title q-mb-xs">
+    {{ title }}
+  </div>
 
   <!-- Metadata and Add Button Row -->
   <div class="row items-center q-mb-sm full-width" style="padding-left: 14px">
@@ -265,6 +267,7 @@ export interface TestRow {
   average: number | null;
   error: number | null;
   status: 'pass' | 'fail' | null;
+  std_type?: string | undefined;
 }
 </script>
 
@@ -285,7 +288,20 @@ const props = defineProps<{
   ucb3?: number | string;
   errorType?: 'absolute' | 'percent';
   errorLimit?: number;
+  stdType?: string | undefined;
 }>();
+
+watch(
+  () => props.stdType,
+  (newVal) => {
+    console.log(`[TestParameterTable: ${props.title}] stdType prop changed:`, newVal);
+  },
+  { immediate: true },
+);
+
+onMounted(() => {
+  console.log(`[TestParameterTable: ${props.title}] mounted. stdType:`, props.stdType);
+});
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: TestRow[]): void;
@@ -298,18 +314,44 @@ const emit = defineEmits<{
 
 const showRange = computed(() => props.showRange !== false);
 
-const allColumns: QTableProps['columns'] = [
-  { name: 'standard', label: 'STD', field: 'standard', align: 'center' },
-  { name: 'val1', label: 'UUC-1', field: 'val1', align: 'center' },
-  { name: 'val2', label: 'UUC-2', field: 'val2', align: 'center' },
-  { name: 'val3', label: 'UUC-3', field: 'val3', align: 'center' },
-  { name: 'average', label: 'Mean', field: 'average', align: 'center' },
-  { name: 'error', label: 'Error', field: 'error', align: 'center' },
-  { name: 'status', label: 'Result', field: 'status', align: 'center' },
-];
+const allColumns = computed<QTableProps['columns']>(() => {
+  // Flexible detection: look for '2' and 'UUT'/'STD' keywords
+  const isMode2 = props.stdType?.includes('2') && 
+                 (props.stdType?.includes('UUT') || props.stdType?.includes('STD'));
+  
+  return [
+    { 
+      name: 'standard', 
+      label: isMode2 ? 'UUC Setting' : 'STD Setting', 
+      field: 'standard', 
+      align: 'center' 
+    },
+    { 
+      name: 'val1', 
+      label: isMode2 ? 'STD-1' : 'UUC-1', 
+      field: 'val1', 
+      align: 'center' 
+    },
+    { 
+      name: 'val2', 
+      label: isMode2 ? 'STD-2' : 'UUC-2', 
+      field: 'val2', 
+      align: 'center' 
+    },
+    { 
+      name: 'val3', 
+      label: isMode2 ? 'STD-3' : 'UUC-3', 
+      field: 'val3', 
+      align: 'center' 
+    },
+    { name: 'average', label: 'Mean', field: 'average', align: 'center' },
+    { name: 'error', label: 'Error', field: 'error', align: 'center' },
+    { name: 'status', label: 'Result', field: 'status', align: 'center' },
+  ];
+});
 
 const visibleColumns = computed(() =>
-  showRange.value ? allColumns : allColumns.filter((c) => c.name !== 'range'),
+  showRange.value ? allColumns.value : allColumns.value?.filter((c) => c.name !== 'range'),
 );
 
 const rows = ref<TestRow[]>([]);
