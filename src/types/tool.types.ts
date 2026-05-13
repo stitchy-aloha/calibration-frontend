@@ -99,4 +99,5 @@ export interface StandardTool {
   certificateNumber?: string | null;
   lastCalibrationDate?: string | null;
   unit?: string | null;
+  category_id?: number | null;
 }

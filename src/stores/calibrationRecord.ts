@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { CalibrationService } from 'src/services/calibration.service';
 import { useCalibrationSettingStore } from './calibrationSetting';
+import { useStandardToolStore } from './standardTools';
 import type { SubmitTaskPayload } from 'src/services/calibration.service';
 import type { SpecificParameterApi } from 'src/services/pm.service';
 
@@ -188,7 +189,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       };
 
       console.log('[CalibrationRecordStore] Submitting Payload:', payload);
-      window.alert(`กำลังส่งข้อมูล เครื่องมือมาตรฐาน IDs: ${JSON.stringify(payload.standard_tool_ids)}`);
+
 
       await CalibrationService.submitTask(taskId.value, payload);
       return true;
@@ -210,14 +211,18 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       humidity: 45 + Math.random() * 10,
     };
 
-    // 2. Standard Tools (Use allowed tools from configuration if available)
-    const allowedIds = settingStore.settings
-      .flatMap(s => s.standard_tool_ids || [])
+    // 2. Standard Tools (Use categories from configuration to pick physical tools)
+    const allowedCategoryIds = settingStore.settings
+      .flatMap(s => s.category_ids || [])
       .filter(id => !!id)
       .map(id => Number(id));
     
-    if (allowedIds.length > 0) {
-      standardToolIds.value = [...new Set(allowedIds)].slice(0, 2);
+    if (allowedCategoryIds.length > 0) {
+      const toolStore = useStandardToolStore();
+      const matchingTools = toolStore.tools.filter(t => 
+        t.category_id && allowedCategoryIds.includes(Number(t.category_id))
+      );
+      standardToolIds.value = matchingTools.map(t => t.id).slice(0, 2);
     } else {
       standardToolIds.value = [1];
     }

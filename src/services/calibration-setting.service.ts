@@ -1,5 +1,5 @@
 import { api } from '../boot/axios';
-import type { StandardTool } from '../stores/standardTools';
+import type { StandardToolCategory } from '../stores/standardToolCategory';
 
 export interface CalibrationTestValue {
   label: string;
@@ -21,8 +21,8 @@ export interface CalibrationSetting {
   ucb2?: string;
   ucb3?: string;
   test_values?: CalibrationTestValue[];
-  standard_tool_ids?: number[];
-  standardTools?: StandardTool[];
+  category_ids?: number[];
+  categories?: StandardToolCategory[];
 }
 
 export const CalibrationSettingService = {

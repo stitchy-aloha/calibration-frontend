@@ -16,11 +16,11 @@
           />
         </div>
         <div class="col">
-          <label class="text-caption text-weight-bold">เครื่องมือมาตรฐานที่ใช้</label>
+          <label class="text-caption text-weight-bold">ประเภทเครื่องมือมาตรฐาน</label>
           <q-select
-            :model-value="standardToolId"
-            @update:model-value="emit('update:standardToolId', $event)"
-            :options="toolOptions"
+            :model-value="categoryId"
+            @update:model-value="emit('update:categoryId', $event)"
+            :options="categoryOptions"
             option-value="id"
             option-label="name"
             emit-value
@@ -30,7 +30,7 @@
             bg-color="grey-1"
             class="q-mt-xs"
             full-width
-            placeholder="เลือกเครื่องมือ..."
+            placeholder="เลือกประเภท..."
           />
         </div>
       </div>
@@ -117,8 +117,8 @@ interface Props {
   index: number;
   parameterName: string;
   testItems: TestItem[];
-  standardToolId?: number | undefined;
-  toolOptions: { id: number; name: string }[];
+  categoryId?: number | undefined;
+  categoryOptions: { id: number; name: string }[];
 }
 
 const props = defineProps<Props>();
@@ -126,7 +126,7 @@ const emit = defineEmits([
   'remove',
   'update:parameterName',
   'update:testItems',
-  'update:standardToolId',
+  'update:categoryId',
 ]);
 
 function updateItems(newItems: TestItem[]) {

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useStandardToolStore } from '../stores/standardTools';
+import { useStandardToolCategoryStore } from '../stores/standardToolCategory';
 import { useCalibrationSettingStore } from '../stores/calibrationSetting';
-import type { StandardTool } from '../stores/standardTools';
+import type { StandardToolCategory } from '../stores/standardToolCategory';
 import type {
   CalibrationSetting,
   CalibrationTestValue,
@@ -16,7 +16,7 @@ import { useQuasar } from 'quasar';
 const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
-const standardToolStore = useStandardToolStore();
+const categoryStore = useStandardToolCategoryStore();
 const settingStore = useCalibrationSettingStore();
 const toolName = computed(() => decodeURIComponent(String(route.params.name ?? '')));
 const isInfusionPump = computed(() => {
@@ -43,26 +43,26 @@ interface QuantitativeParam {
   ucb2: string;
   ucb3: string;
   testValues: { label: string; value: number }[];
-  standardToolId?: number | undefined;
+  categoryId?: number | undefined;
 }
 
 /* ── State ── */
-const selectedStandardTools = ref<StandardTool[]>([]);
+const selectedCategories = ref<StandardToolCategory[]>([]);
 const qualitativeParams = ref<
   {
     name: string;
     testItems: { name: string; result: 'pass' | 'fail' | null }[];
-    standardToolId?: number | undefined;
+    categoryId?: number | undefined;
   }[]
 >([]);
 const quantitativeParams = ref<QuantitativeParam[]>([]);
 
 // No longer using showAddProcessDialog
-const showAddStandardDialog = ref(false);
-const selectedToolToAdd = ref<StandardTool | null>(null);
+const showAddCategoryDialog = ref(false);
+const selectedCategoryToAdd = ref<StandardToolCategory | null>(null);
 
 onMounted(async () => {
-  await standardToolStore.fetchTools();
+  await categoryStore.fetchCategories();
   if (toolName.value) {
     const existing = await settingStore.fetchSettings(toolName.value);
     if (existing && existing.length > 0) {
@@ -77,7 +77,7 @@ onMounted(async () => {
                 result: null,
               }))
             : [],
-          standardToolId: s.standardTools?.[0]?.id,
+          categoryId: s.categories?.[0]?.id,
         }));
 
       quantitativeParams.value = existing
@@ -93,33 +93,35 @@ onMounted(async () => {
           ucb2: s.ucb2 || '0',
           ucb3: s.ucb3 || '0',
           testValues: s.test_values || [],
-          standardToolId: s.standardTools?.[0]?.id,
+          categoryId: s.categories?.[0]?.id,
         }));
 
-      // Standard tools - Collect unique standard tools from ALL parameters
-      const allTools = new Map<number, StandardTool>();
+      // Collect unique categories from ALL parameters
+      const allCats = new Map<number, StandardToolCategory>();
       existing.forEach((s) => {
-        if (s.standardTools) {
-          s.standardTools.forEach((t) => {
-            if (t.id) allTools.set(t.id, t);
+        if (s.categories) {
+          s.categories.forEach((c) => {
+            if (c.id) allCats.set(c.id, c);
           });
         }
       });
-      selectedStandardTools.value = Array.from(allTools.values());
+      selectedCategories.value = Array.from(allCats.values());
     }
   }
 });
 
-function confirmAddStandard() {
-  if (selectedToolToAdd.value) {
-    selectedStandardTools.value.push(selectedToolToAdd.value);
-    selectedToolToAdd.value = null;
-    showAddStandardDialog.value = false;
+function confirmAddCategory() {
+  if (selectedCategoryToAdd.value) {
+    if (!selectedCategories.value.find(c => c.id === selectedCategoryToAdd.value?.id)) {
+      selectedCategories.value.push(selectedCategoryToAdd.value);
+    }
+    selectedCategoryToAdd.value = null;
+    showAddCategoryDialog.value = false;
   }
 }
 
-function removeStandard(i: number) {
-  selectedStandardTools.value.splice(i, 1);
+function removeCategory(i: number) {
+  selectedCategories.value.splice(i, 1);
 }
 
 function addQuantitative() {
@@ -166,17 +168,15 @@ async function saveConfig() {
   try {
     const payload: CalibrationSetting[] = [];
 
-    const globalToolIds = selectedStandardTools.value
-      .map((t) => t.id)
+    const globalCategoryIds = selectedCategories.value
+      .map((c) => c.id)
       .filter((id): id is number => id !== undefined);
 
     // Map quantitative
     quantitativeParams.value.forEach((qp) => {
-      // Create a unique list of IDs for this parameter
-      // The specifically selected tool comes first, then we append all other global tools
-      const toolIdsSet = new Set<number>();
-      if (qp.standardToolId) toolIdsSet.add(qp.standardToolId);
-      globalToolIds.forEach(id => toolIdsSet.add(id));
+      const catIdsSet = new Set<number>();
+      if (qp.categoryId) catIdsSet.add(qp.categoryId);
+      globalCategoryIds.forEach(id => catIdsSet.add(id));
       
       payload.push({
         equipment_name: toolName.value,
@@ -191,22 +191,22 @@ async function saveConfig() {
         ucb2: qp.ucb2,
         ucb3: qp.ucb3,
         test_values: qp.testValues,
-        standard_tool_ids: Array.from(toolIdsSet),
+        category_ids: Array.from(catIdsSet),
       });
     });
 
     // Map qualitative
     qualitativeParams.value.forEach((qp) => {
-      const toolIdsSet = new Set<number>();
-      if (qp.standardToolId) toolIdsSet.add(qp.standardToolId);
-      globalToolIds.forEach(id => toolIdsSet.add(id));
+      const catIdsSet = new Set<number>();
+      if (qp.categoryId) catIdsSet.add(qp.categoryId);
+      globalCategoryIds.forEach(id => catIdsSet.add(id));
 
       payload.push({
         equipment_name: toolName.value,
         type: 'qualitative',
         parameter_name: qp.name,
         test_values: qp.testItems.map((item) => ({ label: item.name, value: 0 })),
-        standard_tool_ids: Array.from(toolIdsSet),
+        category_ids: Array.from(catIdsSet),
       });
     });
 
@@ -242,30 +242,30 @@ async function saveConfig() {
 
     <!-- ── Section: เครื่องมือมาตรฐาน ──────────────── -->
     <div class="section-container q-mb-lg">
-      <div class="section-header">เครื่องมือมาตรฐาน</div>
+      <div class="section-header">ประเภทเครื่องมือมาตรฐานที่ต้องใช้</div>
       <div class="q-pa-md row q-col-gutter-md items-stretch">
         <!-- Always render 3 slots -->
         <div v-for="slot in 3" :key="slot" class="col-4">
-          <!-- Filled slot: show tool card -->
-          <template v-if="selectedStandardTools[slot - 1]">
+          <!-- Filled slot: show category card -->
+          <template v-if="selectedCategories[slot - 1]">
             <ConfigStandardToolCard
-              :tool="selectedStandardTools[slot - 1]!"
-              @remove="removeStandard(slot - 1)"
+              :tool="{ name: selectedCategories[slot - 1]!.name } as any"
+              @remove="removeCategory(slot - 1)"
             />
           </template>
 
           <!-- First empty slot only: show add card -->
-          <template v-else-if="slot - 1 === selectedStandardTools.length">
+          <template v-else-if="slot - 1 === selectedCategories.length">
             <div
               class="add-tool-card flex flex-center cursor-pointer"
-              @click="showAddStandardDialog = true"
+              @click="showAddCategoryDialog = true"
             >
               <div class="column items-center">
                 <div class="add-icon-circle q-mb-sm">
                   <q-icon name="add" size="32px" color="white" />
                 </div>
                 <span class="text-caption text-weight-bold text-grey-6"
-                  >เพิ่มเครื่องมือมาตรฐาน</span
+                  >เพิ่มประเภทเครื่องมือ</span
                 >
               </div>
             </div>
@@ -298,8 +298,8 @@ async function saveConfig() {
             :index="i + 1"
             v-model:parameterName="param.name"
             v-model:testItems="param.testItems"
-            v-model:standardToolId="param.standardToolId"
-            :tool-options="selectedStandardTools"
+            v-model:categoryId="param.categoryId"
+            :category-options="selectedCategories"
             @remove="removeQualitative(i)"
           />
         </div>
@@ -326,7 +326,7 @@ async function saveConfig() {
             :index="i + 1"
             v-model:data="quantitativeParams[i]"
             :show-ucb="isInfusionPump"
-            :tool-options="selectedStandardTools"
+            :category-options="selectedCategories"
             @remove="removeQuantitative(i)"
           />
         </div>
@@ -339,18 +339,18 @@ async function saveConfig() {
       <q-btn unelevated label="บันทึก" color="secondary" class="q-px-xl" @click="saveConfig" />
     </div>
 
-    <!-- ── Dialog: Add Standard Tool ── -->
-    <q-dialog v-model="showAddStandardDialog">
+    <!-- ── Dialog: Add Category ── -->
+    <q-dialog v-model="showAddCategoryDialog">
       <q-card style="width: 400px; border-radius: 16px">
         <q-card-section>
-          <div class="text-h6">เลือกเครื่องมือมาตรฐาน</div>
+          <div class="text-h6">เลือกประเภทเครื่องมือมาตรฐาน</div>
         </q-card-section>
         <q-card-section>
           <q-select
-            v-model="selectedToolToAdd"
-            :options="standardToolStore.tools"
+            v-model="selectedCategoryToAdd"
+            :options="categoryStore.categories"
             option-label="name"
-            label="เลือกเครื่องมือ"
+            label="เลือกประเภท"
             outlined
             dense
             clearable
@@ -362,8 +362,8 @@ async function saveConfig() {
             flat
             label="เพิ่ม"
             color="secondary"
-            :disable="!selectedToolToAdd"
-            @click="confirmAddStandard"
+            :disable="!selectedCategoryToAdd"
+            @click="confirmAddCategory"
           />
         </q-card-actions>
       </q-card>

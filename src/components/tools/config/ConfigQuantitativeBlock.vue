@@ -17,14 +17,14 @@ interface QuantData {
   ucb2: string;
   ucb3: string;
   testValues: TestValue[];
-  standardToolId?: number | undefined;
+  categoryId?: number | undefined;
 }
 
 const props = defineProps<{
   index: number;
   data: QuantData;
   showUcb?: boolean;
-  toolOptions: { id: number; name: string }[];
+  categoryOptions: { id: number; name: string }[];
 }>();
 
 const emit = defineEmits<{
@@ -138,11 +138,11 @@ const displayOptions = ['Digital', 'Analog'];
             />
           </div>
           <div class="param-row row items-center no-wrap">
-            <span class="param-label col-5">เครื่องมือมาตรฐานที่ใช้</span>
+            <span class="param-label col-5">ประเภทเครื่องมือที่ใช้</span>
             <q-select
-              :model-value="data.standardToolId"
-              @update:model-value="updateData({ standardToolId: $event as number })"
-              :options="toolOptions"
+              :model-value="data.categoryId"
+              @update:model-value="updateData({ categoryId: $event as number })"
+              :options="categoryOptions"
               option-value="id"
               option-label="name"
               emit-value
@@ -150,7 +150,7 @@ const displayOptions = ['Digital', 'Analog'];
               outlined
               dense
               class="param-input col-7"
-              placeholder="เลือกเครื่องมือ..."
+              placeholder="เลือกประเภท..."
             />
           </div>
 

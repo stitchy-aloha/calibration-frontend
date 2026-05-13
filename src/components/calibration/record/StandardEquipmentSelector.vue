@@ -14,23 +14,35 @@
       </div>
       <div v-else class="row q-col-gutter-lg">
         <!-- We allow selecting up to 2 tools as per current design -->
-        <div v-for="index in [0, 1]" :key="index" class="col-12 col-md-6">
+        <div v-for="(_, index) in totalSlots" :key="index" class="col-12 col-md-6">
+          <!-- Category Title (Hidden if selected to keep it clean) -->
+          <div v-if="!selectedTools[index]" class="text-subtitle2 text-primary q-mb-xs q-ml-sm text-weight-bold">
+            กรุณาเลือก: {{ getCategoryName(allowedCategoryIds[index]) }}
+          </div>
           <!-- Dropdown ABOVE the inner card, aligned right -->
           <div v-if="!readonly" class="row justify-end q-mb-sm">
             <q-select
               v-model="selectedTools[index]"
-              :options="filteredTools"
-              option-label="name"
+              :options="getFilteredToolsForSlot(index)"
               outlined
               dense
               bg-color="white"
               style="min-width: 150px"
-              :label="allowedToolIds.length > 0 ? 'เครื่องมือที่กำหนด' : 'เลือกเครื่องมือ'"
+              :label="getCategoryName(allowedCategoryIds[index])"
               @update:model-value="updateSelectedIds"
-              :readonly="allowedToolIds.length > 0 && filteredTools.length <= index + 1 && !!selectedTools[index]"
             >
-              <template v-if="allowedToolIds.length > 0" v-slot:before>
-                <q-icon name="lock" color="primary" size="xs" />
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.name }}</q-item-label>
+                    <q-item-label caption>{{ scope.opt.model }} | S/N: {{ scope.opt.serialNumber }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+              <template v-slot:selected-item="scope">
+                <div class="text-truncate" style="max-width: 140px">
+                  {{ scope.opt.name }}
+                </div>
               </template>
             </q-select>
           </div>
@@ -41,8 +53,14 @@
               <!-- Icon + type name centered -->
               <div class="column items-center q-mb-sm">
                 <q-icon name="app:med" size="42px" color="secondary" class="q-mb-xs" />
-                <div class="text-weight-bold text-subtitle1">
-                  {{ selectedTools[index]?.name || 'ยังไม่ได้เลือก' }}
+                <div class="text-weight-bold text-subtitle1 text-center text-primary">
+                  {{ selectedTools[index] ? selectedTools[index]?.name : getCategoryName(allowedCategoryIds[index]) }}
+                </div>
+                <div v-if="selectedTools[index]" class="text-caption text-grey-6">
+                  {{ selectedTools[index]?.model }} (S/N: {{ selectedTools[index]?.serialNumber }})
+                </div>
+                <div v-else class="text-caption text-grey-5 italic">
+                  (ยังไม่ได้เลือกอุปกรณ์)
                 </div>
               </div>
 
@@ -81,6 +99,7 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { useCalibrationRecordStore } from 'stores/calibrationRecord';
 import { useStandardToolStore } from 'stores/standardTools';
 import { useCalibrationSettingStore } from 'stores/calibrationSetting';
+import { useStandardToolCategoryStore } from 'stores/standardToolCategory';
 import type { StandardTool } from 'stores/standardTools';
 
 const props = withDefaults(
@@ -94,28 +113,52 @@ const props = withDefaults(
 const store = useCalibrationRecordStore();
 const standardToolStore = useStandardToolStore();
 const settingStore = useCalibrationSettingStore();
+const categoryStore = useStandardToolCategoryStore();
 
-const selectedTools = ref<(StandardTool | null)[]>([null, null]);
+function getCategoryName(catId: number | undefined) {
+  if (!catId) return 'เครื่องมือทั่วไป';
+  const cat = categoryStore.categories.find((c) => Number(c.id) === Number(catId));
+  return cat ? cat.name : 'เลือกเครื่องมือ';
+}
 
-// Compute allowed tool IDs from current equipment settings
-const allowedToolIds = computed(() => {
+// Compute allowed category IDs from current equipment settings
+const allowedCategoryIds = computed(() => {
   console.log('[StandardEquipmentSelector] Raw Settings:', settingStore.settings);
   const ids = settingStore.settings
-    .flatMap((s) => s.standard_tool_ids || [])
+    .flatMap((s) => {
+      const fromIds = s.category_ids || [];
+      const fromCats = s.categories?.map((c) => c.id) || [];
+      return [...fromIds, ...fromCats];
+    })
     .filter((id) => id !== null && id !== undefined && String(id) !== '')
     .map((id) => Number(id)); // Ensure it's a number
   const uniqueIds = [...new Set(ids)];
-  console.log('[StandardEquipmentSelector] Allowed Tool IDs:', uniqueIds);
+  console.log('[StandardEquipmentSelector] Allowed Category IDs:', uniqueIds);
   return uniqueIds;
 });
 
-// Filtered tools list for the dropdown
-const filteredTools = computed(() => {
-  if (allowedToolIds.value.length === 0) {
-    return standardToolStore.tools; // Fallback if no specific tools are locked
-  }
-  return standardToolStore.tools.filter((t) => allowedToolIds.value.includes(Number(t.id)));
-});
+const totalSlots = computed(() => Math.max(2, allowedCategoryIds.value.length));
+
+const selectedTools = ref<(StandardTool | null)[]>([]);
+
+// Ensure selectedTools has enough slots
+watch(
+  totalSlots,
+  (count) => {
+    while (selectedTools.value.length < count) {
+      selectedTools.value.push(null);
+    }
+  },
+  { immediate: true },
+);
+
+// Get tools filtered for a specific slot index
+function getFilteredToolsForSlot(index: number) {
+  const catId = allowedCategoryIds.value[index];
+  if (!catId) return standardToolStore.tools; // Fallback
+  
+  return standardToolStore.tools.filter((t) => Number(t.category_id) === Number(catId));
+}
 
 // Sync from store on initial load or if store updates
 watch(
@@ -124,10 +167,8 @@ watch(
     if (newIds && newIds.length > 0 && selectedTools.value.every((t) => t === null)) {
       console.log('[StandardEquipmentSelector] Populating from store:', newIds);
       newIds.forEach((id, index) => {
-        if (index < 2) {
-          const tool = standardToolStore.tools.find((t) => Number(t.id) === Number(id));
-          if (tool) selectedTools.value[index] = tool;
-        }
+        const tool = standardToolStore.tools.find((t) => Number(t.id) === Number(id));
+        if (tool) selectedTools.value[index] = tool;
       });
     }
   },
@@ -135,16 +176,17 @@ watch(
 );
 
 onMounted(async () => {
-  await standardToolStore.fetchTools();
+  await Promise.all([
+    standardToolStore.fetchTools(),
+    categoryStore.fetchCategories()
+  ]);
   
   if (props.readonly && props.selectedIds && props.selectedIds.length > 0) {
     // Fill selectedTools based on selectedIds (Read-only view)
     props.selectedIds.forEach((id, index) => {
-      if (index < 2) {
-        const tool = standardToolStore.tools.find((t) => t.id === id);
-        if (tool) {
-          selectedTools.value[index] = tool;
-        }
+      const tool = standardToolStore.tools.find((t) => t.id === id);
+      if (tool) {
+        selectedTools.value[index] = tool;
       }
     });
   } else if (!props.readonly) {
@@ -152,25 +194,24 @@ onMounted(async () => {
   }
 });
 
-// Watch for changes in filteredTools (when settings are loaded)
+// Watch for changes in allowedCategoryIds (when settings are loaded)
 watch(
-  allowedToolIds,
+  allowedCategoryIds,
   (newIds) => {
     if (newIds.length > 0) {
-      window.alert(`[Lock] พบการตั้งค่าเครื่องมือมาตรฐาน IDs: ${JSON.stringify(newIds)}`);
+      console.log(`[Lock] พบการตั้งค่าประเภทเครื่องมือมาตรฐาน IDs: ${JSON.stringify(newIds)}`);
     } else {
-      console.warn('[StandardEquipmentSelector] No allowed tools found for this equipment.');
+      console.warn('[StandardEquipmentSelector] No allowed categories found for this equipment.');
     }
   },
   { immediate: true },
 );
 
 watch(
-  filteredTools,
+  [allowedCategoryIds, () => standardToolStore.tools],
   () => {
-    // ONLY auto-select if we aren't in read-only mode AND the selection is currently empty
-    // This prevents wiping out previously saved tools when reloading the page
-    if (!props.readonly && selectedTools.value.every((t) => t === null)) {
+    // ONLY auto-select if we aren't in read-only mode
+    if (!props.readonly) {
       autoSelectFromConfig();
     }
   },
@@ -187,16 +228,16 @@ watch(
 );
 
 function autoSelectFromConfig() {
-  if (allowedToolIds.value.length > 0) {
-    allowedToolIds.value.forEach((id, index) => {
-      if (index < 2 && !selectedTools.value[index]) {
-        const tool = standardToolStore.tools.find((t) => Number(t.id) === Number(id));
-        if (tool) {
-          selectedTools.value[index] = tool;
+  if (allowedCategoryIds.value.length > 0) {
+    // Pick one unit for each category required
+    allowedCategoryIds.value.forEach((catId, index) => {
+      if (!selectedTools.value[index]) {
+        const firstInCat = standardToolStore.tools.find(t => Number(t.category_id) === Number(catId));
+        if (firstInCat) {
+          selectedTools.value[index] = firstInCat;
         }
       }
     });
-    // No need to call updateSelectedIds here as the watcher will handle it
   }
 }
 

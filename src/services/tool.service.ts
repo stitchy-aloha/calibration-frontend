@@ -75,6 +75,8 @@ export const ToolService = {
 
 export const StandardToolService = {
   getAll: () => api.get<BackendStandardTool[]>('/standard-tool'),
+  getCategories: () => api.get<{ id: number; name: string }[]>('/standard-tool/categories'),
+  createCategory: (name: string) => api.post('/standard-tool/categories', { name }),
   getById: (id: number) => api.get<BackendStandardTool>(`/standard-tool/${id}`),
   create: (data: Partial<BackendStandardTool>) =>
     api.post<BackendStandardTool>('/standard-tool', data),

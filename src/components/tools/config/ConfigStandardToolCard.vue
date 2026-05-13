@@ -25,34 +25,16 @@ const emit = defineEmits<{
       @click="emit('remove')"
     />
 
-    <q-card-section class="q-pa-md">
+    <q-card-section class="q-pa-lg flex flex-center" style="min-height: 200px">
       <!-- Icon + tool name centered -->
-      <div class="column items-center q-mb-sm">
-        <q-icon name="app:med" size="42px" color="secondary" class="q-mb-xs" />
-        <div class="text-weight-bold text-subtitle1 text-center">
+      <div class="column items-center">
+        <div class="icon-bg q-mb-md">
+          <q-icon name="app:med" size="48px" color="secondary" />
+        </div>
+        <div class="text-weight-bold text-h6 text-center text-primary-dark">
           {{ tool.name }}
         </div>
-      </div>
-
-      <!-- Info rows -->
-      <div class="info-grid">
-        <span class="label-text">รุ่น</span>
-        <span class="value-text">{{ tool.model || '-' }}</span>
-
-        <span class="label-text">บริษัท</span>
-        <span class="value-text">{{ tool.manufacturer || '-' }}</span>
-
-        <span class="label-text">หมายเลขประจำเครื่อง</span>
-        <span class="value-text">{{ tool.serialNumber || '-' }}</span>
-
-        <span class="label-text">หน่วยวัด</span>
-        <span class="value-text">{{ tool.unit || '-' }}</span>
-
-        <span class="label-text">วันที่สอบเทียบ</span>
-        <span class="value-text">{{ tool.lastCalibrationDate || '-' }}</span>
-
-        <span class="label-text">หมายเลขใบรับรอง</span>
-        <span class="value-text">{{ tool.certificateNumber || '-' }}</span>
+        <div class="text-caption text-grey-6 q-mt-xs">Standard Tool Type</div>
       </div>
     </q-card-section>
   </q-card>
@@ -65,10 +47,18 @@ const emit = defineEmits<{
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px 16px;
+.icon-bg {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: #f0f4f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-primary-dark {
+  color: #1a1a2e;
 }
 
 .label-text {

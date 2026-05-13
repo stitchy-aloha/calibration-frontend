@@ -23,6 +23,7 @@ export const useStandardToolStore = defineStore('standardTools', () => {
         certificateNumber: item.certificate_number ?? '-',
         lastCalibrationDate: item.calibration_date_last ?? '-',
         unit: item.unit ?? '-',
+        category_id: item.category_id ?? null,
       }));
     } catch (error) {
       console.error('fetchTools error:', error);
