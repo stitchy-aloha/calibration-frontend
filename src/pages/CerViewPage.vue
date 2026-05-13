@@ -183,6 +183,25 @@ const activeCerData = computed((): CerData => {
         }
       : null,
     specificParameters: t.specificParameters || [],
+    hospital: t.technician?.hospital
+      ? {
+          name: t.technician.hospital.name,
+          logoUrl: t.technician.hospital.logoUrl,
+          address: t.technician.hospital.address,
+          district: t.technician.hospital.district,
+          province: t.technician.hospital.province,
+          zipCode: t.technician.hospital.zipCode,
+        }
+      : t.equipment?.section?.hospital
+        ? {
+            name: t.equipment.section.hospital.name,
+            logoUrl: t.equipment.section.hospital.logoUrl,
+            address: t.equipment.section.hospital.address,
+            district: t.equipment.section.hospital.district,
+            province: t.equipment.section.hospital.province,
+            zipCode: t.equipment.section.hospital.zipCode,
+          }
+        : null,
   };
 });
 
@@ -207,6 +226,25 @@ const calibrationCertData = computed((): CerCalibrationData => {
     humidity: t?.environments?.[0]?.ambient_humidity?.toString() || '45',
     calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB') : '-',
     apprDate: t?.approvedAt ? new Date(t.approvedAt).toLocaleDateString('en-GB') : '-',
+    hospital: t?.technician?.hospital
+      ? {
+          name: t.technician.hospital.name,
+          logoUrl: t.technician.hospital.logoUrl,
+          address: t.technician.hospital.address,
+          district: t.technician.hospital.district,
+          province: t.technician.hospital.province,
+          zipCode: t.technician.hospital.zipCode,
+        }
+      : t?.equipment?.section?.hospital
+        ? {
+            name: t.equipment.section.hospital.name,
+            logoUrl: t.equipment.section.hospital.logoUrl,
+            address: t.equipment.section.hospital.address,
+            district: t.equipment.section.hospital.district,
+            province: t.equipment.section.hospital.province,
+            zipCode: t.equipment.section.hospital.zipCode,
+          }
+        : null,
   };
 });
 

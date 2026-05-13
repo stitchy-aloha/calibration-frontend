@@ -4,11 +4,12 @@
       <!-- ===== HEADER ===== -->
       <div class="cer-header">
         <div class="header-logo-area">
-          <img src="public/image/logo.png" alt="Hospital Logo" class="hospital-logo" />
+          <img :src="getImageUrl(data.hospital?.logoUrl) || 'public/image/logo.png'" alt="Hospital Logo" class="hospital-logo" />
           <div class="hospital-info">
-            <div class="hospital-name">Bang Saphan Hospital</div>
+            <div class="hospital-name">{{ data.hospital?.name || 'Hospital Name' }}</div>
             <div class="hospital-address">
-              Kamnoet Nopphakhun , Bang Saphan , Prachuap Khiri Khan
+              {{ data.hospital?.address || '' }}
+              {{ data.hospital?.district || '' }} {{ data.hospital?.province || '' }}
             </div>
           </div>
         </div>
@@ -213,8 +214,10 @@
 
       <!-- ===== FOOTER ===== -->
       <div class="cer-footer">
-        โรงพยาบาล บางสะพาน เลขที่ 94 หมู่ 5 ถนนบางสะพาน-ชากชา ตำบลกำเนิดนพคุณ อำเภอบางสะพาน
-        จังหวัดประจวบคีรีขันธ์ 77140
+        {{ data.hospital?.name || '' }}
+        {{ data.hospital?.address || '' }}
+        {{ data.hospital?.district || '' }} {{ data.hospital?.province || '' }}
+        {{ data.hospital?.zipCode || '' }}
       </div>
     </div>
 
@@ -282,6 +285,14 @@ export interface CerData {
       description: string;
     } | null;
   } | null;
+  hospital?: {
+    name: string;
+    logoUrl?: string | undefined;
+    address?: string | undefined;
+    district?: string | undefined;
+    province?: string | undefined;
+    zipCode?: string | undefined;
+  } | null;
 }
 
 interface Props {
@@ -306,6 +317,14 @@ const props = withDefaults(defineProps<Props>(), {
     remark3: '',
     overallResult: 'pass',
     qualitatives: [],
+    hospital: {
+      name: 'Bang Saphan Hospital',
+      logoUrl: 'public/image/logo.png',
+      address: 'Kamnoet Nopphakhun , Bang Saphan',
+      district: 'Bang Saphan',
+      province: 'Prachuap Khiri Khan',
+      zipCode: '77140',
+    },
   }),
 });
 

@@ -47,6 +47,8 @@ export interface EquipmentApi {
       address?: string;
       district?: string;
       province?: string;
+      logoUrl?: string;
+      zipCode?: string;
     };
   };
 }
@@ -127,6 +129,15 @@ export interface TechnicianApi {
     id: number;
     name: string;
     description: string;
+  };
+  hospital?: {
+    id: number;
+    name: string;
+    address?: string;
+    district?: string;
+    province?: string;
+    logoUrl?: string;
+    zipCode?: string;
   };
 }
 

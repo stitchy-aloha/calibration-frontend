@@ -4,11 +4,12 @@
       <!-- ===== HEADER ===== -->
       <div class="cer-header">
         <div class="header-logo-area">
-          <img src="public/image/logo.png" alt="Hospital Logo" class="hospital-logo" />
+          <img :src="getImageUrl(data.hospital?.logoUrl) || 'public/image/logo.png'" alt="Hospital Logo" class="hospital-logo" />
           <div class="hospital-info">
-            <div class="hospital-name">Bang Saphan Hospital</div>
+            <div class="hospital-name">{{ data.hospital?.name || 'Hospital Name' }}</div>
             <div class="hospital-address">
-              Kamnoet Nopphakhun , Bang Saphan , Prachuap Khiri Khan
+              {{ data.hospital?.address || '' }}
+              {{ data.hospital?.district || '' }} {{ data.hospital?.province || '' }}
             </div>
           </div>
         </div>
@@ -246,8 +247,10 @@
         </div>
 
         <div class="cer-footer">
-          โรงพยาบาล บางสะพาน เลขที่ 94 หมู่ 5 ถนนเพชรเกษม-ชายทะเล ตำบลกำเนิดนพคุณ อำเภอบางสะพาน
-          จังหวัดประจวบคีรีขันธ์ 77140
+          {{ data.hospital?.name || '' }}
+          {{ data.hospital?.address || '' }}
+          {{ data.hospital?.district || '' }} {{ data.hospital?.province || '' }}
+          {{ data.hospital?.zipCode || '' }}
         </div>
       </div>
     </div>
@@ -320,6 +323,14 @@ export interface CerCalibrationData {
   humidity: string;
   calDate: string;
   apprDate: string;
+  hospital?: {
+    name: string;
+    logoUrl?: string | undefined;
+    address?: string | undefined;
+    district?: string | undefined;
+    province?: string | undefined;
+    zipCode?: string | undefined;
+  } | null;
 }
 
 interface Props {
@@ -372,6 +383,14 @@ const props = withDefaults(defineProps<Props>(), {
     humidity: '60',
     calDate: 'Thursday, February 1',
     apprDate: 'Thursday, February 1',
+    hospital: {
+      name: 'Bang Saphan Hospital',
+      logoUrl: 'public/image/logo.png',
+      address: 'Kamnoet Nopphakhun , Bang Saphan',
+      district: 'Bang Saphan',
+      province: 'Prachuap Khiri Khan',
+      zipCode: '77140',
+    },
   }),
   readings: () => ({
     systolic: { std: '140.0', uuc: '139.67', error: '-0.33', accept: '+/- 8.00' },
