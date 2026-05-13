@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { StandardTool } from 'src/stores/standardTools';
+import type { StandardTool } from '../../../stores/standardTools';
 
 defineProps<{
   tool: StandardTool;

@@ -158,11 +158,12 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
           value: p.value ?? undefined,
           unit: p.unit ?? undefined,
         })) || [];
-      standardToolIds.value = [];
+      // Populate standard tools from the task record if they exist
+      standardToolIds.value = task.standardTools?.map((t: { id: number }) => t.id) || [];
 
-      // Fetch settings for this equipment
+      // Fetch settings for this equipment (trim name to avoid mismatch)
       if (task.equipment?.name) {
-        await settingStore.fetchSettings(task.equipment.name);
+        await settingStore.fetchSettings(task.equipment.name.trim());
       }
     } catch (error) {
       console.error('Failed to fetch calibration record', error);
@@ -186,6 +187,9 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
         overall_result: overallResult.value,
       };
 
+      console.log('[CalibrationRecordStore] Submitting Payload:', payload);
+      window.alert(`กำลังส่งข้อมูล เครื่องมือมาตรฐาน IDs: ${JSON.stringify(payload.standard_tool_ids)}`);
+
       await CalibrationService.submitTask(taskId.value, payload);
       return true;
     } catch (error) {
@@ -206,8 +210,17 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       humidity: 45 + Math.random() * 10,
     };
 
-    // 2. Standard Tools (Assume first one is selected)
-    standardToolIds.value = [1];
+    // 2. Standard Tools (Use allowed tools from configuration if available)
+    const allowedIds = settingStore.settings
+      .flatMap(s => s.standard_tool_ids || [])
+      .filter(id => !!id)
+      .map(id => Number(id));
+    
+    if (allowedIds.length > 0) {
+      standardToolIds.value = [...new Set(allowedIds)].slice(0, 2);
+    } else {
+      standardToolIds.value = [1];
+    }
 
     // 3. Measurements (Quantitative)
     measurements.value = settingStore.settings

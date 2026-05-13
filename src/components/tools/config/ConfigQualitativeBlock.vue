@@ -2,17 +2,37 @@
   <div class="qualitative-block q-mb-md">
     <div class="row items-center q-mb-md">
       <div class="index-circle q-mr-md">{{ index }}</div>
-      <div class="flex-grow">
-        <label class="text-caption text-weight-bold">ชื่อพารามิเตอร์</label>
-        <q-input
-          :model-value="parameterName"
-          @update:model-value="emit('update:parameterName', $event)"
-          outlined
-          dense
-          bg-color="grey-1"
-          class="q-mt-xs"
-          style="max-width: 300px"
-        />
+      <div class="row q-gutter-x-md flex-grow">
+        <div class="col">
+          <label class="text-caption text-weight-bold">ชื่อพารามิเตอร์</label>
+          <q-input
+            :model-value="parameterName"
+            @update:model-value="emit('update:parameterName', $event)"
+            outlined
+            dense
+            bg-color="grey-1"
+            class="q-mt-xs"
+            full-width
+          />
+        </div>
+        <div class="col">
+          <label class="text-caption text-weight-bold">เครื่องมือมาตรฐานที่ใช้</label>
+          <q-select
+            :model-value="standardToolId"
+            @update:model-value="emit('update:standardToolId', $event)"
+            :options="toolOptions"
+            option-value="id"
+            option-label="name"
+            emit-value
+            map-options
+            outlined
+            dense
+            bg-color="grey-1"
+            class="q-mt-xs"
+            full-width
+            placeholder="เลือกเครื่องมือ..."
+          />
+        </div>
       </div>
       <q-btn flat round dense icon="close" size="sm" color="grey-6" @click="emit('remove')" />
     </div>
@@ -97,10 +117,17 @@ interface Props {
   index: number;
   parameterName: string;
   testItems: TestItem[];
+  standardToolId?: number | undefined;
+  toolOptions: { id: number; name: string }[];
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(['remove', 'update:parameterName', 'update:testItems']);
+const emit = defineEmits([
+  'remove',
+  'update:parameterName',
+  'update:testItems',
+  'update:standardToolId',
+]);
 
 function updateItems(newItems: TestItem[]) {
   emit('update:testItems', newItems);

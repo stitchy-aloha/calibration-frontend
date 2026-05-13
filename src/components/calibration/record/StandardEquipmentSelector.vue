@@ -4,8 +4,13 @@
     <div class="selector-header">เครื่องมือมาตรฐาน</div>
 
     <div class="q-pa-md">
-      <div v-if="standardToolStore.loading" class="flex flex-center q-pa-lg">
+      <div v-if="standardToolStore.loading || settingStore.loading" class="flex flex-center q-pa-lg">
         <q-spinner color="primary" size="3em" />
+        <div class="q-ml-md text-grey-7">กำลังโหลดข้อมูลเครื่องมือ...</div>
+      </div>
+      <div v-else-if="settingStore.settings.length === 0" class="q-pa-lg text-center text-grey-7">
+        <q-icon name="warning" size="md" color="warning" />
+        <div class="q-mt-sm">ไม่พบการตั้งค่าเครื่องมือสำหรับอุปกรณ์นี้ (Settings Empty)</div>
       </div>
       <div v-else class="row q-col-gutter-lg">
         <!-- We allow selecting up to 2 tools as per current design -->
@@ -14,15 +19,20 @@
           <div v-if="!readonly" class="row justify-end q-mb-sm">
             <q-select
               v-model="selectedTools[index]"
-              :options="standardToolStore.tools"
+              :options="filteredTools"
               option-label="name"
               outlined
               dense
               bg-color="white"
               style="min-width: 150px"
-              label="เลือกเครื่องมือ"
+              :label="allowedToolIds.length > 0 ? 'เครื่องมือที่กำหนด' : 'เลือกเครื่องมือ'"
               @update:model-value="updateSelectedIds"
-            />
+              :readonly="allowedToolIds.length > 0 && filteredTools.length <= index + 1 && !!selectedTools[index]"
+            >
+              <template v-if="allowedToolIds.length > 0" v-slot:before>
+                <q-icon name="lock" color="primary" size="xs" />
+              </template>
+            </q-select>
           </div>
 
           <!-- Info card -->
@@ -67,9 +77,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useCalibrationRecordStore } from 'stores/calibrationRecord';
 import { useStandardToolStore } from 'stores/standardTools';
+import { useCalibrationSettingStore } from 'stores/calibrationSetting';
 import type { StandardTool } from 'stores/standardTools';
 
 const props = withDefaults(
@@ -82,13 +93,52 @@ const props = withDefaults(
 
 const store = useCalibrationRecordStore();
 const standardToolStore = useStandardToolStore();
+const settingStore = useCalibrationSettingStore();
 
 const selectedTools = ref<(StandardTool | null)[]>([null, null]);
 
+// Compute allowed tool IDs from current equipment settings
+const allowedToolIds = computed(() => {
+  console.log('[StandardEquipmentSelector] Raw Settings:', settingStore.settings);
+  const ids = settingStore.settings
+    .flatMap((s) => s.standard_tool_ids || [])
+    .filter((id) => id !== null && id !== undefined && String(id) !== '')
+    .map((id) => Number(id)); // Ensure it's a number
+  const uniqueIds = [...new Set(ids)];
+  console.log('[StandardEquipmentSelector] Allowed Tool IDs:', uniqueIds);
+  return uniqueIds;
+});
+
+// Filtered tools list for the dropdown
+const filteredTools = computed(() => {
+  if (allowedToolIds.value.length === 0) {
+    return standardToolStore.tools; // Fallback if no specific tools are locked
+  }
+  return standardToolStore.tools.filter((t) => allowedToolIds.value.includes(Number(t.id)));
+});
+
+// Sync from store on initial load or if store updates
+watch(
+  () => store.standardToolIds,
+  (newIds) => {
+    if (newIds && newIds.length > 0 && selectedTools.value.every((t) => t === null)) {
+      console.log('[StandardEquipmentSelector] Populating from store:', newIds);
+      newIds.forEach((id, index) => {
+        if (index < 2) {
+          const tool = standardToolStore.tools.find((t) => Number(t.id) === Number(id));
+          if (tool) selectedTools.value[index] = tool;
+        }
+      });
+    }
+  },
+  { immediate: true },
+);
+
 onMounted(async () => {
   await standardToolStore.fetchTools();
+  
   if (props.readonly && props.selectedIds && props.selectedIds.length > 0) {
-    // Fill selectedTools based on selectedIds
+    // Fill selectedTools based on selectedIds (Read-only view)
     props.selectedIds.forEach((id, index) => {
       if (index < 2) {
         const tool = standardToolStore.tools.find((t) => t.id === id);
@@ -97,13 +147,65 @@ onMounted(async () => {
         }
       }
     });
+  } else if (!props.readonly) {
+    autoSelectFromConfig();
   }
 });
 
+// Watch for changes in filteredTools (when settings are loaded)
+watch(
+  allowedToolIds,
+  (newIds) => {
+    if (newIds.length > 0) {
+      window.alert(`[Lock] พบการตั้งค่าเครื่องมือมาตรฐาน IDs: ${JSON.stringify(newIds)}`);
+    } else {
+      console.warn('[StandardEquipmentSelector] No allowed tools found for this equipment.');
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  filteredTools,
+  () => {
+    // ONLY auto-select if we aren't in read-only mode AND the selection is currently empty
+    // This prevents wiping out previously saved tools when reloading the page
+    if (!props.readonly && selectedTools.value.every((t) => t === null)) {
+      autoSelectFromConfig();
+    }
+  },
+  { immediate: true },
+);
+
+// Watch for selection changes and sync to store
+watch(
+  selectedTools,
+  () => {
+    updateSelectedIds();
+  },
+  { deep: true },
+);
+
+function autoSelectFromConfig() {
+  if (allowedToolIds.value.length > 0) {
+    allowedToolIds.value.forEach((id, index) => {
+      if (index < 2 && !selectedTools.value[index]) {
+        const tool = standardToolStore.tools.find((t) => Number(t.id) === Number(id));
+        if (tool) {
+          selectedTools.value[index] = tool;
+        }
+      }
+    });
+    // No need to call updateSelectedIds here as the watcher will handle it
+  }
+}
+
 function updateSelectedIds() {
-  store.standardToolIds = selectedTools.value
+  const ids = selectedTools.value
     .filter((t): t is StandardTool => t !== null)
     .map((t) => t.id);
+  console.log('[StandardEquipmentSelector] Syncing standardToolIds to store:', ids);
+  store.standardToolIds = ids;
 }
 </script>
 

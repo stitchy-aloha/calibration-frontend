@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { CalibrationSettingService, type CalibrationSetting } from 'src/services/calibration-setting.service';
+import { CalibrationSettingService, type CalibrationSetting } from '../services/calibration-setting.service';
 
 export const useCalibrationSettingStore = defineStore('calibrationSetting', () => {
   const loading = ref(false);

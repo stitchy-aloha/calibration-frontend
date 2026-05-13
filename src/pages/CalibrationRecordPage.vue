@@ -182,11 +182,13 @@ const onConfirmSave = async () => {
       position: 'bottom',
     });
     void router.push('/calibration');
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Submit Error:', err);
+    const e = err as { response?: { data?: { message?: string } } };
+    const msg = e.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
     $q.notify({
       type: 'negative',
-      message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+      message: msg,
       position: 'bottom',
     });
   }

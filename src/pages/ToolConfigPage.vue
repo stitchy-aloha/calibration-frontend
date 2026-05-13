@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useStandardToolStore } from 'src/stores/standardTools';
-import { useCalibrationSettingStore } from 'src/stores/calibrationSetting';
-import type { StandardTool } from 'src/stores/standardTools';
+import { useStandardToolStore } from '../stores/standardTools';
+import { useCalibrationSettingStore } from '../stores/calibrationSetting';
+import type { StandardTool } from '../stores/standardTools';
 import type {
   CalibrationSetting,
   CalibrationTestValue,
-} from 'src/services/calibration-setting.service';
-import ConfigStandardToolCard from 'src/components/tools/config/ConfigStandardToolCard.vue';
-import ConfigQualitativeBlock from 'src/components/tools/config/ConfigQualitativeBlock.vue';
-import ConfigQuantitativeBlock from 'src/components/tools/config/ConfigQuantitativeBlock.vue';
+} from '../services/calibration-setting.service';
+import ConfigStandardToolCard from '../components/tools/config/ConfigStandardToolCard.vue';
+import ConfigQualitativeBlock from '../components/tools/config/ConfigQualitativeBlock.vue';
+import ConfigQuantitativeBlock from '../components/tools/config/ConfigQuantitativeBlock.vue';
 import { useQuasar } from 'quasar';
 
 const route = useRoute();
@@ -18,8 +18,6 @@ const router = useRouter();
 const $q = useQuasar();
 const standardToolStore = useStandardToolStore();
 const settingStore = useCalibrationSettingStore();
-
-import { computed } from 'vue';
 const toolName = computed(() => decodeURIComponent(String(route.params.name ?? '')));
 const isInfusionPump = computed(() => {
   const name = toolName.value.toLowerCase();
@@ -45,12 +43,17 @@ interface QuantitativeParam {
   ucb2: string;
   ucb3: string;
   testValues: { label: string; value: number }[];
+  standardToolId?: number | undefined;
 }
 
 /* ── State ── */
 const selectedStandardTools = ref<StandardTool[]>([]);
 const qualitativeParams = ref<
-  { name: string; testItems: { name: string; result: 'pass' | 'fail' | null }[] }[]
+  {
+    name: string;
+    testItems: { name: string; result: 'pass' | 'fail' | null }[];
+    standardToolId?: number | undefined;
+  }[]
 >([]);
 const quantitativeParams = ref<QuantitativeParam[]>([]);
 
@@ -74,6 +77,7 @@ onMounted(async () => {
                 result: null,
               }))
             : [],
+          standardToolId: s.standardTools?.[0]?.id,
         }));
 
       quantitativeParams.value = existing
@@ -89,18 +93,19 @@ onMounted(async () => {
           ucb2: s.ucb2 || '0',
           ucb3: s.ucb3 || '0',
           testValues: s.test_values || [],
+          standardToolId: s.standardTools?.[0]?.id,
         }));
 
-      // Standard tools - current backend implementation stores one tool per setting
-      // We'll collect unique standard tools from the settings
-      const toolIds = new Set(
-        existing
-          .map((s) => s.standard_tool_id)
-          .filter((id): id is number => id !== undefined && id !== null),
-      );
-      selectedStandardTools.value = Array.from(toolIds)
-        .map((id) => standardToolStore.tools.find((t) => t.id === id))
-        .filter((t): t is StandardTool => !!t);
+      // Standard tools - Collect unique standard tools from ALL parameters
+      const allTools = new Map<number, StandardTool>();
+      existing.forEach((s) => {
+        if (s.standardTools) {
+          s.standardTools.forEach((t) => {
+            if (t.id) allTools.set(t.id, t);
+          });
+        }
+      });
+      selectedStandardTools.value = Array.from(allTools.values());
     }
   }
 });
@@ -161,8 +166,18 @@ async function saveConfig() {
   try {
     const payload: CalibrationSetting[] = [];
 
+    const globalToolIds = selectedStandardTools.value
+      .map((t) => t.id)
+      .filter((id): id is number => id !== undefined);
+
     // Map quantitative
     quantitativeParams.value.forEach((qp) => {
+      // Create a unique list of IDs for this parameter
+      // The specifically selected tool comes first, then we append all other global tools
+      const toolIdsSet = new Set<number>();
+      if (qp.standardToolId) toolIdsSet.add(qp.standardToolId);
+      globalToolIds.forEach(id => toolIdsSet.add(id));
+      
       payload.push({
         equipment_name: toolName.value,
         type: 'quantitative',
@@ -176,18 +191,22 @@ async function saveConfig() {
         ucb2: qp.ucb2,
         ucb3: qp.ucb3,
         test_values: qp.testValues,
-        standard_tool_id: selectedStandardTools.value[0]?.id, // For now, assume first tool
+        standard_tool_ids: Array.from(toolIdsSet),
       });
     });
 
     // Map qualitative
     qualitativeParams.value.forEach((qp) => {
+      const toolIdsSet = new Set<number>();
+      if (qp.standardToolId) toolIdsSet.add(qp.standardToolId);
+      globalToolIds.forEach(id => toolIdsSet.add(id));
+
       payload.push({
         equipment_name: toolName.value,
         type: 'qualitative',
         parameter_name: qp.name,
         test_values: qp.testItems.map((item) => ({ label: item.name, value: 0 })),
-        standard_tool_id: selectedStandardTools.value[0]?.id,
+        standard_tool_ids: Array.from(toolIdsSet),
       });
     });
 
@@ -279,6 +298,8 @@ async function saveConfig() {
             :index="i + 1"
             v-model:parameterName="param.name"
             v-model:testItems="param.testItems"
+            v-model:standardToolId="param.standardToolId"
+            :tool-options="selectedStandardTools"
             @remove="removeQualitative(i)"
           />
         </div>
@@ -305,6 +326,7 @@ async function saveConfig() {
             :index="i + 1"
             v-model:data="quantitativeParams[i]"
             :show-ucb="isInfusionPump"
+            :tool-options="selectedStandardTools"
             @remove="removeQuantitative(i)"
           />
         </div>
