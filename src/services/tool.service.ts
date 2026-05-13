@@ -35,6 +35,9 @@ export interface BackendEquipment {
 export interface Hospital {
   id: number;
   name: string;
+  code?: string;
+  logoUrl?: string;
+  zipCode?: string;
   address?: string;
   district?: string;
   province?: string;
@@ -50,10 +53,6 @@ export interface Section {
   hospital?: Hospital;
 }
 
-export const HospitalService = {
-  getAll: () => api.get<Hospital[]>('/hospital'),
-  getById: (id: number) => api.get<Hospital>(`/hospital/${id}`),
-};
 
 export const SectionService = {
   getAll: () => api.get<Section[]>('/section'),

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { MedicalTool, CalibrationProcess, CalibrationCost, ToolStatus } from 'src/types';
-import { ToolService, HospitalService, SectionService } from 'src/services/tool.service';
+import { ToolService, SectionService } from 'src/services/tool.service';
+import { HospitalService } from 'src/services/hospital.service';
 import type { BackendEquipment, Hospital, Section } from 'src/services/tool.service';
 
 import {

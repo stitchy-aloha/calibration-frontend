@@ -138,6 +138,7 @@ const allLinks: EssentialLinkProps[] = [
   { title: 'จัดการเครื่องมือ', caption: 'Config Tools', icon: 'app:config', link: '/tools/manage' },
   { title: 'หน่วยงาน', caption: 'Departments', icon: 'business', link: '/departments' },
   { title: 'จัดการผู้ใช้งาน', caption: 'User Management', icon: 'group', link: '/users' },
+  { title: 'ข้อมูลโรงพยาบาล', caption: 'Hospital Info', icon: 'local_hospital', link: '/hospitals' },
   {
     title: 'ประวัติการสอบเทียบ',
     caption: 'Calibration History',
