@@ -13,78 +13,77 @@ This file contains the specific rules and tech stack details for the `cal_fronte
 - **UI Framework:** Quasar Framework (v2)
 - **State Management:** Pinia (v3)
 - **Routing:** Vue Router (v5)
-- **Language:** TypeScript
-- **Styling:** SCSS + Quasar utility classes
+- **Language:** TypeScript (strict mode)
+- **Styling:** SCSS + Quasar utility classes (Avoid Tailwind unless requested)
 - **i18n:** Vue I18n
 - **Build System:** Vite (via `@quasar/app-vite`)
 
-## 📏 Core Development Rules
+## 📚 Core Documentation (CRITICAL)
+Before making architectural or styling decisions, review the relevant documentation:
+- **UI & Styling:** Prioritize Quasar utility classes. Never use inline styles.
+- **API Standards:** Axios unwraps `response.data` automatically. Use `ApiResponse<T>` from `src/types/backend/api.types`.
+- **Role Access:** Use `useRoleAccess()` in components and `src/constants/roleAccess.ts` for route-level restrictions.
+- **i18n:** ALL user-facing text must use localization (e.g., `$t()` or `t()`). No hardcoded English/Thai strings.
+
+## 📏 Code Conventions
 
 ### 1. Vue 3 & Composition API
-
-- **Strictly use:** `<script setup lang="ts">`. Never use the Options API.
+- **Strictly use:** `<script setup lang="ts">`.
 - **Reactivity:** Use `ref` for primitive values and object replacements. Use `computed` for derived state.
-- **Component Design:** Keep components small, focused, and reusable. Extract complex logic into composables if necessary.
-- **Typing Props/Emits:** Use TypeScript-based declarations for props and emits.
-  ```vue
-  <script setup lang="ts">
-  interface Props {
-    title: string;
-    isActive?: boolean;
+- **Component Design:** Keep components small, focused, and reusable.
+- **Typing:** Strict typing is mandatory. Use `interface` for objects and provide explicit return types.
+- **Error Handling:** Use `unknown` for errors and cast appropriately:
+  ```typescript
+  catch (err: unknown) {
+    const e = err as { response?: { data?: { message?: string } } };
+    error.value = e.response?.data?.message ?? 'Operation failed';
   }
-  const props = defineProps<Props>();
-  const emit = defineEmits<{
-    (e: 'update', value: string): void;
-  }>();
-  </script>
   ```
 
-### 2. Quasar Framework & Styling
+### 2. File Naming Conventions
+- **Pages:** `PascalCasePage.vue` (e.g., `LoginPage.vue`)
+- **Components:** `PascalCase.vue` (e.g., `AppButton.vue`)
+- **Stores:** `camelCase.store.ts` (e.g., `auth.store.ts`)
+- **Composables:** `useCamelCase.ts` (e.g., `useAsyncState.ts`)
+- **Types/Utils:** `camelCase.types.ts`, `camelCase.utils.ts`
 
-- **Prioritize Quasar Components:** Always check if a `q-*` component (e.g., `q-btn`, `q-table`, `q-select`, `q-dialog`) exists before building custom solutions.
-- **Utility Classes First:** Use Quasar's extensive CSS utility classes (e.g., `row`, `col-*`, `q-pa-md`, `q-mb-sm`, `text-h6`, `text-primary`, `bg-grey-2`) for layouts and spacing instead of writing custom CSS/SCSS.
-- **Responsive Layouts:** Utilize Quasar's flexbox grid system (`row`, `col`).
-- **Plugins:** Use Quasar plugins like `$q.notify()` for alerts/toasts, `$q.dialog()` for modals, and `$q.loading()` for global loading overlays. Do not introduce 3rd party libraries for these.
-
-### 3. TypeScript
-
-- **Strict Typing:** Avoid `any` at all costs. Use `unknown` or define proper interfaces/types.
-- **Models:** Define models for API request/response payloads and store state. Keep these types in appropriate `.ts` files (e.g., `src/models/` or `src/types/`).
-
-### 4. Pinia State Management
-
-- **Store Structure:** Use Pinia for global state. Keep stores focused on specific domains (e.g., `useAuthStore`, `useUserStore`).
-- **Setup Syntax:** Prefer the Composition API setup syntax for Pinia stores to match component authoring style.
-
+### 3. Pinia State Management
+- **Setup Syntax:** Use the Composition API setup format (`ref` and `computed` inside `defineStore`).
   ```typescript
-  import { defineStore } from 'pinia';
-  import { ref, computed } from 'vue';
-
   export const useExampleStore = defineStore('example', () => {
     const count = ref(0);
     const doubleCount = computed(() => count.value * 2);
-    function increment() {
-      count.value++;
-    }
+    function increment() { count.value++; }
     return { count, doubleCount, increment };
   });
   ```
 
-### 5. API & Data Fetching
-
+### 4. API & Data Fetching
 - **Client:** Use `axios` for all API calls.
-- **Error Handling:** Ensure API calls catch and handle errors gracefully, providing feedback to the user (e.g., via `$q.notify({ type: 'negative', message: '...' })`).
-- **Separation of Concerns:** Keep API request logic in Pinia actions or dedicated service files, rather than cluttering component `<script>` blocks.
+- **Response Handling:** Axios unwraps `response.data` automatically. access payload via `.data`:
+  ```typescript
+  const response = await someApi(payload);
+  const value = response.data; // NOT response directly
+  ```
+- **Separation of Concerns:** Keep API logic in Pinia actions or service files.
 
-### 6. Code Quality
+## 🎨 Design Context & Principles (Clean Industrial)
 
-- **Clean Code:** Adhere to clean coding principles. Name variables explicitly. Function names should describe their action.
-- **Formatting:** Ensure all code adheres to the project's Prettier and ESLint configuration.
-- **Comments:** Code should be self-documenting. Only add comments to explain _why_ something complex is being done, not _what_ it is doing.
+- **Brand Personality:** Precise. Reliable. Swift. (Authoritative field instrument feel).
+- **Aesthetic:** Light mode only. Font: **Sarabun** only.
+- **Semantic Colors:** Blue (Action), Green (Safe), Amber (Caution), Red (Danger). NEVER use these decoratively.
+- **Mobile-First:** Generous tap targets (min 48px), chunky padding/fonts on small screens.
+- **Data Legibility:** Optimize for scanning speed in bright sunlight. Use list rows for dense repeating data.
+
+### 🚫 Anti-Patterns
+- **Generic SaaS/Social vibes:** No bubbles, illustrations, or decorative gradients.
+- **Glassmorphism:** Do not add beyond the existing header.
+- **Styling:** No inline `:style` or hardcoded hex colors.
+- **Placeholders:** Do not use emojis or decorative illustrations in UI.
 
 ---
 
 > **🧠 AI BEHAVIORAL DIRECTIVE:**
-> When acting within this directory, you assume the role of an **Expert Vue 3 & Quasar Developer**. Whenever designing UI, you must leverage Quasar components and CSS utilities to produce beautiful, modern, responsive aesthetics conforming to the project standard.
+> You are an **Expert Vue 3 & Quasar Developer**. You must craft clean, modular frontend code that adheres to the "Clean Industrial" aesthetic. Prioritize accessibility, mobile-first design, and strict type safety. **Never use `any`.**
 
 ไม่ใช้ any ใน project
