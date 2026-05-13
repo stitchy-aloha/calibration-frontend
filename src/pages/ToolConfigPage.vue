@@ -245,7 +245,7 @@ async function saveConfig() {
       <div class="section-header">ประเภทเครื่องมือมาตรฐานที่ต้องใช้</div>
       <div class="q-pa-md row q-col-gutter-md items-stretch">
         <!-- Always render 3 slots -->
-        <div v-for="slot in 3" :key="slot" class="col-4">
+        <div v-for="slot in 3" :key="slot" class="col-4 column items-stretch">
           <!-- Filled slot: show category card -->
           <template v-if="selectedCategories[slot - 1]">
             <ConfigStandardToolCard
@@ -257,7 +257,7 @@ async function saveConfig() {
           <!-- First empty slot only: show add card -->
           <template v-else-if="slot - 1 === selectedCategories.length">
             <div
-              class="add-tool-card flex flex-center cursor-pointer"
+              class="add-tool-card cursor-pointer"
               @click="showAddCategoryDialog = true"
             >
               <div class="column items-center">
@@ -400,11 +400,17 @@ async function saveConfig() {
 
 .add-tool-card {
   width: 100%;
-  min-height: 280px;
+  height: 100%;
+  min-height: 200px;
   border: 2px dashed #c0c0c0;
   border-radius: 12px;
   background: #fafafa;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 
   &:hover {
     border-color: $secondary;
@@ -430,5 +436,10 @@ async function saveConfig() {
   color: $primary;
   border: 1px solid $primary;
   border-radius: 8px;
+}
+
+.blank-slot {
+  height: 100%;
+  min-height: 200px;
 }
 </style>

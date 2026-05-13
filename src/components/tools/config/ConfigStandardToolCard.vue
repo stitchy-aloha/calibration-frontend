@@ -11,7 +11,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <q-card flat bordered class="equip-card bg-white" style="min-width: 220px; position: relative">
+  <q-card flat bordered class="equip-card bg-white" style="min-width: 220px; position: relative; height: 100%">
     <!-- X button top-right -->
     <q-btn
       flat
