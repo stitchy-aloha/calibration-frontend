@@ -275,6 +275,7 @@ const router = useRouter();
 const store = useToolsStore();
 
 onMounted(async () => {
+  await store.fetchTools();
   await store.fetchCalibrationProcesses();
   await store.fetchCalibrationCosts();
 });
