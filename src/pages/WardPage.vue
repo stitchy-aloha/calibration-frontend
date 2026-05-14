@@ -22,8 +22,10 @@
             <div class="ward-page__calendar">
               <WardScheduleCalendar />
             </div>
-            <div class="ward-page__timeline">
-              <WardTimeline />
+            <div class="ward-page__timeline-container">
+              <div class="ward-page__timeline">
+                <WardTimeline />
+              </div>
             </div>
           </div>
         </div>
@@ -88,9 +90,18 @@ const store = useWardsStore();
 .ward-page__left {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto; /* Allow left column to scroll if content is tall */
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
 }
 
 .ward-page__wards {
@@ -98,29 +109,34 @@ const store = useWardsStore();
 }
 
 .ward-page__cal-timeline {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  min-height: 0;
-  overflow: hidden;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start; /* Let calendar determine height */
 }
 
 .ward-page__calendar {
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  flex: 3;
+}
+
+.ward-page__timeline-container {
+  flex: 2;
+  align-self: stretch; /* Match height of calendar */
+  position: relative; /* For absolute child */
 }
 
 .ward-page__timeline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow-y: auto;
-  min-height: 0;
 
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
   }
 }
