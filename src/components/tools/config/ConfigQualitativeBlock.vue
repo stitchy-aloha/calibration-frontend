@@ -3,7 +3,7 @@
     <div class="row items-center q-mb-md">
       <div class="index-circle q-mr-md">{{ index }}</div>
       <div class="row q-gutter-x-md flex-grow">
-        <div class="col">
+        <div class="col-12 col-md-4">
           <label class="text-caption text-weight-bold">ชื่อพารามิเตอร์</label>
           <q-input
             :model-value="parameterName"
@@ -12,25 +12,7 @@
             dense
             bg-color="grey-1"
             class="q-mt-xs"
-            full-width
-          />
-        </div>
-        <div class="col">
-          <label class="text-caption text-weight-bold">ประเภทเครื่องมือมาตรฐาน</label>
-          <q-select
-            :model-value="categoryId"
-            @update:model-value="emit('update:categoryId', $event)"
-            :options="categoryOptions"
-            option-value="id"
-            option-label="name"
-            emit-value
-            map-options
-            outlined
-            dense
-            bg-color="grey-1"
-            class="q-mt-xs"
-            full-width
-            placeholder="เลือกประเภท..."
+            input-style="font-size: 13px"
           />
         </div>
       </div>
@@ -117,17 +99,10 @@ interface Props {
   index: number;
   parameterName: string;
   testItems: TestItem[];
-  categoryId?: number | undefined;
-  categoryOptions: { id: number; name: string }[];
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits([
-  'remove',
-  'update:parameterName',
-  'update:testItems',
-  'update:categoryId',
-]);
+const emit = defineEmits(['remove', 'update:parameterName', 'update:testItems']);
 
 function updateItems(newItems: TestItem[]) {
   emit('update:testItems', newItems);

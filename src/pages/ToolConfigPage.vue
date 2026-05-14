@@ -43,7 +43,6 @@ interface QuantitativeParam {
   ucb2: string;
   ucb3: string;
   testValues: { label: string; value: number }[];
-  categoryId?: number | undefined;
 }
 
 /* ── State ── */
@@ -52,7 +51,6 @@ const qualitativeParams = ref<
   {
     name: string;
     testItems: { name: string; result: 'pass' | 'fail' | null }[];
-    categoryId?: number | undefined;
   }[]
 >([]);
 const quantitativeParams = ref<QuantitativeParam[]>([]);
@@ -77,7 +75,6 @@ onMounted(async () => {
                 result: null,
               }))
             : [],
-          categoryId: s.categories?.[0]?.id,
         }));
 
       quantitativeParams.value = existing
@@ -93,7 +90,6 @@ onMounted(async () => {
           ucb2: s.ucb2 || '0',
           ucb3: s.ucb3 || '0',
           testValues: s.test_values || [],
-          categoryId: s.categories?.[0]?.id,
         }));
 
       // Collect unique categories from ALL parameters
@@ -174,10 +170,6 @@ async function saveConfig() {
 
     // Map quantitative
     quantitativeParams.value.forEach((qp) => {
-      const catIdsSet = new Set<number>();
-      if (qp.categoryId) catIdsSet.add(qp.categoryId);
-      globalCategoryIds.forEach(id => catIdsSet.add(id));
-      
       payload.push({
         equipment_name: toolName.value,
         type: 'quantitative',
@@ -191,22 +183,18 @@ async function saveConfig() {
         ucb2: qp.ucb2,
         ucb3: qp.ucb3,
         test_values: qp.testValues,
-        category_ids: Array.from(catIdsSet),
+        category_ids: globalCategoryIds,
       });
     });
 
     // Map qualitative
     qualitativeParams.value.forEach((qp) => {
-      const catIdsSet = new Set<number>();
-      if (qp.categoryId) catIdsSet.add(qp.categoryId);
-      globalCategoryIds.forEach(id => catIdsSet.add(id));
-
       payload.push({
         equipment_name: toolName.value,
         type: 'qualitative',
         parameter_name: qp.name,
         test_values: qp.testItems.map((item) => ({ label: item.name, value: 0 })),
-        category_ids: Array.from(catIdsSet),
+        category_ids: globalCategoryIds,
       });
     });
 
@@ -298,8 +286,6 @@ async function saveConfig() {
             :index="i + 1"
             v-model:parameterName="param.name"
             v-model:testItems="param.testItems"
-            v-model:categoryId="param.categoryId"
-            :category-options="selectedCategories"
             @remove="removeQualitative(i)"
           />
         </div>
@@ -326,7 +312,6 @@ async function saveConfig() {
             :index="i + 1"
             v-model:data="quantitativeParams[i]"
             :show-ucb="isInfusionPump"
-            :category-options="selectedCategories"
             @remove="removeQuantitative(i)"
           />
         </div>
