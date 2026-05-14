@@ -1,10 +1,5 @@
 <template>
   <q-page padding>
-    <!-- Loading overlay -->
-    <q-inner-loading :showing="store.isLoading">
-      <q-spinner-gears size="50px" color="primary" />
-    </q-inner-loading>
-
     <!-- Page Header -->
     <div class="row items-center q-mb-xs">
       <div class="text-h6 text-weight-bold">การตรวจสอบสภาพภายนอก</div>
@@ -104,11 +99,14 @@ const router = useRouter();
 const $q = useQuasar();
 const isSubmitting = ref(false);
 
-onMounted(async () => {
-  const taskId = Number(route.params.id);
-  if (taskId) {
-    await store.loadFromTask(taskId);
-  }
+const taskId = Number(route.params.id);
+if (taskId) {
+  // Start loading immediately in setup (before mount)
+  void store.loadFromTask(taskId);
+}
+
+onMounted(() => {
+  // Any DOM-specific logic would go here
 });
 
 async function onSubmit() {

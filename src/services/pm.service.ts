@@ -194,8 +194,7 @@ export const pmService = {
 
   getEquipment: (equipmentId: number) => api.get<EquipmentApi>(`/equipment/${equipmentId}`),
 
-  getTask: (taskId: number) =>
-    api.get<TaskApi[]>('/pm-task').then((r) => r.data.find((t) => t.id === taskId)),
+  getTask: (taskId: number) => api.get<TaskApi>(`/pm-task/${taskId}`).then((r) => r.data),
 
   getTaskById: (taskId: number) => api.get<TaskApi>(`/pm-task/${taskId}`),
 

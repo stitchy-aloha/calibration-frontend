@@ -142,29 +142,38 @@ export const useInspectionStore = defineStore('inspection', () => {
       pmByName.value = task.technician?.name ?? '';
       pmByPosition.value = task.technician?.position ?? '';
 
-      const [categoriesRes, equipmentRes] = await Promise.all([
+      // Use equipment from task if available, else fetch
+      let eq = task.equipment;
+      const [categoriesRes] = await Promise.all([
         pmService.getPmForm(task.equipment_id),
-        pmService.getEquipment(task.equipment_id),
+        !eq ? pmService.getEquipment(task.equipment_id).then(r => r.data) : Promise.resolve(null)
       ]);
 
-      const eq = equipmentRes.data;
-      const mfr = eq.manufacturer ?? '-';
-      deviceInfo.value = {
-        deviceName: eq.name,
-        company: mfr,
-        manufacturer: mfr,
-        model: eq.model ?? '-',
-        serialNumber: eq.serial_number ?? '-',
-        assetCode: eq.asset_code ?? '-',
-        category: eq.equipmentType?.name || '-',
-        department: eq.section?.name || eq.department || '-',
-        location: eq.section?.hospital?.name || eq.location || '-',
-        calibrationInterval: eq.interval ? `${eq.interval} วัน` : '-',
-        lastCalibrationDate: eq.calibration_date_last ?? '-',
-        dueDate: eq.calibration_due_date ?? '-',
-        riskLevel: eq.risk_level || '-',
-        type: eq.equipmentType?.name || '-',
-      };
+      if (!eq && categoriesRes) {
+        // This case shouldn't happen with modern backend findOne, but for safety:
+        const equipmentRes = await pmService.getEquipment(task.equipment_id);
+        eq = equipmentRes.data;
+      }
+
+      if (eq) {
+        const mfr = eq.manufacturer ?? '-';
+        deviceInfo.value = {
+          deviceName: eq.name,
+          company: mfr,
+          manufacturer: mfr,
+          model: eq.model ?? '-',
+          serialNumber: eq.serial_number ?? '-',
+          assetCode: eq.asset_code ?? '-',
+          category: eq.equipmentType?.name || '-',
+          department: eq.section?.name || eq.department || '-',
+          location: eq.section?.hospital?.name || eq.location || '-',
+          calibrationInterval: eq.interval ? `${eq.interval} วัน` : '-',
+          lastCalibrationDate: eq.calibration_date_last ?? '-',
+          dueDate: eq.calibration_due_date ?? '-',
+          riskLevel: eq.risk_level || '-',
+          type: eq.equipmentType?.name || '-',
+        };
+      }
 
       sections.value = buildSections(categoriesRes.data);
     } catch (e) {
