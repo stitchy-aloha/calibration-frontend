@@ -34,15 +34,18 @@ function updateData(patch: Partial<QuantData>) {
   emit('update:data', { ...props.data, ...patch });
 }
 
+function reindexLabels(items: TestValue[]) {
+  return items.map((item, i) => ({ ...item, label: `ค่าทดสอบที่ ${i + 1}` }));
+}
+
 function addTestValue() {
-  const nextIdx = props.data.testValues.length + 1;
-  const newItems = [...props.data.testValues, { label: `ค่าทดสอบที่ ${nextIdx}`, value: 0 }];
-  updateData({ testValues: newItems });
+  const newItems = [...props.data.testValues, { label: '', value: 0 }];
+  updateData({ testValues: reindexLabels(newItems) });
 }
 
 function removeTestValue(idx: number) {
   const newItems = props.data.testValues.filter((_, i) => i !== idx);
-  updateData({ testValues: newItems });
+  updateData({ testValues: reindexLabels(newItems) });
 }
 
 function updateTestValue(idx: number, patch: Partial<TestValue>) {
@@ -183,7 +186,7 @@ const displayOptions = ['Digital', 'Analog'];
               class="test-value-row row items-center no-wrap"
             >
               <div class="dot q-mr-sm"></div>
-              <span class="text-caption text-grey-8 col-5">{{ val.label }}</span>
+              <span class="text-caption text-grey-8 col-5">ค่าทดสอบที่ {{ idx + 1 }}</span>
               <q-input
                 :model-value="val.value"
                 @update:model-value="updateTestValue(idx, { value: Number($event) })"

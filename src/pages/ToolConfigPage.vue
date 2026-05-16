@@ -182,7 +182,10 @@ async function saveConfig() {
         ucb1: qp.ucb1,
         ucb2: qp.ucb2,
         ucb3: qp.ucb3,
-        test_values: qp.testValues,
+        test_values: qp.testValues.map((v, idx) => ({
+          ...v,
+          label: `ค่าทดสอบที่ ${idx + 1}`,
+        })),
         category_ids: globalCategoryIds,
       });
     });
@@ -193,7 +196,10 @@ async function saveConfig() {
         equipment_name: toolName.value,
         type: 'qualitative',
         parameter_name: qp.name,
-        test_values: qp.testItems.map((item) => ({ label: item.name, value: 0 })),
+        test_values: qp.testItems.map((item, idx) => ({
+          label: item.name || `รายการที่ ${idx + 1}`,
+          value: 0,
+        })),
         category_ids: globalCategoryIds,
       });
     });

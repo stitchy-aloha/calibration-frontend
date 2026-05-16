@@ -4,7 +4,10 @@
     <div class="selector-header">เครื่องมือมาตรฐาน</div>
 
     <div class="q-pa-md">
-      <div v-if="standardToolStore.loading || settingStore.loading" class="flex flex-center q-pa-lg">
+      <div
+        v-if="standardToolStore.loading || settingStore.loading"
+        class="flex flex-center q-pa-lg"
+      >
         <q-spinner color="primary" size="3em" />
         <div class="q-ml-md text-grey-7">กำลังโหลดข้อมูลเครื่องมือ...</div>
       </div>
@@ -16,9 +19,10 @@
         <!-- We allow selecting up to 2 tools as per current design -->
         <div v-for="(_, index) in totalSlots" :key="index" class="col-12 col-md-6">
           <!-- Category Title (Hidden if selected to keep it clean) -->
-          <div v-if="!selectedTools[index]" class="text-subtitle2 text-primary q-mb-xs q-ml-sm text-weight-bold">
-            กรุณาเลือก: {{ getCategoryName(allowedCategoryIds[index]) }}
-          </div>
+          <div
+            v-if="!selectedTools[index]"
+            class="text-subtitle2 text-primary q-mb-xs q-ml-sm text-weight-bold"
+          ></div>
           <!-- Dropdown ABOVE the inner card, aligned right -->
           <div v-if="!readonly" class="row justify-end q-mb-sm">
             <q-select
@@ -35,7 +39,9 @@
                 <q-item v-bind="scope.itemProps">
                   <q-item-section>
                     <q-item-label>{{ scope.opt.name }}</q-item-label>
-                    <q-item-label caption>{{ scope.opt.model }} | S/N: {{ scope.opt.serialNumber }}</q-item-label>
+                    <q-item-label caption
+                      >{{ scope.opt.model }} | S/N: {{ scope.opt.serialNumber }}</q-item-label
+                    >
                   </q-item-section>
                 </q-item>
               </template>
@@ -54,14 +60,16 @@
               <div class="column items-center q-mb-sm">
                 <q-icon name="app:med" size="42px" color="secondary" class="q-mb-xs" />
                 <div class="text-weight-bold text-subtitle1 text-center text-primary">
-                  {{ selectedTools[index] ? selectedTools[index]?.name : getCategoryName(allowedCategoryIds[index]) }}
+                  {{
+                    selectedTools[index]
+                      ? selectedTools[index]?.name
+                      : getCategoryName(allowedCategoryIds[index])
+                  }}
                 </div>
                 <div v-if="selectedTools[index]" class="text-caption text-grey-6">
                   {{ selectedTools[index]?.model }} (S/N: {{ selectedTools[index]?.serialNumber }})
                 </div>
-                <div v-else class="text-caption text-grey-5 italic">
-                  (ยังไม่ได้เลือกอุปกรณ์)
-                </div>
+                <div v-else class="text-caption text-grey-5 italic">(ยังไม่ได้เลือกอุปกรณ์)</div>
               </div>
 
               <!-- Info rows -->
@@ -156,7 +164,7 @@ watch(
 function getFilteredToolsForSlot(index: number) {
   const catId = allowedCategoryIds.value[index];
   if (!catId) return standardToolStore.tools; // Fallback
-  
+
   return standardToolStore.tools.filter((t) => Number(t.category_id) === Number(catId));
 }
 
@@ -176,11 +184,8 @@ watch(
 );
 
 onMounted(async () => {
-  await Promise.all([
-    standardToolStore.fetchTools(),
-    categoryStore.fetchCategories()
-  ]);
-  
+  await Promise.all([standardToolStore.fetchTools(), categoryStore.fetchCategories()]);
+
   if (props.readonly && props.selectedIds && props.selectedIds.length > 0) {
     // Fill selectedTools based on selectedIds (Read-only view)
     props.selectedIds.forEach((id, index) => {
@@ -232,7 +237,9 @@ function autoSelectFromConfig() {
     // Pick one unit for each category required
     allowedCategoryIds.value.forEach((catId, index) => {
       if (!selectedTools.value[index]) {
-        const firstInCat = standardToolStore.tools.find(t => Number(t.category_id) === Number(catId));
+        const firstInCat = standardToolStore.tools.find(
+          (t) => Number(t.category_id) === Number(catId),
+        );
         if (firstInCat) {
           selectedTools.value[index] = firstInCat;
         }
@@ -242,9 +249,7 @@ function autoSelectFromConfig() {
 }
 
 function updateSelectedIds() {
-  const ids = selectedTools.value
-    .filter((t): t is StandardTool => t !== null)
-    .map((t) => t.id);
+  const ids = selectedTools.value.filter((t): t is StandardTool => t !== null).map((t) => t.id);
   console.log('[StandardEquipmentSelector] Syncing standardToolIds to store:', ids);
   store.standardToolIds = ids;
 }
