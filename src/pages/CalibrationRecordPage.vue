@@ -99,6 +99,7 @@
           unelevated
           color="primary"
           :label="store.activeTab === 'general' ? 'ถัดไป' : 'บันทึก'"
+          :disable="store.activeTab === 'test_results' && !store.canSubmit"
           class="action-btn"
           @click="handleNext"
         />

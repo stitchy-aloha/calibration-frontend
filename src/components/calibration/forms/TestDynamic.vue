@@ -8,7 +8,10 @@
     </div>
 
     <!-- 2. Quantitative Parameters -->
-    <div v-for="(param, i) in quantitativeParams" :key="(param.id || i) + '-' + (param.std_type || '')">
+    <div
+      v-for="(param, i) in quantitativeParams"
+      :key="(param.id || i) + '-' + (param.std_type || '')"
+    >
       <TestParameterTable
         v-if="paramValues[i] && paramMetadata[i]"
         :title="param.parameter_name"
@@ -192,7 +195,7 @@ const checklistItems = computed(() => {
     });
   });
 
-  // Quantitative checks
+  // 4. Quantitative checks
   quantitativeParams.value.forEach((param, i) => {
     const rows = paramValues.value[i] || [];
     const tested = rows.filter((r) => r.status !== null);

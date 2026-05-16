@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { CalibrationService } from 'src/services/calibration.service';
 import { useCalibrationSettingStore } from './calibrationSetting';
 import { useStandardToolStore } from './standardTools';
@@ -263,6 +263,49 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
     overallResult.value = 'Pass';
   }
 
+  const isEnvironmentValid = computed(() => {
+    return environment.value.temperature !== null && 
+           environment.value.temperature !== undefined &&
+           environment.value.humidity !== null &&
+           environment.value.humidity !== undefined;
+  });
+
+  const isStandardToolsValid = computed(() => standardToolIds.value.length > 0);
+
+  const isTestsValid = computed(() => {
+    const settingStore = useCalibrationSettingStore();
+    const hasQuantSettings = settingStore.settings.some(s => s.type === 'quantitative');
+    const hasQualSettings = settingStore.settings.some(s => s.type === 'qualitative');
+
+    // 1. Check Quantitative (must have all 3 readings for each record)
+    if (hasQuantSettings) {
+      if (measurements.value.length === 0) return false;
+      for (const m of measurements.value) {
+        if (m.reading_1 === null || m.reading_1 === undefined ||
+            m.reading_2 === null || m.reading_2 === undefined ||
+            m.reading_3 === null || m.reading_3 === undefined) {
+          return false;
+        }
+      }
+    }
+
+    // 2. Check Qualitative (must have Pass/Fail, not NA/Null)
+    if (hasQualSettings) {
+      if (qualitatives.value.length === 0) return false;
+      for (const q of qualitatives.value) {
+        if (!q.result || q.result === 'NA') return false;
+      }
+    }
+
+    return true;
+  });
+
+  const canSubmit = computed(() => {
+    return isEnvironmentValid.value && 
+           isStandardToolsValid.value && 
+           isTestsValid.value;
+  });
+
   return {
     loading,
     activeTab,
@@ -275,6 +318,10 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
     qualitatives,
     specificParameters,
     overallResult,
+    isEnvironmentValid,
+    isStandardToolsValid,
+    isTestsValid,
+    canSubmit,
     fetchCalibrationRecord,
     submitCalibration,
     fillMockData,
