@@ -72,8 +72,8 @@
     <!-- 4. Summary Section -->
     <CalibrationSummary
       :custom-checklist="checklistItems"
-      :inspector-name="task?.technician_name || task?.technician?.name || '-'"
-      :inspector-role="task?.technician_position || task?.technician?.position || '-'"
+      :inspector-name="task?.certificate_data?.technician?.name || task?.technician?.name || '-'"
+      :inspector-role="task?.certificate_data?.technician?.position || task?.technician?.position || '-'"
     />
   </div>
 </template>

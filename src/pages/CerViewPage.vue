@@ -81,14 +81,14 @@
             :measurements="task?.measurements || []"
             :specific-parameters="task?.specificParameters || []"
             :technician="task ? { 
-              name: task.technician_name || task.technician?.name || '-', 
-              position: task.technician_position || task.technician?.position || task.technician?.role?.description || 'นายช่างไฟฟ้า', 
-              signatureUrl: task.technician_signature_url || task.technician?.signatureUrl || null 
+              name: task.certificate_data?.technician?.name || task.technician?.name || '-', 
+              position: task.certificate_data?.technician?.position || task.technician?.position || task.technician?.role?.description || 'นายช่างไฟฟ้า', 
+              signatureUrl: task.certificate_data?.technician?.signatureUrl || task.technician?.signatureUrl || null 
             } : null"
             :approver="task ? { 
-              name: task.approver_name || task.approver?.name || '-', 
-              position: task.approver_position || task.approver?.position || task.approver?.role?.description || 'หัวหน้างาน', 
-              signatureUrl: task.approver_signature_url || task.approver?.signatureUrl || null 
+              name: task.certificate_data?.approver?.name || task.approver?.name || '-', 
+              position: task.certificate_data?.approver?.position || task.approver?.position || task.approver?.role?.description || 'หัวหน้างาน', 
+              signatureUrl: task.certificate_data?.approver?.signatureUrl || task.approver?.signatureUrl || null, 
             } : null"
             :alarms="alarmsData"
             :standards="standardsData"
@@ -151,9 +151,13 @@ const activeCerData = computed((): CerData => {
     model: t.equipment?.model || '-',
     serialNo: t.equipment?.serial_number || '-',
     idNo: t.equipment?.asset_code || '-',
-    department: t.equipment?.section?.hospital?.name || t.equipment?.location || 'Hospital',
-    address: [t.equipment?.section?.hospital?.district, t.equipment?.section?.hospital?.province].filter(Boolean).join(' ') || '-',
-    section: t.equipment?.section ? `${t.equipment.section.name} - ${t.equipment.section.description}` : (t.equipment?.department || '-'),
+    department: t.certificate_data?.hospital?.name || t.equipment?.section?.hospital?.name || t.equipment?.location || 'Hospital',
+    address: t.certificate_data?.hospital?.district 
+      ? [t.certificate_data.hospital.district, t.certificate_data.hospital.province].filter(Boolean).join(' ') 
+      : [t.equipment?.section?.hospital?.district, t.equipment?.section?.hospital?.province].filter(Boolean).join(' ') || '-',
+    section: t.certificate_data?.department?.name 
+      ? `${t.certificate_data.department.name} - ${t.equipment?.section?.description || ''}`
+      : t.equipment?.section ? `${t.equipment.section.name} - ${t.equipment.section.description}` : (t.equipment?.department || '-'),
     pmDate: t.createdAt
       ? new Date(t.createdAt).toLocaleDateString('en-US', {
           weekday: 'long',
@@ -175,33 +179,42 @@ const activeCerData = computed((): CerData => {
       })) || [],
     technician: t
       ? {
-          name: t.technician_name || t.technician?.name || '-',
-          signatureUrl: t.technician_signature_url || t.technician?.signatureUrl || null,
+          name: t.certificate_data?.technician?.name || t.technician?.name || '-',
+          signatureUrl: t.certificate_data?.technician?.signatureUrl || t.technician?.signatureUrl || null,
           role: {
-            description: t.technician_position || t.technician?.position || t.technician?.role?.description || '-',
+            description: t.certificate_data?.technician?.position || t.technician?.position || t.technician?.role?.description || '-',
           },
         }
       : null,
     specificParameters: t.specificParameters || [],
-    hospital: t.technician?.hospital
+    hospital: t.certificate_data?.hospital?.name
       ? {
-          name: t.technician.hospital.name,
-          logoUrl: t.technician.hospital.logoUrl,
-          address: t.technician.hospital.address,
-          district: t.technician.hospital.district,
-          province: t.technician.hospital.province,
-          zipCode: t.technician.hospital.zipCode,
+          name: t.certificate_data.hospital.name,
+          logoUrl: t.certificate_data.hospital.logoUrl,
+          address: t.certificate_data.hospital.address,
+          district: t.certificate_data.hospital.district,
+          province: t.certificate_data.hospital.province,
+          zipCode: t.certificate_data.hospital.zipCode,
         }
-      : t.equipment?.section?.hospital
+      : t.technician?.hospital
         ? {
-            name: t.equipment.section.hospital.name,
-            logoUrl: t.equipment.section.hospital.logoUrl,
-            address: t.equipment.section.hospital.address,
-            district: t.equipment.section.hospital.district,
-            province: t.equipment.section.hospital.province,
-            zipCode: t.equipment.section.hospital.zipCode,
+            name: t.technician.hospital.name,
+            logoUrl: t.technician.hospital.logoUrl,
+            address: t.technician.hospital.address,
+            district: t.technician.hospital.district,
+            province: t.technician.hospital.province,
+            zipCode: t.technician.hospital.zipCode,
           }
-        : null,
+        : t.equipment?.section?.hospital
+          ? {
+              name: t.equipment.section.hospital.name,
+              logoUrl: t.equipment.section.hospital.logoUrl,
+              address: t.equipment.section.hospital.address,
+              district: t.equipment.section.hospital.district,
+              province: t.equipment.section.hospital.province,
+              zipCode: t.equipment.section.hospital.zipCode,
+            }
+          : null,
   };
 });
 
@@ -214,37 +227,49 @@ const calibrationCertData = computed((): CerCalibrationData => {
     model: t?.equipment?.model || '-',
     serialNo: t?.equipment?.serial_number || '-',
     idNo: t?.equipment?.asset_code || '-',
-    department: t?.equipment?.section?.hospital?.name || t?.equipment?.location || 'Hospital',
-    address:
-      [t?.equipment?.section?.hospital?.district, t?.equipment?.section?.hospital?.province]
-        .filter(Boolean)
-        .join(' ') || '-',
-    section: t?.equipment?.section
-      ? `${t.equipment.section.name} - ${t.equipment.section.description}`
-      : t?.equipment?.department || '-',
+    department: t?.certificate_data?.hospital?.name || t?.equipment?.section?.hospital?.name || t?.equipment?.location || 'Hospital',
+    address: t?.certificate_data?.hospital?.district
+      ? [t.certificate_data.hospital.district, t.certificate_data.hospital.province].filter(Boolean).join(' ')
+      : [t?.equipment?.section?.hospital?.district, t?.equipment?.section?.hospital?.province]
+          .filter(Boolean)
+          .join(' ') || '-',
+    section: t?.certificate_data?.department?.name
+      ? `${t.certificate_data.department.name} - ${t?.equipment?.section?.description || ''}`
+      : t?.equipment?.section
+        ? `${t.equipment.section.name} - ${t.equipment.section.description}`
+        : t?.equipment?.department || '-',
     temperature: t?.environments?.[0]?.ambient_temp?.toString() || '25',
     humidity: t?.environments?.[0]?.ambient_humidity?.toString() || '45',
     calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB') : '-',
     apprDate: t?.approvedAt ? new Date(t.approvedAt).toLocaleDateString('en-GB') : '-',
-    hospital: t?.technician?.hospital
+    hospital: t?.certificate_data?.hospital?.name
       ? {
-          name: t.technician.hospital.name,
-          logoUrl: t.technician.hospital.logoUrl,
-          address: t.technician.hospital.address,
-          district: t.technician.hospital.district,
-          province: t.technician.hospital.province,
-          zipCode: t.technician.hospital.zipCode,
+          name: t.certificate_data.hospital.name,
+          logoUrl: t.certificate_data.hospital.logoUrl,
+          address: t.certificate_data.hospital.address,
+          district: t.certificate_data.hospital.district,
+          province: t.certificate_data.hospital.province,
+          zipCode: t.certificate_data.hospital.zipCode,
         }
-      : t?.equipment?.section?.hospital
+      : t?.technician?.hospital
         ? {
-            name: t.equipment.section.hospital.name,
-            logoUrl: t.equipment.section.hospital.logoUrl,
-            address: t.equipment.section.hospital.address,
-            district: t.equipment.section.hospital.district,
-            province: t.equipment.section.hospital.province,
-            zipCode: t.equipment.section.hospital.zipCode,
+            name: t.technician.hospital.name,
+            logoUrl: t.technician.hospital.logoUrl,
+            address: t.technician.hospital.address,
+            district: t.technician.hospital.district,
+            province: t.technician.hospital.province,
+            zipCode: t.technician.hospital.zipCode,
           }
-        : null,
+        : t?.equipment?.section?.hospital
+          ? {
+              name: t.equipment.section.hospital.name,
+              logoUrl: t.equipment.section.hospital.logoUrl,
+              address: t.equipment.section.hospital.address,
+              district: t.equipment.section.hospital.district,
+              province: t.equipment.section.hospital.province,
+              zipCode: t.equipment.section.hospital.zipCode,
+            }
+          : null,
   };
 });
 
@@ -329,10 +354,8 @@ onMounted(async () => {
       const data = await pmService.getTaskById(parseInt(taskId));
       task.value = data.data;
       console.log('[DEBUG] Task Loaded in CER View:', {
-        technician_name: data.data.technician_name,
-        technician_signature_url: data.data.technician_signature_url,
-        approver_name: data.data.approver_name,
-        approver_signature_url: data.data.approver_signature_url,
+        certificate_data: data.data.certificate_data,
+        approver: data.data.approver,
       });
     } catch (error) {
       console.error('Failed to fetch task for CER:', error);

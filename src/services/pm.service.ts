@@ -151,12 +151,29 @@ export interface TaskApi {
   createdAt: string;
   approvedAt?: string;
   path_pdf_cer?: string;
-  technician_name?: string;
-  technician_position?: string;
-  technician_signature_url?: string;
-  approver_name?: string;
-  approver_position?: string;
-  approver_signature_url?: string;
+  certificate_data?: {
+    hospital?: {
+      name?: string;
+      logoUrl?: string;
+      address?: string;
+      district?: string;
+      province?: string;
+      zipCode?: string;
+    };
+    department?: {
+      name?: string;
+    };
+    technician?: {
+      name?: string;
+      position?: string;
+      signatureUrl?: string;
+    };
+    approver?: {
+      name?: string;
+      position?: string;
+      signatureUrl?: string;
+    };
+  };
   technician: TechnicianApi;
   approver?: TechnicianApi;
   equipment?: EquipmentApi;
