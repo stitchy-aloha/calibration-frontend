@@ -140,7 +140,7 @@ export const useInspectionStore = defineStore('inspection', () => {
       taskId.value = task.id;
       pmNo.value = task.pm_no ?? '';
       pmByName.value = task.technician?.name ?? '';
-      pmByPosition.value = task.technician?.position ?? '';
+      pmByPosition.value = task.technician?.role?.description ?? '';
 
       // Use equipment from task if available, else fetch
       let eq = task.equipment;

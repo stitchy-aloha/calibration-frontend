@@ -59,7 +59,7 @@ const locationInfo = computed(() => {
 
         <span class="info-label">ตำแหน่ง</span>
         <span class="info-value">
-          {{ task?.technician?.position || task?.technician?.role?.description || task?.technician?.role?.name || '-' }}
+          {{ task?.technician?.role?.description || task?.technician?.role?.name || '-' }}
         </span>
 
         <span class="info-label">วันที่สอบเทียบ</span>

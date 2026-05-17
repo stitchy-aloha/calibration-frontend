@@ -82,12 +82,12 @@
             :specific-parameters="task?.specificParameters || []"
             :technician="task ? { 
               name: task.certificate_data?.technician?.name || task.technician?.name || '-', 
-              position: task.certificate_data?.technician?.position || task.technician?.position || task.technician?.role?.description || 'นายช่างไฟฟ้า', 
+              position: task.technician?.role?.description || 'นายช่างไฟฟ้า', 
               signatureUrl: task.certificate_data?.technician?.signatureUrl || task.technician?.signatureUrl || null 
             } : null"
             :approver="task ? { 
               name: task.certificate_data?.approver?.name || task.approver?.name || '-', 
-              position: task.certificate_data?.approver?.position || task.approver?.position || task.approver?.role?.description || 'หัวหน้างาน', 
+              position: task.approver?.role?.description || 'หัวหน้างาน', 
               signatureUrl: task.certificate_data?.approver?.signatureUrl || task.approver?.signatureUrl || null, 
             } : null"
             :alarms="alarmsData"
@@ -182,7 +182,7 @@ const activeCerData = computed((): CerData => {
           name: t.certificate_data?.technician?.name || t.technician?.name || '-',
           signatureUrl: t.certificate_data?.technician?.signatureUrl || t.technician?.signatureUrl || null,
           role: {
-            description: t.certificate_data?.technician?.position || t.technician?.position || t.technician?.role?.description || '-',
+            description: t.technician?.role?.description || '-',
           },
         }
       : null,

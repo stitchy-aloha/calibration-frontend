@@ -123,7 +123,6 @@ export interface PmCategoryRemarkApi {
 export interface TechnicianApi {
   id: number;
   name: string;
-  position: string;
   signatureUrl?: string | null;
   role?: {
     id: number;
@@ -165,12 +164,10 @@ export interface TaskApi {
     };
     technician?: {
       name?: string;
-      position?: string;
       signatureUrl?: string;
     };
     approver?: {
       name?: string;
-      position?: string;
       signatureUrl?: string;
     };
   };
