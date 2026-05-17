@@ -10,6 +10,7 @@ export interface SubmitTaskPayload {
   qualitatives?: QualitativeRecord[] | undefined;
   specific_parameters?: SpecificParameter[] | undefined;
   overall_result: 'Pass' | 'Fail' | 'NA';
+  status?: 'InProgress' | 'PendingApproval';
 }
 
 export const CalibrationService = {

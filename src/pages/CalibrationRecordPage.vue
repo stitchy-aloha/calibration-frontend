@@ -94,6 +94,8 @@
           color="primary"
           label="บันทึกแบบร่าง"
           class="bg-white action-btn"
+          :loading="store.loading"
+          @click="handleSaveDraft"
         />
         <q-btn
           unelevated
@@ -112,14 +114,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
+import { useQuasar } from 'quasar';
 import { useCalibrationRecordStore } from 'stores/calibrationRecord';
 import TabGeneralInfo from 'components/calibration/record/TabGeneralInfo.vue';
 import TabTestResults from 'components/calibration/record/TabTestResults.vue';
 import SaveConfirmDialog from 'components/calibration/record/SaveConfirmDialog.vue';
-import { useQuasar } from 'quasar';
-import { ref } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -155,10 +156,44 @@ watch(
     }
   },
 );
+onUnmounted(() => {
+  store.resetStore();
+});
 
 const goBack = () => {
-  router.back();
+  if (store.isDirty) {
+    $q.dialog({
+      title: 'ข้อมูลยังไม่ได้บันทึก',
+      message: 'คุณมีข้อมูลที่ยังไม่ได้บันทึก หากออกจากหน้านี้ข้อมูลจะหายไปทั้งหมด ต้องการออกหรือไม่?',
+      persistent: true,
+      ok: { label: 'ออกโดยไม่บันทึก', color: 'negative', flat: true },
+      cancel: { label: 'ยกเลิก', color: 'primary' }
+    }).onOk(() => {
+      void router.push('/calibration');
+    });
+  } else {
+    void router.push('/calibration');
+  }
 };
+
+// Also catch browser back/navigation
+onBeforeRouteLeave((to, from, next) => {
+  if (store.isDirty && to.path !== '/login') {
+    $q.dialog({
+      title: 'ยืนยันการออกจากหน้า',
+      message: 'ข้อมูลการสอบเทียบที่กรอกไว้จะหายไปหากคุณไมกดบันทึก ต้องการออกหรือไม่?',
+      persistent: true,
+      ok: { label: 'ออกจากหน้านี้', color: 'negative', flat: true },
+      cancel: { label: 'ยกเลิก', color: 'primary' }
+    }).onOk(() => {
+      next();
+    }).onCancel(() => {
+      next(false);
+    });
+  } else {
+    next();
+  }
+});
 
 const handleNext = () => {
   if (store.activeTab === 'general') {
@@ -174,23 +209,40 @@ const handleSave = () => {
   showSaveDialog.value = true;
 };
 
+const handleSaveDraft = async () => {
+  try {
+    await store.saveDraft();
+    $q.notify({
+      type: 'positive',
+      message: 'บันทึกแบบร่างสำเร็จ',
+      position: 'top',
+    });
+  } catch (err: unknown) {
+    const e = err as { response?: { data?: { message?: string } } };
+    $q.notify({
+      type: 'negative',
+      message: e.response?.data?.message ?? 'บันทึกไม่สำเร็จ',
+      position: 'top',
+    });
+  }
+};
+
 const onConfirmSave = async () => {
   try {
     await store.submitCalibration();
     $q.notify({
       type: 'positive',
-      message: 'บันทึกผลการสอบเทียบสำเร็จ!',
-      position: 'bottom',
+      message: 'บันทึกข้อมูลและส่งอนุมัติสำเร็จ',
+      icon: 'check_circle',
+      position: 'top',
     });
     void router.push('/calibration');
   } catch (err: unknown) {
-    console.error('Submit Error:', err);
     const e = err as { response?: { data?: { message?: string } } };
-    const msg = e.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
     $q.notify({
       type: 'negative',
-      message: msg,
-      position: 'bottom',
+      message: e.response?.data?.message ?? 'บันทึกไม่สำเร็จ',
+      position: 'top',
     });
   }
 };

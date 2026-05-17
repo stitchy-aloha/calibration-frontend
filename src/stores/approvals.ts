@@ -33,12 +33,8 @@ export const useApprovalsStore = defineStore('approvals', () => {
     loading.value = true;
     try {
       const res = await api.get<TaskApi[]>('/pm-task');
-      // Only show tasks that have been submitted (PendingApproval, Approved, Rejected)
-      // 'Pending' means calibration hasn't been done yet — hide those
-      // แสดงงานที่ส่งมาขออนุมัติทั้งหมด (รวมถึงสถานะ Done ที่อาจค้างอยู่)
-      const submitted = res.data.filter((task) =>
-        ['PendingApproval', 'Done'].includes(task.status),
-      );
+      // Only show tasks that have been submitted for approval
+      const submitted = res.data.filter((task) => task.status === 'PendingApproval');
       approvals.value = submitted.map((task) => ({
         id: task.pm_no || `CAL-${task.id}`,
         taskId: task.id,

@@ -24,6 +24,7 @@
             label="ผ่าน"
             class="confirm-btn q-mt-md"
             no-caps
+            @click="onConfirmSave"
           />
         </template>
         <template v-else>

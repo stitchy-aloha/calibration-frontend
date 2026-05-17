@@ -59,9 +59,9 @@ export const useCalibrationStore = defineStore('calibration', () => {
   async function fetchFromApi() {
     try {
       const res = await api.get<TaskApi[]>('/pm-task');
-      // Only show tasks that are yet to be calibrated (status = 'Pending' or 'ReCalibrate')
+      // Only show tasks that are yet to be calibrated (status = 'Pending', 'InProgress' or 'ReCalibrate')
       const pendingTasks = res.data.filter(
-        (task) => task.status === 'Pending' || task.status === 'ReCalibrate',
+        (task) => ['Pending', 'InProgress', 'ReCalibrate'].includes(task.status),
       );
       
       records.value = pendingTasks.map((task) => ({

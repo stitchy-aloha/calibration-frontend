@@ -10,14 +10,7 @@
       </div>
     </div>
 
-    <!-- Divider Bar -->
-    <q-card
-      flat
-      class="bg-purple-2 q-py-sm q-mb-xl text-center text-white text-subtitle1 text-weight-bold"
-      style="border-radius: 4px"
-    >
-      บันทึกผลการทดสอบ
-    </q-card>
+
 
     <!-- Dynamic Detailed Tests -->
     <TestDynamic 

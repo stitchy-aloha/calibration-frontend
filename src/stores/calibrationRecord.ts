@@ -76,6 +76,7 @@ export interface SpecificParameter {
 
 export const useCalibrationRecordStore = defineStore('calibrationRecord', () => {
   const loading = ref(false);
+  const isDirty = ref(false);
   const activeTab = ref('general');
   const taskId = ref<number | null>(null);
   const mockTrigger = ref(0);
@@ -113,6 +114,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
   const overallResult = ref<'Pass' | 'Fail' | 'NA'>('Pass');
 
   async function fetchCalibrationRecord(id: string | number) {
+    resetStore();
     loading.value = true;
     const settingStore = useCalibrationSettingStore();
     try {
@@ -170,10 +172,11 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       console.error('Failed to fetch calibration record', error);
     } finally {
       loading.value = false;
+      isDirty.value = false;
     }
   }
 
-  async function submitCalibration() {
+  async function submitCalibration(status: 'InProgress' | 'PendingApproval' = 'PendingApproval') {
     if (!taskId.value) return;
 
     loading.value = true;
@@ -186,12 +189,11 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
         qualitatives: qualitatives.value,
         specific_parameters: specificParameters.value,
         overall_result: overallResult.value,
+        status,
       };
 
-      console.log('[CalibrationRecordStore] Submitting Payload:', payload);
-
-
       await CalibrationService.submitTask(taskId.value, payload);
+      isDirty.value = false;
       return true;
     } catch (error) {
       console.error('Submit Failed:', error);
@@ -201,7 +203,12 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
     }
   }
 
+  async function saveDraft() {
+    return await submitCalibration('InProgress');
+  }
+
   function fillMockData() {
+    isDirty.value = true;
     mockTrigger.value++;
     const settingStore = useCalibrationSettingStore();
 
@@ -306,8 +313,42 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
            isTestsValid.value;
   });
 
+  function resetStore() {
+    taskId.value = null;
+    activeTab.value = 'general';
+    equipmentDetails.value = {
+      id: '',
+      name: '',
+      company: '',
+      model: '',
+      serialNumber: '',
+      code: '',
+      riskLevel: '',
+      type: '',
+      calibrationCycle: '',
+      lastCalibrationDate: '',
+      nextCalibrationDate: '',
+    };
+    locationDetails.value = {
+      department: '',
+      hospital: '',
+      district: '',
+      province: '',
+    };
+    environment.value = {
+      temperature: null,
+      humidity: null,
+    };
+    standardToolIds.value = [];
+    measurements.value = [];
+    qualitatives.value = [];
+    specificParameters.value = [];
+    overallResult.value = 'Pass';
+  }
+
   return {
     loading,
+    isDirty,
     activeTab,
     taskId,
     equipmentDetails,
@@ -324,7 +365,9 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
     canSubmit,
     fetchCalibrationRecord,
     submitCalibration,
+    saveDraft,
     fillMockData,
+    resetStore,
     mockTrigger,
   };
 });
