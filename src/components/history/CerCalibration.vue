@@ -4,7 +4,11 @@
       <!-- ===== HEADER ===== -->
       <div class="cer-header">
         <div class="header-logo-area">
-          <img :src="getImageUrl(data.hospital?.logoUrl) || 'public/image/logo.png'" alt="Hospital Logo" class="hospital-logo" />
+          <img
+            :src="getImageUrl(data.hospital?.logoUrl) || 'public/image/logo.png'"
+            alt="Hospital Logo"
+            class="hospital-logo"
+          />
           <div class="hospital-info">
             <div class="hospital-name">{{ data.hospital?.name || 'Hospital Name' }}</div>
             <div class="hospital-address">
@@ -115,8 +119,22 @@
           <thead>
             <tr>
               <th class="text-left w-25"></th>
-              <th>{{ (groupedMeasurements[0]?.std_type?.includes('2') && groupedMeasurements[0]?.std_type?.includes('UUT')) ? 'UUC Setting' : 'STD Setting' }}</th>
-              <th>{{ (groupedMeasurements[0]?.std_type?.includes('2') && groupedMeasurements[0]?.std_type?.includes('UUT')) ? 'STD Reading' : 'UUC Reading' }}</th>
+              <th>
+                {{
+                  groupedMeasurements[0]?.std_type?.includes('2') &&
+                  groupedMeasurements[0]?.std_type?.includes('UUT')
+                    ? 'UUC Setting'
+                    : 'STD Setting'
+                }}
+              </th>
+              <th>
+                {{
+                  groupedMeasurements[0]?.std_type?.includes('2') &&
+                  groupedMeasurements[0]?.std_type?.includes('UUT')
+                    ? 'STD Reading'
+                    : 'UUC Reading'
+                }}
+              </th>
               <th>
                 Error <span v-if="hasUcbData" class="text-caption block">(Budget) Offset</span>
               </th>
@@ -354,16 +372,18 @@ interface Props {
     heartRate: ReadingItem;
     spo2: ReadingItem;
   };
-  alarms?: {
-    I: string;
-    II: string;
-    III: string;
-    AVR: string;
-    AVL: string;
-    AVF: string;
-    Alarm: string;
-    oneMV: string;
-  } | undefined;
+  alarms?:
+    | {
+        I: string;
+        II: string;
+        III: string;
+        AVR: string;
+        AVL: string;
+        AVF: string;
+        Alarm: string;
+        oneMV: string;
+      }
+    | undefined;
   standards?: StandardItem[] | undefined;
 }
 
@@ -465,11 +485,11 @@ const groupedMeasurements = computed((): MeasurementApi[] => {
 const UNIT_MAP: Record<string, string> = {
   'Systolic Pressure': 'mmHg',
   'Diastolic Pressure': 'mmHg',
-  'Temperature': 'Celsius',
+  Temperature: 'Celsius',
   'Heart Rate': 'Pulse/Minute',
-  'SpO2': '%',
+  SpO2: '%',
   'Flow Rate': 'mL/h',
-  'Volume': 'mL',
+  Volume: 'mL',
 };
 
 const getParamUnit = (name: string): string => UNIT_MAP[name] || '';
@@ -477,9 +497,9 @@ const getParamUnit = (name: string): string => UNIT_MAP[name] || '';
 const MOCK_ACCEPT_VALUES: Record<string, string> = {
   'Systolic Pressure': '+/- 8.00',
   'Diastolic Pressure': '+/- 8.00',
-  'Temperature': '+/- 1.00',
+  Temperature: '+/- 1.00',
   'Heart Rate': '+/- 2.00',
-  'SpO2': '+/- 2.00',
+  SpO2: '+/- 2.00',
 };
 
 const getMockAcceptValue = (m: MeasurementApi): string => {

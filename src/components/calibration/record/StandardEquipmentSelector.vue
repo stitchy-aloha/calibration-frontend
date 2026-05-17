@@ -145,7 +145,10 @@ const allowedCategoryIds = computed(() => {
   return uniqueIds;
 });
 
-const totalSlots = computed(() => Math.max(2, allowedCategoryIds.value.length));
+const totalSlots = computed(() => {
+  const selectedCount = props.selectedIds ? props.selectedIds.length : 0;
+  return Math.max(2, allowedCategoryIds.value.length, selectedCount);
+});
 
 const selectedTools = ref<(StandardTool | null)[]>([]);
 
@@ -168,35 +171,25 @@ function getFilteredToolsForSlot(index: number) {
   return standardToolStore.tools.filter((t) => Number(t.category_id) === Number(catId));
 }
 
-// Sync from store on initial load or if store updates
+// Sync selectedTools from props.selectedIds safely (after tools are loaded)
 watch(
-  () => store.standardToolIds,
-  (newIds) => {
-    if (newIds && newIds.length > 0 && selectedTools.value.every((t) => t === null)) {
-      console.log('[StandardEquipmentSelector] Populating from store:', newIds);
+  [() => props.selectedIds, () => standardToolStore.tools],
+  ([newIds, tools]) => {
+    if (newIds && newIds.length > 0 && tools.length > 0) {
+      console.log('[StandardEquipmentSelector] Populating from selectedIds:', newIds);
       newIds.forEach((id, index) => {
-        const tool = standardToolStore.tools.find((t) => Number(t.id) === Number(id));
-        if (tool) selectedTools.value[index] = tool;
+        const tool = tools.find((t) => Number(t.id) === Number(id));
+        if (tool) {
+          selectedTools.value[index] = tool;
+        }
       });
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 onMounted(async () => {
   await Promise.all([standardToolStore.fetchTools(), categoryStore.fetchCategories()]);
-
-  if (props.readonly && props.selectedIds && props.selectedIds.length > 0) {
-    // Fill selectedTools based on selectedIds (Read-only view)
-    props.selectedIds.forEach((id, index) => {
-      const tool = standardToolStore.tools.find((t) => t.id === id);
-      if (tool) {
-        selectedTools.value[index] = tool;
-      }
-    });
-  } else if (!props.readonly) {
-    autoSelectFromConfig();
-  }
 });
 
 // Watch for changes in allowedCategoryIds (when settings are loaded)
@@ -215,8 +208,9 @@ watch(
 watch(
   [allowedCategoryIds, () => standardToolStore.tools],
   () => {
-    // ONLY auto-select if we aren't in read-only mode
-    if (!props.readonly) {
+    // ONLY auto-select if we aren't in read-only mode AND no tools are selected yet
+    const hasSelection = props.selectedIds && props.selectedIds.length > 0;
+    if (!props.readonly && !hasSelection) {
       autoSelectFromConfig();
     }
   },
