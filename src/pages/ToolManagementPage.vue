@@ -10,7 +10,14 @@
       <div class="content-top-bar q-mb-md">
         <SearchBar v-model="processSearch" placeholder="ค้นหา..." />
         <q-space />
-        <q-btn unelevated round icon="add" class="btn-add" @click="showAddProcess = true" />
+        <q-btn
+          unelevated
+          round
+          icon="add"
+          class="btn-add"
+          @click="showAddProcess = true"
+          label="เพิ่มกระบวนการ"
+        />
       </div>
 
       <q-table
@@ -135,7 +142,14 @@
       <div class="content-top-bar q-mb-md">
         <SearchBar v-model="costSearch" placeholder="ค้นหา..." />
         <q-space />
-        <q-btn unelevated round icon="add" class="btn-add" @click="showAddCost = true" />
+        <q-btn
+          unelevated
+          round
+          icon="add"
+          class="btn-add"
+          @click="showAddCost = true"
+          label="เพิ่มค่าใช้จ่าย"
+        />
       </div>
 
       <q-table
@@ -250,7 +264,11 @@ const activeTab = computed({
 });
 
 const pageInfo = computed(
-  () => TOOL_MANAGEMENT_TABS[activeTab.value] ?? { title: 'จัดการเครื่องมือ', caption: 'Tool Management' },
+  () =>
+    TOOL_MANAGEMENT_TABS[activeTab.value] ?? {
+      title: 'จัดการเครื่องมือ',
+      caption: 'Tool Management',
+    },
 );
 
 /* ── Calibration Process ── */
@@ -442,7 +460,7 @@ const costColumns = [
 .btn-add {
   background: $secondary !important;
   color: #fff !important;
-  width: 44px;
+  min-width: 160px;
   height: 44px;
   border-radius: 12px;
   flex-shrink: 0;
