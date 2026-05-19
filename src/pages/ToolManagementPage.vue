@@ -1,188 +1,192 @@
 <template>
   <q-page padding>
     <!-- Page Header -->
-    <div class="text-h6 q-mb-sm text-weight-bold">จัดการเครื่องมือแพทย์</div>
-    <div class="text-caption text-grey-6 q-mb-md">เพิ่มและตั้งค่าเครื่องมือทั้งหมดในระบบ</div>
+    <div class="text-h6 q-mb-sm text-weight-bold">{{ pageInfo.title }}</div>
+    <div class="text-caption text-grey-6 q-mb-md">{{ pageInfo.caption }}</div>
 
     <!-- Tab Contents -->
-        <!-- ── Tab: กระบวนการสอบเทียบ ── -->
-        <template v-if="activeTab === 'calibration'">
-          <div class="content-top-bar q-mb-md">
-            <SearchBar v-model="processSearch" placeholder="ค้นหา..." />
-            <q-space />
-            <q-btn unelevated round icon="add" class="btn-add" @click="showAddProcess = true" />
-          </div>
+    <!-- ── Tab: กระบวนการสอบเทียบ ── -->
+    <template v-if="activeTab === 'calibration'">
+      <div class="content-top-bar q-mb-md">
+        <SearchBar v-model="processSearch" placeholder="ค้นหา..." />
+        <q-space />
+        <q-btn unelevated round icon="add" class="btn-add" @click="showAddProcess = true" />
+      </div>
 
-          <q-table
-            :rows="filteredProcesses"
-            :columns="processColumns"
-            row-key="id"
-            flat
-            bordered
-            class="data-table"
-            :rows-per-page-options="[0]"
-            hide-pagination
-            no-data-label="ไม่พบข้อมูล"
-          >
-            <template #header="props">
-              <q-tr :props="props" class="table-header-row">
-                <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th">
-                  {{ col.label }}
-                </q-th>
-              </q-tr>
-            </template>
-
-            <template #body="props">
-              <q-tr :props="props" class="table-body-row">
-                <q-td key="index" :props="props" class="text-center">{{ props.rowIndex + 1 }}</q-td>
-                <td key="parameter" :props="props">{{ props.row.parameter_name }}</td>
-                <td key="procedure" :props="props" class="text-truncate-cell">{{
-                  props.row.procedure
-                }}</td >
-                <td key="unit" :props="props" class="text-center">{{ props.row.unit }}</td>
-                <td key="standardEquipment" :props="props">
-                  {{ props.row.standardTool ? `${props.row.standardTool.name}-${props.row.standardTool.manufacturer}` : '' }}
-                </td>
-                <q-td key="actions" :props="props" class="text-center">
-                  <q-btn
-                    flat
-                    round
-                    icon="edit"
-                    size="sm"
-                    color="secondary"
-                    @click="openEditProcess(props.row)"
-                  />
-                  <q-btn
-                    flat
-                    round
-                    icon="delete"
-                    size="sm"
-                    color="negative"
-                    @click="confirmDeleteProcess(props.row.id, props.row.parameter_name)"
-                  />
-                </q-td>
-              </q-tr>
-            </template>
-          </q-table>
+      <q-table
+        :rows="filteredProcesses"
+        :columns="processColumns"
+        row-key="id"
+        flat
+        bordered
+        class="data-table"
+        :rows-per-page-options="[0]"
+        hide-pagination
+        no-data-label="ไม่พบข้อมูล"
+      >
+        <template #header="props">
+          <q-tr :props="props" class="table-header-row">
+            <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th">
+              {{ col.label }}
+            </q-th>
+          </q-tr>
         </template>
 
-        <!-- ── Tab: ตั้งค่าเครื่องมือแพทย์ (unchanged) ── -->
-        <template v-else-if="activeTab === 'settings'">
-          <div class="settings-content">
-            <div class="filters-row q-mb-md">
-              <SearchBar v-model="searchQuery" placeholder="ค้นหา..." />
-              <q-select
-                v-model="selectedType"
-                :options="store.typeOptions"
-                option-value="value"
-                option-label="label"
-                emit-value
-                map-options
-                outlined
-                dense
-                label="ประเภท"
-                class="type-select"
-                bg-color="white"
+        <template #body="props">
+          <q-tr :props="props" class="table-body-row">
+            <q-td key="index" :props="props" class="text-center">{{ props.rowIndex + 1 }}</q-td>
+            <td key="parameter" :props="props">{{ props.row.parameter_name }}</td>
+            <td key="procedure" :props="props" class="text-truncate-cell">
+              {{ props.row.procedure }}
+            </td>
+            <td key="unit" :props="props" class="text-center">{{ props.row.unit }}</td>
+            <td key="standardEquipment" :props="props">
+              {{
+                props.row.standardTool
+                  ? `${props.row.standardTool.name}-${props.row.standardTool.manufacturer}`
+                  : ''
+              }}
+            </td>
+            <q-td key="actions" :props="props" class="text-center">
+              <q-btn
+                flat
+                round
+                icon="edit"
+                size="sm"
+                color="secondary"
+                @click="openEditProcess(props.row)"
               />
-            </div>
+              <q-btn
+                flat
+                round
+                icon="delete"
+                size="sm"
+                color="negative"
+                @click="confirmDeleteProcess(props.row.id, props.row.parameter_name)"
+              />
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
+    </template>
 
-            <q-table
-              :rows="filteredUniqueTools"
-              :columns="settingsColumns"
-              row-key="name"
-              flat
-              bordered
-              wrap-cells
-              class="data-table"
-              :rows-per-page-options="[0]"
-              hide-pagination
-              no-data-label="ไม่พบข้อมูล"
-            >
-              <template #header="props">
-                <q-tr :props="props" class="table-header-row">
-                  <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th">
-                    {{ col.label }}
-                  </q-th>
-                </q-tr>
-              </template>
+    <!-- ── Tab: ตั้งค่าเครื่องมือแพทย์ (unchanged) ── -->
+    <template v-else-if="activeTab === 'settings'">
+      <div class="settings-content">
+        <div class="filters-row q-mb-md">
+          <SearchBar v-model="searchQuery" placeholder="ค้นหา..." />
+          <q-select
+            v-model="selectedType"
+            :options="store.typeOptions"
+            option-value="value"
+            option-label="label"
+            emit-value
+            map-options
+            outlined
+            dense
+            label="ประเภท"
+            class="type-select"
+            bg-color="white"
+          />
+        </div>
 
-              <template #body="props">
-                <q-tr :props="props" class="table-body-row">
-                  <q-td key="name" :props="props" class="col-name">{{ props.row.name }}</q-td>
-                  <q-td key="type" :props="props" class="text-center">{{ props.row.type }}</q-td>
-                  <q-td key="department" :props="props">{{ props.row.department }}</q-td>
-                  <q-td key="action" :props="props" class="text-center">
-                    <q-btn
-                      unelevated
-                      size="sm"
-                      label="ตั้งค่า"
-                      class="btn-config"
-                      @click="router.push(`/tools/config/${encodeURIComponent(props.row.name)}`)"
-                    />
-                  </q-td>
-                </q-tr>
-              </template>
-            </q-table>
-          </div>
+        <q-table
+          :rows="filteredUniqueTools"
+          :columns="settingsColumns"
+          row-key="name"
+          flat
+          bordered
+          wrap-cells
+          class="data-table"
+          :rows-per-page-options="[0]"
+          hide-pagination
+          no-data-label="ไม่พบข้อมูล"
+        >
+          <template #header="props">
+            <q-tr :props="props" class="table-header-row">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th">
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+
+          <template #body="props">
+            <q-tr :props="props" class="table-body-row">
+              <q-td key="name" :props="props" class="col-name">{{ props.row.name }}</q-td>
+              <q-td key="type" :props="props" class="text-center">{{ props.row.type }}</q-td>
+              <q-td key="department" :props="props">{{ props.row.department }}</q-td>
+              <q-td key="action" :props="props" class="text-center">
+                <q-btn
+                  unelevated
+                  size="sm"
+                  label="ตั้งค่า"
+                  class="btn-config"
+                  @click="router.push(`/tools/config/${encodeURIComponent(props.row.name)}`)"
+                />
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+      </div>
+    </template>
+
+    <!-- ── Tab: ค่าใช้จ่ายในการสอบเทียบ ── -->
+    <template v-else>
+      <div class="content-top-bar q-mb-md">
+        <SearchBar v-model="costSearch" placeholder="ค้นหา..." />
+        <q-space />
+        <q-btn unelevated round icon="add" class="btn-add" @click="showAddCost = true" />
+      </div>
+
+      <q-table
+        :rows="filteredCosts"
+        :columns="costColumns"
+        row-key="id"
+        flat
+        bordered
+        class="data-table"
+        :rows-per-page-options="[0]"
+        hide-pagination
+        no-data-label="ไม่พบข้อมูล"
+      >
+        <template #header="props">
+          <q-tr :props="props" class="table-header-row">
+            <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th">
+              {{ col.label }}
+            </q-th>
+          </q-tr>
         </template>
 
-        <!-- ── Tab: ค่าใช้จ่ายในการสอบเทียบ ── -->
-        <template v-else>
-          <div class="content-top-bar q-mb-md">
-            <SearchBar v-model="costSearch" placeholder="ค้นหา..." />
-            <q-space />
-            <q-btn unelevated round icon="add" class="btn-add" @click="showAddCost = true" />
-          </div>
-
-          <q-table
-            :rows="filteredCosts"
-            :columns="costColumns"
-            row-key="id"
-            flat
-            bordered
-            class="data-table"
-            :rows-per-page-options="[0]"
-            hide-pagination
-            no-data-label="ไม่พบข้อมูล"
-          >
-            <template #header="props">
-              <q-tr :props="props" class="table-header-row">
-                <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th">
-                  {{ col.label }}
-                </q-th>
-              </q-tr>
-            </template>
-
-            <template #body="props">
-              <q-tr :props="props" class="table-body-row">
-                <q-td key="index" :props="props" class="text-center">{{ props.rowIndex + 1 }}</q-td>
-                <td key="toolName" :props="props">{{ props.row.tool_name }}</td>
-                <q-td key="description" :props="props">{{ props.row.description }}</q-td>
-                <q-td key="price" :props="props" class="text-center">
-                  {{ props.row.price.toLocaleString() }} บาท
-                </q-td>
-                <q-td key="actions" :props="props" class="text-center">
-                  <q-btn
-                    flat
-                    round
-                    icon="edit"
-                    size="sm"
-                    color="secondary"
-                    @click="openEditCost(props.row)"
-                  />
-                  <q-btn
-                    flat
-                    round
-                    icon="delete"
-                    size="sm"
-                    color="negative"
-                    @click="confirmDeleteCost(props.row.id, props.row.tool_name)"
-                  />
-                </q-td>
-              </q-tr>
-            </template>
-          </q-table>
+        <template #body="props">
+          <q-tr :props="props" class="table-body-row">
+            <q-td key="index" :props="props" class="text-center">{{ props.rowIndex + 1 }}</q-td>
+            <td key="toolName" :props="props">{{ props.row.tool_name }}</td>
+            <q-td key="description" :props="props">{{ props.row.description }}</q-td>
+            <q-td key="price" :props="props" class="text-center">
+              {{ props.row.price.toLocaleString() }} บาท
+            </q-td>
+            <q-td key="actions" :props="props" class="text-center">
+              <q-btn
+                flat
+                round
+                icon="edit"
+                size="sm"
+                color="secondary"
+                @click="openEditCost(props.row)"
+              />
+              <q-btn
+                flat
+                round
+                icon="delete"
+                size="sm"
+                color="negative"
+                @click="confirmDeleteCost(props.row.id, props.row.tool_name)"
+              />
+            </q-td>
+          </q-tr>
         </template>
+      </q-table>
+    </template>
 
     <CalibrationProcessDialog
       v-if="showAddProcess"
@@ -225,6 +229,7 @@ import CalibrationCostDialog from 'src/components/tools/CalibrationCostDialog.vu
 import ConfirmDeleteDialog from 'src/components/common/ConfirmDeleteDialog.vue';
 import { useToolsStore } from 'src/stores/tools';
 import type { CalibrationProcess, CalibrationCost } from 'src/types/tool.types';
+import { TOOL_MANAGEMENT_TABS } from 'src/constants/pageInfo.constants';
 
 const router = useRouter();
 const route = useRoute();
@@ -241,8 +246,12 @@ const activeTab = computed({
   get: () => (route.query.tab as 'calibration' | 'settings' | 'cost') || 'calibration',
   set: (val) => {
     void router.replace({ query: { ...route.query, tab: val } });
-  }
+  },
 });
+
+const pageInfo = computed(
+  () => TOOL_MANAGEMENT_TABS[activeTab.value] ?? { title: 'จัดการเครื่องมือ', caption: 'Tool Management' },
+);
 
 /* ── Calibration Process ── */
 const processSearch = ref('');
@@ -255,10 +264,7 @@ const filteredProcesses = computed(() => {
   return store.calibrationProcesses.filter(
     (p) =>
       p.parameter_name.toLowerCase().includes(q) ||
-      (p.standardTool
-        ? `${p.standardTool.name}-${p.standardTool.manufacturer}`
-        : ''
-      )
+      (p.standardTool ? `${p.standardTool.name}-${p.standardTool.manufacturer}` : '')
         .toLowerCase()
         .includes(q) ||
       p.unit.toLowerCase().includes(q),
@@ -427,7 +433,6 @@ const costColumns = [
 </script>
 
 <style scoped lang="scss">
-
 .content-top-bar {
   display: flex;
   align-items: center;
