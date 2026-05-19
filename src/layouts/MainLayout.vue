@@ -65,7 +65,7 @@
       show-if-above
       elevated
       side="left"
-      :width="$q.screen.lt.md || expandedDrawer ? 240 : 60"
+      :width="$q.screen.lt.md || expandedDrawer ? 240 : 56"
       @mouseenter="expandedDrawer = true"
       @mouseleave="expandedDrawer = false"
       class="app-drawer"
@@ -135,10 +135,39 @@ const allLinks: EssentialLinkProps[] = [
     link: '/approval',
   },
   { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'vaccines', link: '/tools' },
-  { title: 'จัดการเครื่องมือ', caption: 'Config Tools', icon: 'app:config', link: '/tools/manage' },
+  {
+    title: 'จัดการเครื่องมือ',
+    caption: 'Config Tools',
+    icon: 'app:config',
+    children: [
+      {
+        title: 'กระบวนการสอบเทียบ',
+        caption: 'Calibration Processes',
+        icon: 'app:container',
+        link: '/tools/manage?tab=calibration',
+      },
+      {
+        title: 'ตั้งค่าเครื่องมือแพทย์',
+        caption: 'Medical Tools Settings',
+        icon: 'settings',
+        link: '/tools/manage?tab=settings',
+      },
+      {
+        title: 'ค่าใช้จ่าย',
+        caption: 'Calibration Costs',
+        icon: 'app:expense',
+        link: '/tools/manage?tab=cost',
+      },
+    ],
+  },
   { title: 'หน่วยงาน', caption: 'Departments', icon: 'business', link: '/departments' },
   { title: 'จัดการผู้ใช้งาน', caption: 'User Management', icon: 'group', link: '/users' },
-  { title: 'ข้อมูลโรงพยาบาล', caption: 'Hospital Info', icon: 'local_hospital', link: '/hospitals' },
+  {
+    title: 'ข้อมูลโรงพยาบาล',
+    caption: 'Hospital Info',
+    icon: 'local_hospital',
+    link: '/hospitals',
+  },
   {
     title: 'ประวัติการสอบเทียบ',
     caption: 'Calibration History',
@@ -149,7 +178,21 @@ const allLinks: EssentialLinkProps[] = [
 
 const linksList = computed<EssentialLinkProps[]>(() => {
   const allowed = auth.permissions?.allowedMenus || [];
-  return allLinks.filter((link) => allowed.includes(link.link || ''));
+  return allLinks
+    .map((link) => {
+      if (link.children) {
+        const filteredChildren = link.children.filter((child) => {
+          const basePath = child.link?.split('?')[0];
+          return allowed.includes(basePath || '');
+        });
+        if (filteredChildren.length > 0 || allowed.includes(link.link || '')) {
+          return { ...link, children: filteredChildren };
+        }
+        return null;
+      }
+      return allowed.includes(link.link || '') ? link : null;
+    })
+    .filter(Boolean) as EssentialLinkProps[];
 });
 
 const leftDrawerOpen = ref(false);
@@ -177,7 +220,7 @@ const expandedDrawer = ref(false);
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 12px 8px;
+  padding: 8px 4px;
 }
 
 .drawer-header {
@@ -195,6 +238,17 @@ const expandedDrawer = ref(false);
 .drawer-list {
   flex: 1;
   overflow-y: auto;
+  padding: 0;
+
+  // Force-remove Quasar's default bottom spacing on expansion items
+  :deep(.q-expansion-item) {
+    margin-bottom: 0 !important;
+  }
+
+  :deep(.q-expansion-item__container) {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
 }
 
 .drawer-list::-webkit-scrollbar {

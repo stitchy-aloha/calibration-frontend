@@ -4,49 +4,7 @@
     <div class="text-h6 q-mb-sm text-weight-bold">จัดการเครื่องมือแพทย์</div>
     <div class="text-caption text-grey-6 q-mb-md">เพิ่มและตั้งค่าเครื่องมือทั้งหมดในระบบ</div>
 
-    <!-- Two-column layout -->
-    <div class="manage-layout">
-      <!-- Left Sidebar -->
-      <div class="manage-sidebar">
-        <q-btn
-          :unelevated="activeTab === 'calibration'"
-          :outline="activeTab !== 'calibration'"
-          icon="app:container"
-          label="กระบวนการสอบเทียบ"
-          :class="[
-            'sidebar-btn',
-            activeTab === 'calibration' ? 'sidebar-btn--primary' : 'sidebar-btn--outline',
-          ]"
-          @click="activeTab = 'calibration'"
-        />
-
-        <q-btn
-          :unelevated="activeTab === 'settings'"
-          :outline="activeTab !== 'settings'"
-          icon="settings"
-          label="ตั้งค่าเครื่องมือแพทย์"
-          :class="[
-            'sidebar-btn',
-            activeTab === 'settings' ? 'sidebar-btn--primary' : 'sidebar-btn--outline',
-          ]"
-          @click="activeTab = 'settings'"
-        />
-
-        <q-btn
-          :unelevated="activeTab === 'cost'"
-          :outline="activeTab !== 'cost'"
-          icon="app:expense"
-          label="ค่าใช้จ่ายในการสอบเทียบ"
-          :class="[
-            'sidebar-btn',
-            activeTab === 'cost' ? 'sidebar-btn--primary' : 'sidebar-btn--outline',
-          ]"
-          @click="activeTab = 'cost'"
-        />
-      </div>
-
-      <!-- Right: Content Area -->
-      <div class="manage-content-area">
+    <!-- Tab Contents -->
         <!-- ── Tab: กระบวนการสอบเทียบ ── -->
         <template v-if="activeTab === 'calibration'">
           <div class="content-top-bar q-mb-md">
@@ -225,10 +183,7 @@
             </template>
           </q-table>
         </template>
-      </div>
-    </div>
 
-    <!-- Dialogs -->
     <CalibrationProcessDialog
       v-if="showAddProcess"
       :process="editingProcess"
@@ -263,7 +218,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import SearchBar from 'src/components/SearchBar.vue';
 import CalibrationProcessDialog from 'src/components/tools/CalibrationProcessDialog.vue';
 import CalibrationCostDialog from 'src/components/tools/CalibrationCostDialog.vue';
@@ -272,6 +227,7 @@ import { useToolsStore } from 'src/stores/tools';
 import type { CalibrationProcess, CalibrationCost } from 'src/types/tool.types';
 
 const router = useRouter();
+const route = useRoute();
 const store = useToolsStore();
 
 onMounted(async () => {
@@ -281,7 +237,12 @@ onMounted(async () => {
 });
 
 /* ── Tab ── */
-const activeTab = ref<'calibration' | 'settings' | 'cost'>('calibration');
+const activeTab = computed({
+  get: () => (route.query.tab as 'calibration' | 'settings' | 'cost') || 'calibration',
+  set: (val) => {
+    void router.replace({ query: { ...route.query, tab: val } });
+  }
+});
 
 /* ── Calibration Process ── */
 const processSearch = ref('');
@@ -466,56 +427,7 @@ const costColumns = [
 </script>
 
 <style scoped lang="scss">
-.manage-layout {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-  min-height: calc(100vh - 200px);
-}
 
-/* Sidebar */
-.manage-sidebar {
-  width: 300px;
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid #ececec;
-  padding: 20px;
-  align-self: flex-start;
-}
-
-.sidebar-btn {
-  width: 100%;
-  border-radius: 12px;
-  font-weight: 600;
-  padding: 14px 0;
-  font-size: 14px;
-}
-
-.sidebar-btn--primary {
-  background: $secondary !important;
-  color: #fff !important;
-}
-
-.sidebar-btn--outline {
-  border-color: #d0d5dd;
-  color: #555;
-}
-
-/* Content Area */
-.manage-content-area {
-  flex: 1;
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid #ececec;
-  padding: 24px;
-  min-height: calc(100vh - 200px);
-}
-
-/* Top bar with search + add button */
 .content-top-bar {
   display: flex;
   align-items: center;
@@ -593,14 +505,6 @@ const costColumns = [
 }
 
 @media (max-width: 768px) {
-  .manage-layout {
-    flex-direction: column;
-    min-height: unset;
-  }
-
-  .manage-sidebar {
-    width: 100%;
-    min-width: unset;
-  }
+  /* add any mobile overrides if needed */
 }
 </style>
