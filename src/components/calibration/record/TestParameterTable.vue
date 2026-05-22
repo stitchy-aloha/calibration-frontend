@@ -36,45 +36,7 @@
       </div>
     </div>
 
-    <!-- UCB Fields (Conditional) -->
     <q-space />
-    <template v-if="showUcb">
-      <div class="row items-center q-gutter-x-sm q-ml-md">
-        <div class="row items-center ucb-input-group">
-          <div class="ucb-badge">UCB1</div>
-          <q-input
-            :model-value="ucb1"
-            @update:model-value="emit('update:ucb1', $event as string | number)"
-            dense
-            borderless
-            hide-bottom-space
-            class="ucb-input"
-          />
-        </div>
-        <div class="row items-center ucb-input-group">
-          <div class="ucb-badge">UCB2</div>
-          <q-input
-            :model-value="ucb2"
-            @update:model-value="emit('update:ucb2', $event as string | number)"
-            dense
-            borderless
-            hide-bottom-space
-            class="ucb-input"
-          />
-        </div>
-        <div class="row items-center ucb-input-group">
-          <div class="ucb-badge">UCB3</div>
-          <q-input
-            :model-value="ucb3"
-            @update:model-value="emit('update:ucb3', $event as string | number)"
-            dense
-            borderless
-            hide-bottom-space
-            class="ucb-input"
-          />
-        </div>
-      </div>
-    </template>
 
     <q-btn flat dense no-caps icon="add" label="เพิ่มพารามิเตอร์" @click="addRow" class="btn" />
   </div>
@@ -282,10 +244,6 @@ const props = defineProps<{
   showRange?: boolean;
   displayType?: string;
   resolution?: string;
-  showUcb?: boolean;
-  ucb1?: number | string;
-  ucb2?: number | string;
-  ucb3?: number | string;
   errorType?: 'absolute' | 'percent';
   errorLimit?: number;
   stdType?: string | undefined;
@@ -307,9 +265,6 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: TestRow[]): void;
   (e: 'update:displayType', value: string): void;
   (e: 'update:resolution', value: string): void;
-  (e: 'update:ucb1', value: number | string | null): void;
-  (e: 'update:ucb2', value: number | string | null): void;
-  (e: 'update:ucb3', value: number | string | null): void;
 }>();
 
 const showRange = computed(() => props.showRange !== false);
@@ -556,41 +511,5 @@ const formatError = (error: number | null): string => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-.ucb-input-group {
-  display: flex;
-  align-items: center;
-  border: 1px solid #d1d1f0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: white;
-  height: 32px;
-}
-
-.ucb-badge {
-  background: $secondary;
-  color: white;
-  padding: 0 12px;
-  font-weight: 700;
-  font-size: 12px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.ucb-input :deep(.q-field__control) {
-  height: 32px;
-  min-height: 32px;
-  width: 90px;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.ucb-input :deep(.q-field__native) {
-  text-align: center;
-  font-weight: 600;
-  padding: 0;
-  width: 100%;
 }
 </style>

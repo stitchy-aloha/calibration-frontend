@@ -18,11 +18,7 @@
         v-model="paramValues[i]"
         v-model:display-type="paramMetadata[i].displayType"
         v-model:resolution="paramMetadata[i].resolution"
-        v-model:ucb1="paramMetadata[i].ucb1"
-        v-model:ucb2="paramMetadata[i].ucb2"
-        v-model:ucb3="paramMetadata[i].ucb3"
         :show-range="true"
-        :show-ucb="isUcbActive(param)"
         :error-limit="parseFloat(param.tolerance || '2.0')"
         :stdType="param.std_type || (param as any).stdType"
       />
@@ -40,7 +36,6 @@ import { useCalibrationSettingStore } from 'src/stores/calibrationSetting';
 import EkgTestCard, { type EkgItem } from '../record/EkgTestCard.vue';
 import TestParameterTable, { type TestRow } from '../record/TestParameterTable.vue';
 import CalibrationSummary from '../record/CalibrationSummary.vue';
-import type { CalibrationSetting } from 'src/services/calibration-setting.service';
 import type { MeasurementRecord, QualitativeRecord } from 'src/stores/calibrationRecord';
 
 const store = useCalibrationRecordStore();
@@ -64,9 +59,6 @@ const paramMetadata = ref<
   {
     displayType: string;
     resolution: string;
-    ucb1: string;
-    ucb2: string;
-    ucb3: string;
   }[]
 >([]);
 
@@ -105,9 +97,6 @@ function initializeData() {
   paramMetadata.value = quantitativeParams.value.map((param) => ({
     displayType: param.display_type || 'Digital',
     resolution: param.resolution || '0.1',
-    ucb1: param.ucb1 || '0',
-    ucb2: param.ucb2 || '0',
-    ucb3: param.ucb3 || '0',
   }));
 
   // 2. Initialize Qualitative
@@ -170,13 +159,6 @@ watch(
   },
 );
 
-function isUcbActive(param: CalibrationSetting) {
-  // Show UCB only if at least one field is non-zero
-  const u1 = parseFloat(param.ucb1 || '0');
-  const u2 = parseFloat(param.ucb2 || '0');
-  const u3 = parseFloat(param.ucb3 || '0');
-  return u1 !== 0 || u2 !== 0 || u3 !== 0;
-}
 
 const groupedQualitatives = computed(() => qualValues.value);
 
@@ -247,9 +229,7 @@ watch(
           error_value: r.error ?? undefined,
           display_type: meta.displayType,
           resolution: meta.resolution,
-          ucb1: parseFloat(meta.ucb1 || '0'),
-          ucb2: parseFloat(meta.ucb2 || '0'),
-          ucb3: parseFloat(meta.ucb3 || '0'),
+
           std_type: param.std_type,
         });
       });

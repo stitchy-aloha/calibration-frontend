@@ -19,17 +19,6 @@ const $q = useQuasar();
 const categoryStore = useStandardToolCategoryStore();
 const settingStore = useCalibrationSettingStore();
 const toolName = computed(() => decodeURIComponent(String(route.params.name ?? '')));
-const isInfusionPump = computed(() => {
-  const name = toolName.value.toLowerCase();
-  // Include common variations and Thai keywords for Infusion/Syringe Pumps
-  return (
-    name.includes('infusion') ||
-    name.includes('syringe') ||
-    name.includes('pump') ||
-    name.includes('เครื่องให้สารระลาย') ||
-    name.includes('เครื่องให้ยา')
-  );
-});
 
 /* ── Types ── */
 interface QuantitativeParam {
@@ -39,9 +28,6 @@ interface QuantitativeParam {
   stdType: string;
   display: string;
   uncertainty: string;
-  ucb1: string;
-  ucb2: string;
-  ucb3: string;
   testValues: { label: string; value: number }[];
 }
 
@@ -86,9 +72,6 @@ onMounted(async () => {
           stdType: s.std_type || '1 - แบบอ้างอิงเครื่องมือมาตรฐาน',
           display: s.display_type || 'Digital',
           uncertainty: s.resolution || '0', // mapped resolution to uncertainty in UI
-          ucb1: s.ucb1 || '0',
-          ucb2: s.ucb2 || '0',
-          ucb3: s.ucb3 || '0',
           testValues: s.test_values || [],
         }));
 
@@ -128,9 +111,6 @@ function addQuantitative() {
     stdType: '1 - แบบอ้างอิงเครื่องมือมาตรฐาน',
     display: 'Digital',
     uncertainty: '0',
-    ucb1: '0',
-    ucb2: '0',
-    ucb3: '0',
     testValues: [
       { label: 'ค่าทดสอบที่ 1', value: 0 },
       { label: 'ค่าทดสอบที่ 2', value: 0 },
@@ -179,9 +159,6 @@ async function saveConfig() {
         std_type: qp.stdType,
         display_type: qp.display,
         resolution: qp.uncertainty,
-        ucb1: qp.ucb1,
-        ucb2: qp.ucb2,
-        ucb3: qp.ucb3,
         test_values: qp.testValues.map((v, idx) => ({
           ...v,
           label: `ค่าทดสอบที่ ${idx + 1}`,
@@ -317,7 +294,6 @@ async function saveConfig() {
             v-if="quantitativeParams[i]"
             :index="i + 1"
             v-model:data="quantitativeParams[i]"
-            :show-ucb="isInfusionPump"
             @remove="removeQuantitative(i)"
           />
         </div>

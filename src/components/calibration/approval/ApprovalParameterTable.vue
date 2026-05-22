@@ -20,15 +20,6 @@
     </div>
   </div>
 
-  <!-- UCB Values (Read-only) -->
-  <div
-    v-if="showUcb && (ucb1 !== undefined || ucb2 !== undefined || ucb3 !== undefined)"
-    class="row q-gutter-x-lg q-mb-sm text-grey-7 text-caption items-center q-pl-sm"
-  >
-    <span v-if="ucb1 !== undefined"><strong class="text-grey-9">UCB1:</strong> {{ ucb1 }}</span>
-    <span v-if="ucb2 !== undefined"><strong class="text-grey-9">UCB2:</strong> {{ ucb2 }}</span>
-    <span v-if="ucb3 !== undefined"><strong class="text-grey-9">UCB3:</strong> {{ ucb3 }}</span>
-  </div>
 
   <q-table
     :rows="rows"
@@ -132,12 +123,8 @@ const props = defineProps<{
   title: string;
   rows: TestRow[];
   showRange?: boolean;
-  showUcb?: boolean;
   displayType?: string;
   resolution?: string;
-  ucb1?: number | string | undefined;
-  ucb2?: number | string | undefined;
-  ucb3?: number | string | undefined;
   stdType?: string | undefined;
 }>();
 

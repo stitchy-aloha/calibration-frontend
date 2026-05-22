@@ -135,9 +135,7 @@
                     : 'UUC Reading'
                 }}
               </th>
-              <th>
-                Error <span v-if="hasUcbData" class="text-caption block">(Budget) Offset</span>
-              </th>
+              <th>Error</th>
               <th>Accept value</th>
               <th>Result</th>
             </tr>
@@ -152,17 +150,8 @@
               </td>
               <!-- UUC Reading: aggregated average -->
               <td class="text-weight-bold">{{ m.average_value }}</td>
-              <!-- Error: show aggregated UCB budget as small text above if present -->
-              <td>
-                <div class="column items-center">
-                  <div class="row q-gutter-x-xs no-wrap text-caption text-grey-7" v-if="m.ucb1">
-                    <span>{{ m.ucb1 }}</span>
-                    <span>{{ m.ucb2 }}</span>
-                    <span>{{ m.ucb3 }}</span>
-                  </div>
-                  <div>{{ m.error_value }}</div>
-                </div>
-              </td>
+              <!-- Error: show aggregated error -->
+              <td>{{ m.error_value }}</td>
               <!-- Accept value: Mocked or from data -->
               <td>
                 <div class="unit">{{ getParamUnit(m.parameter_name) }}</div>
@@ -313,10 +302,9 @@ export interface MeasurementApi {
   result: 'PASS' | 'FAIL';
   display_type?: string;
   resolution?: string;
-  ucb1?: number | null;
-  ucb2?: number | null;
-  ucb3?: number | null;
+
   std_type?: string;
+  data?: Record<string, unknown>;
 }
 
 export interface SpecificParameterApi {
@@ -437,9 +425,6 @@ const props = withDefaults(defineProps<Props>(), {
   ],
 });
 
-const hasUcbData = computed(() =>
-  props.measurements?.some((m) => m.ucb1 !== null && m.ucb1 !== undefined),
-);
 
 const groupedMeasurements = computed((): MeasurementApi[] => {
   if (!props.measurements) return [];
@@ -458,10 +443,17 @@ const groupedMeasurements = computed((): MeasurementApi[] => {
       const count = items.length;
       if (count === 0) return null;
 
-      const sum = (key: keyof MeasurementApi) =>
-        items.reduce((acc, curr) => acc + (Number(curr[key]) || 0), 0);
+      const getValue = (item: MeasurementApi, key: string) => {
+        if (item.data && typeof item.data === 'object' && key in item.data) {
+          return item.data[key];
+        }
+        return (item as unknown as Record<string, unknown>)[key];
+      };
 
-      const avg = (key: keyof MeasurementApi) => (sum(key) / count).toFixed(2);
+      const sum = (key: string) =>
+        items.reduce((acc, curr) => acc + (Number(getValue(curr, key)) || 0), 0);
+
+      const avg = (key: string) => (sum(key) / count).toFixed(2);
 
       const first = items[0];
       if (!first) return null;
@@ -471,13 +463,10 @@ const groupedMeasurements = computed((): MeasurementApi[] => {
         standard_value: Number(avg('standard_value')),
         average_value: Number(avg('average_value')),
         error_value: Number(avg('error_value')),
-        ucb1: first.ucb1 !== null && first.ucb1 !== undefined ? Number(avg('ucb1')) : null,
-        ucb2: first.ucb2 !== null && first.ucb2 !== undefined ? Number(avg('ucb2')) : null,
-        ucb3: first.ucb3 !== null && first.ucb3 !== undefined ? Number(avg('ucb3')) : null,
         result: items.every((i) => i.result === 'PASS') ? 'PASS' : 'FAIL',
-        range: first.range,
+        range: Number(getValue(first, 'range')),
         std_type: first.std_type,
-      } as MeasurementApi;
+      } as unknown as MeasurementApi;
     })
     .filter((v): v is MeasurementApi => v !== null);
 });

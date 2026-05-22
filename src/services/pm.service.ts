@@ -66,11 +66,9 @@ export interface MeasurementApi {
   result: 'PASS' | 'FAIL';
   display_type?: string;
   resolution?: string;
-  ucb1?: number;
-  ucb2?: number;
-  ucb3?: number;
   std_type?: string;
   task_id: number;
+  data?: Record<string, unknown>;
 }
 
 export interface EnvironmentApi {

@@ -56,9 +56,6 @@ export interface MeasurementRecord {
   result: 'PASS' | 'FAIL';
   display_type?: string | null | undefined;
   resolution?: string | null | undefined;
-  ucb1?: number | null | undefined;
-  ucb2?: number | null | undefined;
-  ucb3?: number | null | undefined;
   std_type?: string | null | undefined;
 }
 

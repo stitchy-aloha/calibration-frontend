@@ -60,10 +60,7 @@
           :show-range="rows.some((r) => !!r.range)"
           :display-type="getMetadata(String(name)).displayType"
           :resolution="getMetadata(String(name)).resolution"
-          :ucb1="getUcb(String(name)).ucb1"
-          :ucb2="getUcb(String(name)).ucb2"
-          :ucb3="getUcb(String(name)).ucb3"
-          :show-ucb="isUcbShown(String(name))"
+
           :std-type="rows[0]?.std_type || ''"
         />
       </div>
@@ -134,21 +131,29 @@ const groupedMeasurements = computed(() => {
   (props.task?.measurements || []).forEach((m) => {
     const pName = m.parameter_name;
     if (!groups[pName]) groups[pName] = [];
+
+    const getValue = (key: string): unknown => {
+      if (m.data && typeof m.data === 'object' && key in m.data) {
+        return m.data[key];
+      }
+      return (m as unknown as Record<string, unknown>)[key];
+    };
+
     groups[pName].push({
-      range: m.range ? String(m.range) : '',
-      standard: m.standard_value,
-      val1: m.reading_1,
-      val2: m.reading_2,
-      val3: m.reading_3,
-      average: m.average_value,
-      error: m.error_value,
+      range: getValue('range') ? String(getValue('range')) : '',
+      standard: getValue('standard_value') as number | null,
+      val1: getValue('reading_1') as number | null,
+      val2: getValue('reading_2') as number | null,
+      val3: getValue('reading_3') as number | null,
+      average: getValue('average_value') as number | null,
+      error: getValue('error_value') as number | null,
       status:
         m.result?.toUpperCase() === 'PASS'
           ? 'pass'
           : m.result?.toUpperCase() === 'FAIL'
             ? 'fail'
             : null,
-      std_type: m.std_type,
+      std_type: m.std_type || undefined,
     });
   });
   return groups;
@@ -162,23 +167,6 @@ const getMetadata = (name: string) => {
   };
 };
 
-const getUcb = (name: string) => {
-  const item = props.task?.measurements?.find((m) => m.parameter_name === name);
-  return {
-    ucb1: item?.ucb1,
-    ucb2: item?.ucb2,
-    ucb3: item?.ucb3,
-  };
-};
-
-const isUcbShown = (name: string) => {
-  const ucb = getUcb(name);
-  return !!(
-    (ucb.ucb1 !== undefined && ucb.ucb1 !== null && ucb.ucb1 !== 0) ||
-    (ucb.ucb2 !== undefined && ucb.ucb2 !== null && ucb.ucb2 !== 0) ||
-    (ucb.ucb3 !== undefined && ucb.ucb3 !== null && ucb.ucb3 !== 0)
-  );
-};
 
 const checklistItems = computed(() => {
   const items: { label: string; icon: string; passed: boolean }[] = [];

@@ -57,10 +57,7 @@
       title="Flow Rate"
       v-model="flowRate.data"
       :show-range="false"
-      show-ucb
-      v-model:ucb1="flowRate.ucb1"
-      v-model:ucb2="flowRate.ucb2"
-      v-model:ucb3="flowRate.ucb3"
+
       v-model:display-type="flowRate.displayType"
       v-model:resolution="flowRate.resolution"
       :error-limit="2.2"
@@ -71,10 +68,7 @@
       title="Volume"
       v-model="volume.data"
       :show-range="false"
-      show-ucb
-      v-model:ucb1="volume.ucb1"
-      v-model:ucb2="volume.ucb2"
-      v-model:ucb3="volume.ucb3"
+
       v-model:display-type="volume.displayType"
       v-model:resolution="volume.resolution"
       :error-limit="2.2"
@@ -150,9 +144,7 @@ const occlusion = ref({
 const flowRate = ref({
   displayType: 'Digital',
   resolution: '0.1',
-  ucb1: '0.002000',
-  ucb2: '0.000000',
-  ucb3: '0.000000',
+
   data: [
     {
       standard: 10,
@@ -191,9 +183,7 @@ const flowRate = ref({
 const volume = ref({
   displayType: 'Digital',
   resolution: '0.1',
-  ucb1: '0.002000',
-  ucb2: '0.000000',
-  ucb3: '0.000000',
+
   data: [
     {
       standard: 50,
@@ -295,9 +285,6 @@ watch(
       paramName: string,
       displayType: string,
       resolution: string,
-      ucb1?: string | number,
-      ucb2?: string | number,
-      ucb3?: string | number,
     ): MeasurementRecord[] =>
       rows.map((r) => {
         const row: MeasurementRecord = {
@@ -312,9 +299,6 @@ watch(
         if (r.val3 !== null) row.reading_3 = r.val3;
         if (r.average !== null) row.average_value = r.average;
         if (r.error !== null) row.error_value = r.error;
-        if (ucb1 !== undefined && ucb1 !== '') row.ucb1 = Number(ucb1);
-        if (ucb2 !== undefined && ucb2 !== '') row.ucb2 = Number(ucb2);
-        if (ucb3 !== undefined && ucb3 !== '') row.ucb3 = Number(ucb3);
         return row;
       });
 
@@ -324,18 +308,12 @@ watch(
         'Flow Rate',
         flowRate.value.displayType,
         flowRate.value.resolution,
-        flowRate.value.ucb1,
-        flowRate.value.ucb2,
-        flowRate.value.ucb3,
       ),
       ...mapRows(
         volume.value.data,
         'Volume',
         volume.value.displayType,
         volume.value.resolution,
-        volume.value.ucb1,
-        volume.value.ucb2,
-        volume.value.ucb3,
       ),
     ];
 

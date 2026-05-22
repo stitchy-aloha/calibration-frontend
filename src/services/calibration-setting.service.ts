@@ -17,9 +17,6 @@ export interface CalibrationSetting {
   display_type?: string;
   resolution?: string;
   uncertainty?: string;
-  ucb1?: string;
-  ucb2?: string;
-  ucb3?: string;
   test_values?: CalibrationTestValue[];
   category_ids?: number[];
   categories?: StandardToolCategory[];
