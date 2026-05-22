@@ -1,9 +1,71 @@
 <template>
   <div class="q-py-md">
     <!-- 1. Qualitative Parameters -->
-    <div v-if="qualitativeParams.length > 0" class="q-mb-xl">
+    <div v-if="qualitativeParams.length > 0 && !isInfusion" class="q-mb-xl">
       <div v-for="(group, groupName) in groupedQualitatives" :key="groupName" class="q-mb-md">
         <EkgTestCard :ekg-items="group" :title="String(groupName)" />
+      </div>
+    </div>
+
+    <!-- Custom Infusion Pump Specific Parameters Form -->
+    <div v-if="isInfusion" class="q-mb-xl">
+      <div class="row q-col-gutter-lg">
+        <!-- IV Set Configuration -->
+        <div class="col-12 col-md-6">
+          <div class="section-title q-mb-md">IV Set Configuration</div>
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
+              <div class="text-caption text-grey-8 q-mb-xs text-weight-medium">IV Set:</div>
+              <q-input
+                v-model="ivSet"
+                outlined
+                dense
+                bg-color="white"
+                placeholder="e.g. Covex"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="text-caption text-grey-8 q-mb-xs text-weight-medium">Drop Rate:</div>
+              <q-input
+                v-model="dropRate"
+                outlined
+                dense
+                bg-color="white"
+                suffix="Drop/mL"
+                placeholder="20"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Alram -->
+        <div class="col-12 col-md-6">
+          <div class="section-title q-mb-md">Alram</div>
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
+              <div class="text-caption text-grey-8 q-mb-xs text-weight-medium">Air:</div>
+              <q-select
+                v-model="air"
+                outlined
+                dense
+                bg-color="white"
+                :options="['Pass', 'Fail']"
+                placeholder="Select"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="text-caption text-grey-8 q-mb-xs text-weight-medium">Occlusion Pressure:</div>
+              <q-input
+                v-model="occlusionPressure"
+                outlined
+                dense
+                bg-color="white"
+                suffix="mmHg"
+                placeholder="750"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -32,7 +94,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useCalibrationRecordStore } from 'src/stores/calibrationRecord';
-import { useCalibrationSettingStore } from 'src/stores/calibrationSetting';
+import { useCalibrationSettingStore, isInfusionPump } from 'src/stores/calibrationSetting';
 import EkgTestCard, { type EkgItem } from '../record/EkgTestCard.vue';
 import TestParameterTable, { type TestRow } from '../record/TestParameterTable.vue';
 import CalibrationSummary from '../record/CalibrationSummary.vue';
@@ -64,6 +126,31 @@ const paramMetadata = ref<
 
 // Map qualitative settings to EkgItem structure
 const qualValues = ref<Record<string, EkgItem[]>>({});
+
+const isInfusion = computed(() => {
+  return isInfusionPump(store.equipmentDetails?.name);
+});
+
+const ivSet = ref('Covex');
+const dropRate = ref('20');
+const air = ref('Pass');
+const occlusionPressure = ref('750');
+
+// Watch and sync custom infusion pump fields to global store specificParameters
+watch(
+  [isInfusion, ivSet, dropRate, air, occlusionPressure],
+  () => {
+    if (!isInfusion.value) return;
+
+    store.specificParameters = [
+      { name: 'IV Set', value: ivSet.value },
+      { name: 'Drop Rate', value: dropRate.value, unit: 'Drop/mL' },
+      { name: 'Air', value: air.value },
+      { name: 'Occlusion Pressure', value: occlusionPressure.value, unit: 'mmHg' },
+    ];
+  },
+  { deep: true, immediate: true }
+);
 
 // Initialize data when settings are available or change
 watch(
@@ -116,6 +203,22 @@ function initializeData() {
     }));
   });
   qualValues.value = qualGroup;
+
+  // 3. Load specific parameters for Infusion Pump if already saved
+  if (isInfusion.value && store.specificParameters && store.specificParameters.length > 0) {
+    const findValue = (name: string) =>
+      store.specificParameters.find((p) => p.name === name)?.value;
+
+    const savedIvSet = findValue('IV Set');
+    const savedDropRate = findValue('Drop Rate');
+    const savedAir = findValue('Air');
+    const savedPressure = findValue('Occlusion Pressure');
+
+    if (savedIvSet !== undefined && savedIvSet !== null) ivSet.value = savedIvSet;
+    if (savedDropRate !== undefined && savedDropRate !== null) dropRate.value = savedDropRate;
+    if (savedAir !== undefined && savedAir !== null) air.value = savedAir;
+    if (savedPressure !== undefined && savedPressure !== null) occlusionPressure.value = savedPressure;
+  }
 }
 
 function fillLocalMockData() {
@@ -148,6 +251,13 @@ function fillLocalMockData() {
       status: 'pass',
     }));
   });
+
+  if (isInfusion.value) {
+    ivSet.value = 'Covex';
+    dropRate.value = '20';
+    air.value = 'Pass';
+    occlusionPressure.value = '750';
+  }
 }
 
 watch(
@@ -166,16 +276,24 @@ const groupedQualitatives = computed(() => qualValues.value);
 const checklistItems = computed(() => {
   const items: { label: string; icon: string; passed: boolean }[] = [];
 
-  // Qualitative checks
-  Object.entries(qualValues.value).forEach(([name, values]) => {
-    const tested = values.filter((v) => v.status !== null);
-    const passed = tested.length > 0 && tested.every((v) => v.status === 'pass');
+  if (isInfusion.value) {
     items.push({
-      label: name,
-      icon: 'fact_check',
-      passed,
+      label: 'Alram',
+      icon: 'alarm',
+      passed: air.value === 'Pass',
     });
-  });
+  } else {
+    // Qualitative checks
+    Object.entries(qualValues.value).forEach(([name, values]) => {
+      const tested = values.filter((v) => v.status !== null);
+      const passed = tested.length > 0 && tested.every((v) => v.status === 'pass');
+      items.push({
+        label: name,
+        icon: 'fact_check',
+        passed,
+      });
+    });
+  }
 
   // 4. Quantitative checks
   quantitativeParams.value.forEach((param, i) => {
@@ -194,19 +312,21 @@ const checklistItems = computed(() => {
 
 // Sync to Global Store
 watch(
-  [paramValues, paramMetadata, qualValues],
+  [paramValues, paramMetadata, qualValues, ivSet, dropRate, air, occlusionPressure],
   () => {
     // 1. Map Qualitatives
     const qualitatives: QualitativeRecord[] = [];
-    Object.entries(qualValues.value).forEach(([paramName, items]) => {
-      items.forEach((item) => {
-        qualitatives.push({
-          parameter_name: paramName,
-          item_name: item.label,
-          result: item.status === 'pass' ? 'PASS' : item.status === 'fail' ? 'FAIL' : 'NA',
+    if (!isInfusion.value) {
+      Object.entries(qualValues.value).forEach(([paramName, items]) => {
+        items.forEach((item) => {
+          qualitatives.push({
+            parameter_name: paramName,
+            item_name: item.label,
+            result: item.status === 'pass' ? 'PASS' : item.status === 'fail' ? 'FAIL' : 'NA',
+          });
         });
       });
-    });
+    }
     store.qualitatives = qualitatives;
 
     // 2. Map Measurements
