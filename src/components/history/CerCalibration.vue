@@ -116,51 +116,36 @@
       <div class="cer-body">
         <!-- Reading Table -->
         <table class="reading-table">
-          <thead>
-            <tr>
-              <th class="text-left w-25"></th>
-              <th>
-                {{
-                  groupedMeasurements[0]?.std_type?.includes('2') &&
-                  groupedMeasurements[0]?.std_type?.includes('UUT')
-                    ? 'UUC Setting'
-                    : 'STD Setting'
-                }}
-              </th>
-              <th>
-                {{
-                  groupedMeasurements[0]?.std_type?.includes('2') &&
-                  groupedMeasurements[0]?.std_type?.includes('UUT')
-                    ? 'STD Reading'
-                    : 'UUC Reading'
-                }}
-              </th>
-              <th>Error</th>
-              <th>Accept value</th>
-              <th>Result</th>
-            </tr>
-          </thead>
           <tbody>
-            <!-- Aggregated Rows -->
-            <tr v-for="(m, idx) in groupedMeasurements" :key="idx">
-              <td class="text-left label-col">{{ m.parameter_name }}</td>
-              <td>
-                <div class="unit">{{ getParamUnit(m.parameter_name) }}</div>
-                {{ m.standard_value }}
-              </td>
-              <!-- UUC Reading: aggregated average -->
-              <td class="text-weight-bold">{{ m.average_value }}</td>
-              <!-- Error: show aggregated error -->
-              <td>{{ m.error_value }}</td>
-              <!-- Accept value: Mocked or from data -->
-              <td>
-                <div class="unit">{{ getParamUnit(m.parameter_name) }}</div>
-                {{ getMockAcceptValue(m) }}
-              </td>
-              <td>
-                {{ m.result === 'PASS' ? 'ผ่าน' : 'ไม่ผ่าน' }}
-              </td>
-            </tr>
+            <template v-if="groupedMeasurements.length > 0">
+              <template v-for="(group, gIdx) in groupedMeasurements" :key="gIdx">
+                <!-- Parameter Header Row -->
+                <tr class="param-header-row">
+                  <td class="text-left label-col param-title">
+                    <u>{{ group.parameter_name }}</u>
+                  </td>
+                  <td class="text-weight-bold">{{ getCol2Header(group) }}</td>
+                  <td class="text-weight-bold">{{ getCol3Header(group) }}</td>
+                  <td class="text-weight-bold">Error ({{ group.unit }})</td>
+                  <td class="text-weight-bold">Uncertaintry (± {{ group.unit }})</td>
+                  <td class="text-weight-bold">MPE (± {{ group.unit }})</td>
+                </tr>
+                <!-- Parameter Data Rows -->
+                <tr v-for="(m, mIdx) in group.rows" :key="mIdx" class="param-data-row">
+                  <td class="text-left"></td>
+                  <td>{{ formatValue(m.standard_value) }}</td>
+                  <td class="text-weight-bold">{{ formatValue(m.average_value) }}</td>
+                  <td>{{ formatValue(m.error_value) }}</td>
+                  <td>{{ formatValue(group.uncertainty) }}</td>
+                  <td>{{ formatValue(group.mpe) }}</td>
+                </tr>
+              </template>
+            </template>
+            <template v-else>
+              <tr>
+                <td colspan="6" class="text-center text-grey-6 q-py-md">ไม่มีข้อมูลการสอบเทียบ</td>
+              </tr>
+            </template>
           </tbody>
         </table>
 
@@ -182,21 +167,30 @@
           <table class="standard-table">
             <thead>
               <tr>
+                <th>Equipment</th>
                 <th>Manufacture</th>
                 <th>Model</th>
-                <th>S/N</th>
+                <th>Serial No.</th>
+                <th>Certification No.</th>
                 <th>Cal date</th>
-                <th>Cert No.</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(std, idx) in standards" :key="idx">
-                <td class="text-italic">{{ std.manufacture }}</td>
-                <td class="text-italic">{{ std.model }}</td>
-                <td>{{ std.sn }}</td>
-                <td>{{ std.calDate }}</td>
-                <td class="text-italic">{{ std.certNo }}</td>
-              </tr>
+              <template v-if="standards && standards.length > 0">
+                <tr v-for="(std, idx) in standards" :key="idx">
+                  <td>{{ std.name }}</td>
+                  <td class="text-italic">{{ std.manufacture }}</td>
+                  <td class="text-italic">{{ std.model }}</td>
+                  <td>{{ std.sn }}</td>
+                  <td class="text-italic">{{ std.certNo }}</td>
+                  <td>{{ std.calDate }}</td>
+                </tr>
+              </template>
+              <template v-else>
+                <tr>
+                  <td colspan="6" class="text-center text-grey-6 q-py-md">ไม่มีข้อมูลเครื่องมือมาตรฐานที่ใช้</td>
+                </tr>
+              </template>
             </tbody>
           </table>
           <div class="method-desc">
@@ -282,6 +276,7 @@ interface ReadingItem {
 }
 
 interface StandardItem {
+  name: string;
   manufacture: string;
   model: string;
   sn: string;
@@ -339,6 +334,18 @@ export interface CerCalibrationData {
   } | null;
 }
 
+export interface CalibrationSettingItem {
+  id?: number;
+  equipment_name?: string;
+  type?: string;
+  parameter_name?: string;
+  unit?: string;
+  tolerance?: string;
+  std_type?: string;
+  display_type?: string;
+  resolution?: string;
+}
+
 interface Props {
   data?: CerCalibrationData;
   specificParameters?: SpecificParameterApi[];
@@ -373,10 +380,12 @@ interface Props {
       }
     | undefined;
   standards?: StandardItem[] | undefined;
+  settings?: CalibrationSettingItem[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
   measurements: () => [],
+  settings: () => [],
   data: () => ({
     certNo: 'CAL-001',
     detail: 'PATIENT MONITOR',
@@ -409,6 +418,7 @@ const props = withDefaults(defineProps<Props>(), {
   }),
   standards: () => [
     {
+      name: 'Vital Signs Simulator',
       manufacture: 'FLUKE',
       model: 'ProSim4',
       sn: '3891030',
@@ -416,6 +426,7 @@ const props = withDefaults(defineProps<Props>(), {
       certNo: 'PC-EVT-65B7',
     },
     {
+      name: 'Pulse Oximeter Calibrator',
       manufacture: 'FLUKE',
       model: 'SPOT Light',
       sn: '3891030',
@@ -425,8 +436,16 @@ const props = withDefaults(defineProps<Props>(), {
   ],
 });
 
+interface GroupedParameter {
+  parameter_name: string;
+  unit: string;
+  std_type: string;
+  uncertainty: string;
+  mpe: string;
+  rows: MeasurementApi[];
+}
 
-const groupedMeasurements = computed((): MeasurementApi[] => {
+const groupedMeasurements = computed((): GroupedParameter[] => {
   if (!props.measurements) return [];
   const groups: Record<string, MeasurementApi[]> = {};
 
@@ -437,66 +456,72 @@ const groupedMeasurements = computed((): MeasurementApi[] => {
     groups[name].push(m);
   });
 
-  return Object.keys(groups)
-    .map((name) => {
-      const items = groups[name] || [];
-      const count = items.length;
-      if (count === 0) return null;
+  return Object.keys(groups).map((name) => {
+    const items = groups[name] || [];
+    const first = items[0];
 
-      const getValue = (item: MeasurementApi, key: string) => {
-        if (item.data && typeof item.data === 'object' && key in item.data) {
-          return item.data[key];
+    // Find matching setting to get unit, tolerance (MPE), and resolution (uncertainty)
+    const setting = props.settings?.find((s: CalibrationSettingItem) => s.parameter_name === name);
+
+    const unit = setting?.unit || UNIT_MAP[name] || '';
+    const mpe = setting?.tolerance || first?.range?.toString() || '1.0';
+    const uncertainty = setting?.resolution || first?.resolution || '0.1';
+
+    const parsedRows = items.map((item) => {
+      const getVal = (key: string): unknown => {
+        const d = item.data;
+        if (d && typeof d === 'object' && key in d) {
+          return d[key];
         }
         return (item as unknown as Record<string, unknown>)[key];
       };
 
-      const sum = (key: string) =>
-        items.reduce((acc, curr) => acc + (Number(getValue(curr, key)) || 0), 0);
-
-      const avg = (key: string) => (sum(key) / count).toFixed(2);
-
-      const first = items[0];
-      if (!first) return null;
-
       return {
-        parameter_name: name,
-        standard_value: Number(avg('standard_value')),
-        average_value: Number(avg('average_value')),
-        error_value: Number(avg('error_value')),
-        result: items.every((i) => i.result === 'PASS') ? 'PASS' : 'FAIL',
-        range: Number(getValue(first, 'range')),
-        std_type: first.std_type,
+        ...item,
+        standard_value: getVal('standard_value'),
+        average_value: getVal('average_value'),
+        error_value: getVal('error_value'),
       } as unknown as MeasurementApi;
-    })
-    .filter((v): v is MeasurementApi => v !== null);
+    });
+
+    return {
+      parameter_name: name,
+      unit,
+      std_type: first?.std_type || '',
+      uncertainty,
+      mpe,
+      rows: parsedRows,
+    };
+  });
 });
+
+const getCol2Header = (group: GroupedParameter) => {
+  const isUut = group.std_type?.includes('2') && group.std_type?.includes('UUT');
+  const label = isUut ? 'UUC Setting' : 'STD Setting';
+  return group.unit ? `${label} (${group.unit})` : label;
+};
+
+const getCol3Header = (group: GroupedParameter) => {
+  const isUut = group.std_type?.includes('2') && group.std_type?.includes('UUT');
+  const label = isUut ? 'STD Reading' : 'UUC Reading';
+  return group.unit ? `${label} (${group.unit})` : label;
+};
+
+const formatValue = (val: unknown) => {
+  if (val === null || val === undefined || val === '') return '-';
+  const num = Number(val);
+  if (!isNaN(num)) return num.toFixed(2);
+  return typeof val === 'string' || typeof val === 'number' ? String(val) : '-';
+};
 
 const UNIT_MAP: Record<string, string> = {
   'Systolic Pressure': 'mmHg',
   'Diastolic Pressure': 'mmHg',
   Temperature: 'Celsius',
-  'Heart Rate': 'Pulse/Minute',
+  'Heart Rate': 'Pulse/min',
   SpO2: '%',
   'Flow Rate': 'mL/h',
   Volume: 'mL',
-};
-
-const getParamUnit = (name: string): string => UNIT_MAP[name] || '';
-
-const MOCK_ACCEPT_VALUES: Record<string, string> = {
-  'Systolic Pressure': '+/- 8.00',
-  'Diastolic Pressure': '+/- 8.00',
-  Temperature: '+/- 1.00',
-  'Heart Rate': '+/- 2.00',
-  SpO2: '+/- 2.00',
-};
-
-const getMockAcceptValue = (m: MeasurementApi): string => {
-  const paramName = m.parameter_name;
-  if (MOCK_ACCEPT_VALUES[paramName]) {
-    return MOCK_ACCEPT_VALUES[paramName];
-  }
-  return `+/- ${m.range || '0.00'}`;
 };
 </script>
 
@@ -674,26 +699,45 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .reading-table {
   width: 100%;
   border-collapse: collapse;
   text-align: center;
-  font-size: 9.5pt;
+  font-size: 9pt;
+  border-bottom: 2px solid #002d62;
 }
 
 .reading-table th {
-  border-top: 2px solid #ccc;
-  border-bottom: 2px solid #ccc;
-  padding: 4px;
+  border-top: 2px solid #002d62;
+  border-bottom: 2px solid #002d62;
+  padding: 5px 4px;
   font-weight: 600;
 }
 
 .reading-table td {
-  padding: 4px;
-  border-bottom: 1px solid #ccc;
+  padding: 4px 4px;
+}
+
+.param-header-row td {
+  border-top: 2px solid #002d62;
+  border-bottom: 2px solid #002d62;
+  padding: 5px 4px;
+  color: #002d62;
+}
+
+.param-title {
+  font-size: 9.5pt;
+  font-weight: 700;
+  color: #002d62;
+  text-decoration: underline;
+}
+
+.param-data-row td {
+  border-bottom: none;
+  font-size: 8.5pt;
 }
 
 .reading-table .label-col {
@@ -708,20 +752,14 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
   text-align: left;
 }
 
-.unit {
-  font-size: 8pt;
-  color: #000;
-  margin-bottom: 2px;
-}
-
 /* ===== ALARMS ROW ===== */
 .alarms-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border: 1.5px solid #ccc;
-  padding: 4px 10px;
-  font-size: 9.5pt;
+  padding: 3px 8px;
+  font-size: 9pt;
   font-weight: 600;
 }
 
@@ -731,28 +769,28 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
 
 /* ===== CAL STANDARD ===== */
 .cal-standard {
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .cal-standard-title {
   font-weight: 700;
-  font-size: 10pt;
-  margin-bottom: 4px;
+  font-size: 9.5pt;
+  margin-bottom: 3px;
 }
 
 .standard-table {
   width: 100%;
   border-collapse: collapse;
   text-align: center;
-  font-size: 9pt;
-  margin-bottom: 10px;
+  font-size: 8.5pt;
+  margin-bottom: 6px;
   border: 1px solid #000;
 }
 
 .standard-table th,
 .standard-table td {
   border: 1px solid #000;
-  padding: 4px;
+  padding: 3px;
 }
 
 .standard-table th {
@@ -766,8 +804,8 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
 .method-desc {
   display: flex;
   gap: 8px;
-  font-size: 9.5pt;
-  line-height: 1.4;
+  font-size: 8.5pt;
+  line-height: 1.3;
 }
 
 .bold-th {
@@ -783,8 +821,8 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
 .cal-signatures {
   display: flex;
   justify-content: space-between;
-  margin-top: 40px;
-  margin-bottom: 20px;
+  margin-top: 25px;
+  margin-bottom: 12px;
   padding: 0 40px;
 }
 
@@ -792,13 +830,13 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 10pt;
-  gap: 6px;
+  font-size: 9.5pt;
+  gap: 5px;
 }
 
 .sig-label {
   align-self: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .sig-line {
@@ -814,8 +852,8 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
 }
 
 .signature-img {
-  height: 45px;
-  margin-bottom: -15px;
+  height: 40px;
+  margin-bottom: -12px;
   z-index: 1;
   display: flex;
   justify-content: center;
@@ -828,7 +866,7 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
 }
 
 .signature-placeholder {
-  height: 30px;
+  height: 25px;
   visibility: hidden;
 }
 
@@ -845,8 +883,8 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
 }
 
 .claim-note {
-  font-size: 8pt;
-  margin-bottom: 8px;
+  font-size: 7.8pt;
+  margin-bottom: 6px;
   .underline {
     text-decoration: underline;
     font-weight: 600;
@@ -855,7 +893,7 @@ const getMockAcceptValue = (m: MeasurementApi): string => {
 
 .cer-footer {
   border-top: 2px solid #000;
-  padding-top: 6px;
+  padding-top: 5px;
   font-size: 9.5pt;
   text-align: center;
   font-style: italic;

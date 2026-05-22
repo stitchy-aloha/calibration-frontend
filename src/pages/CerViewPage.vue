@@ -79,6 +79,7 @@
           <CerCalibration
             :data="calibrationCertData"
             :measurements="task?.measurements || []"
+            :settings="settingStore.settings"
             :specific-parameters="task?.specificParameters || []"
             :technician="task ? { 
               name: task.certificate_data?.technician?.name || task.technician?.name || '-', 
@@ -111,6 +112,7 @@ import CerCertificate from 'src/components/history/CerCertificate.vue';
 import type { CerData } from 'src/components/history/CerCertificate.vue';
 import CerCalibration from 'src/components/history/CerCalibration.vue';
 import type { CerCalibrationData } from 'src/components/history/CerCalibration.vue';
+import { useCalibrationSettingStore } from 'src/stores/calibrationSetting';
 
 const route = useRoute();
 const selectedCert = ref(1);
@@ -118,6 +120,7 @@ const $q = useQuasar();
 const isPrinting = ref(false);
 const cerRef = ref<HTMLElement | null>(null);
 const loading = ref(false);
+const settingStore = useCalibrationSettingStore();
 const task = ref<TaskApi | null>(null);
 
 const activeCerData = computed((): CerData => {
@@ -332,6 +335,7 @@ const alarmsData = computed(() => {
 
 const standardsData = computed(() => {
   return task.value?.standardTools?.map((std) => ({
+    name: std.name,
     manufacture: std.manufacturer,
     model: std.model,
     sn: std.serial_number,
@@ -357,6 +361,9 @@ onMounted(async () => {
         certificate_data: data.data.certificate_data,
         approver: data.data.approver,
       });
+      if (task.value?.equipment?.name) {
+        await settingStore.fetchSettings(task.value.equipment.name.trim());
+      }
     } catch (error) {
       console.error('Failed to fetch task for CER:', error);
     } finally {
