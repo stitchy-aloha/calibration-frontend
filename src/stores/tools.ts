@@ -9,6 +9,9 @@ import {
   CalibrationProcessService,
   CalibrationCostService,
 } from 'src/services/calibration-mgmt.service';
+import { StandardToolService } from 'src/services/standard-tool.service';
+import type { BackendStandardTool } from 'src/types/tool.types';
+import { api } from 'src/boot/axios';
 
 export const useToolsStore = defineStore('tools', () => {
   const tools = ref<MedicalTool[]>([]);
@@ -270,6 +273,60 @@ export const useToolsStore = defineStore('tools', () => {
     await fetchCalibrationCosts();
   }
 
+  // --- Standard Tools ---
+  const standardTools = ref<BackendStandardTool[]>([]);
+  const standardCategories = ref<{ id: number; name: string }[]>([]);
+
+  async function fetchStandardTools(): Promise<void> {
+    loading.value = true;
+    try {
+      const res = await StandardToolService.getAll();
+      standardTools.value = res.data;
+    } catch (e) {
+      console.error('fetchStandardTools error:', e);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchStandardCategories(): Promise<void> {
+    try {
+      const res = await StandardToolService.getCategories();
+      standardCategories.value = res.data;
+    } catch (e) {
+      console.error('fetchStandardCategories error:', e);
+    }
+  }
+
+  async function addStandardTool(data: Partial<BackendStandardTool>): Promise<BackendStandardTool> {
+    const res = await StandardToolService.create(data);
+    await fetchStandardTools();
+    return res.data;
+  }
+
+  async function updateStandardTool(id: number, data: Partial<BackendStandardTool>): Promise<BackendStandardTool> {
+    const res = await StandardToolService.update(id, data);
+    await fetchStandardTools();
+    return res.data;
+  }
+
+  async function deleteStandardTool(id: number): Promise<void> {
+    await StandardToolService.remove(id);
+    await fetchStandardTools();
+  }
+
+  async function uploadStandardToolPdf(id: number, file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post<BackendStandardTool>(`/standard-tool/${id}/upload-pdf`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    await fetchStandardTools();
+    return res.data.path_pdf ?? '';
+  }
+
   return {
     tools,
     calibrationProcesses,
@@ -300,5 +357,14 @@ export const useToolsStore = defineStore('tools', () => {
     sections,
     fetchHospitals,
     fetchSections,
+    // Standard Tools
+    standardTools,
+    standardCategories,
+    fetchStandardTools,
+    fetchStandardCategories,
+    addStandardTool,
+    updateStandardTool,
+    deleteStandardTool,
+    uploadStandardToolPdf,
   };
 });

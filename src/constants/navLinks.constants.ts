@@ -27,12 +27,19 @@ export const ALL_NAV_LINKS: EssentialLinkProps[] = [
     icon: 'app:appr',
     link: '/approval',
   },
-  { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'vaccines', link: '/tools' },
   {
     title: 'จัดการเครื่องมือ',
     caption: 'Config Tools',
     icon: 'app:config',
     children: [
+      { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'vaccines', link: '/tools' },
+
+      {
+        title: 'เครื่องมือมาตรฐาน',
+        caption: 'Standard Tools',
+        icon: 'app:container',
+        link: '/tools/standard',
+      },
       {
         title: 'กระบวนการสอบเทียบ',
         caption: 'Calibration Processes',
