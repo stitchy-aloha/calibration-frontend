@@ -724,14 +724,16 @@ const UNIT_MAP: Record<string, string> = {
 }
 
 .reading-table td {
-  padding: 4px 4px;
+  padding: 2px 4px;
+  line-height: 1.2;
 }
 
 .param-header-row td {
   border-top: 2px solid #002d62;
   border-bottom: 2px solid #002d62;
-  padding: 5px 4px;
+  padding: 3px 4px;
   color: #002d62;
+  line-height: 1.2;
 }
 
 .param-title {
@@ -744,6 +746,8 @@ const UNIT_MAP: Record<string, string> = {
 .param-data-row td {
   border-bottom: none;
   font-size: 8.5pt;
+  padding: 1px 4px;
+  line-height: 1.2;
 }
 
 .reading-table .label-col {
