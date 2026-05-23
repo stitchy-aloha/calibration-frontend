@@ -10,16 +10,8 @@
       </div>
     </div>
 
-
-
-    <TestDynamic
-      v-if="hasSettings"
-      @save="emit('save')"
-    />
-    <TestUnknown
-      v-else
-      :equipment-type="store.equipmentDetails.name"
-    />
+    <TestDynamic v-if="hasSettings" @save="emit('save')" />
+    <TestUnknown v-else :equipment-type="store.equipmentDetails.name" />
   </div>
 </template>
 

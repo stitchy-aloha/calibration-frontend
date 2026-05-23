@@ -55,7 +55,7 @@ export interface EquipmentApi {
 
 export interface MeasurementApi {
   id: number;
-  parameter_name: string;
+  parameter_name?: string | null;
   range: number;
   standard_value: number;
   reading_1: number;

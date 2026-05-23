@@ -129,7 +129,7 @@ const groupedQualitatives = computed(() => {
 const groupedMeasurements = computed(() => {
   const groups: Record<string, TestRow[]> = {};
   (props.task?.measurements || []).forEach((m) => {
-    const pName = m.parameter_name;
+    const pName = m.parameter_name || '';
     if (!groups[pName]) groups[pName] = [];
 
     const getValue = (key: string): unknown => {
@@ -160,7 +160,7 @@ const groupedMeasurements = computed(() => {
 });
 
 const getMetadata = (name: string) => {
-  const item = props.task?.measurements?.find((m) => m.parameter_name === name);
+  const item = props.task?.measurements?.find((m) => (m.parameter_name || '') === name);
   return {
     displayType: item?.display_type || '',
     resolution: item?.resolution || '',

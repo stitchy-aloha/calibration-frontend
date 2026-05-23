@@ -241,8 +241,12 @@ const calibrationCertData = computed((): CerCalibrationData => {
       : t?.equipment?.section
         ? `${t.equipment.section.name} - ${t.equipment.section.description}`
         : t?.equipment?.department || '-',
-    temperature: t?.environments?.[0]?.ambient_temp?.toString() || '25',
-    humidity: t?.environments?.[0]?.ambient_humidity?.toString() || '45',
+    temperature: t?.environments?.[0]?.ambient_temp !== undefined && t?.environments?.[0]?.ambient_temp !== null
+      ? Number(t.environments[0].ambient_temp).toFixed(1)
+      : '25.0',
+    humidity: t?.environments?.[0]?.ambient_humidity !== undefined && t?.environments?.[0]?.ambient_humidity !== null
+      ? Number(t.environments[0].ambient_humidity).toFixed(1)
+      : '45.0',
     calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB') : '-',
     apprDate: t?.approvedAt ? new Date(t.approvedAt).toLocaleDateString('en-GB') : '-',
     hospital: t?.certificate_data?.hospital?.name

@@ -45,7 +45,7 @@ export interface StandardEquipment {
 }
 
 export interface MeasurementRecord {
-  parameter_name: string;
+  parameter_name?: string | null | undefined;
   range?: number | null | undefined;
   standard_value?: number | null | undefined;
   reading_1?: number | null | undefined;

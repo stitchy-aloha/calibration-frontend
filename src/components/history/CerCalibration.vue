@@ -96,6 +96,8 @@
       </div>
 
       <!-- ===== SPECIFICATIONS (Specific Parameters) ===== -->
+      <div class="cal-standard-title">Calibration Results</div>
+
       <div
         v-if="specificParameters && specificParameters.length > 0"
         class="cer-specs-grid q-mb-md"
@@ -188,7 +190,9 @@
               </template>
               <template v-else>
                 <tr>
-                  <td colspan="6" class="text-center text-grey-6 q-py-md">ไม่มีข้อมูลเครื่องมือมาตรฐานที่ใช้</td>
+                  <td colspan="6" class="text-center text-grey-6 q-py-md">
+                    ไม่มีข้อมูลเครื่องมือมาตรฐานที่ใช้
+                  </td>
                 </tr>
               </template>
             </tbody>
@@ -286,7 +290,7 @@ interface StandardItem {
 
 export interface MeasurementApi {
   id: number;
-  parameter_name: string;
+  parameter_name?: string | null;
   range: number;
   standard_value: number;
   reading_1: number;
@@ -450,8 +454,8 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
   const groups: Record<string, MeasurementApi[]> = {};
 
   props.measurements.forEach((m) => {
-    if (!m || !m.parameter_name) return;
-    const name = m.parameter_name;
+    if (!m) return;
+    const name = m.parameter_name || '';
     if (!groups[name]) groups[name] = [];
     groups[name].push(m);
   });
@@ -461,7 +465,9 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
     const first = items[0];
 
     // Find matching setting to get unit, tolerance (MPE), and resolution (uncertainty)
-    const setting = props.settings?.find((s: CalibrationSettingItem) => s.parameter_name === name);
+    const setting = props.settings?.find(
+      (s: CalibrationSettingItem) => (s.parameter_name || '') === name,
+    );
 
     const unit = setting?.unit || UNIT_MAP[name] || '';
     const mpe = setting?.tolerance || first?.range?.toString() || '1.0';
