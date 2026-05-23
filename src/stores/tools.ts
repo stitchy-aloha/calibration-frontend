@@ -115,7 +115,7 @@ export const useToolsStore = defineStore('tools', () => {
     }
   }
 
-  async function addTool(tool: Omit<MedicalTool, 'id'>): Promise<void> {
+  async function addTool(tool: Omit<MedicalTool, 'id'> & { asset_code?: string }): Promise<void> {
     await ToolService.create({
       name: tool.name,
       manufacturer: tool.company,
@@ -128,11 +128,12 @@ export const useToolsStore = defineStore('tools', () => {
       risk_level: tool.riskLevel || 'medium',
       equipment_type_id: tool.equipment_type_id ?? null,
       sectionId: tool.sectionId ?? null,
+      asset_code: tool.asset_code ?? null,
     });
     await fetchTools();
   }
 
-  async function updateTool(id: string, data: Partial<MedicalTool>): Promise<void> {
+  async function updateTool(id: string, data: Partial<MedicalTool> & { asset_code?: string }): Promise<void> {
     const target = tools.value.find((t) => t.id === id);
     const backendId = target?.backendId ?? Number(id);
     await ToolService.update(backendId, {
@@ -153,6 +154,7 @@ export const useToolsStore = defineStore('tools', () => {
       }),
       ...(data.status !== undefined && { status: unmapStatus(data.status) }),
       ...(data.sectionId !== undefined && { sectionId: data.sectionId ?? null }),
+      ...(data.asset_code !== undefined && { asset_code: data.asset_code ?? null }),
     });
     await fetchTools();
   }

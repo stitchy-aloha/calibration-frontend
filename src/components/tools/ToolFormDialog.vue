@@ -21,8 +21,7 @@
           label="รหัสเครื่องมือ *"
           outlined
           dense
-          bg-color="grey-2"
-          readonly
+          bg-color="white"
           class="form-field"
         />
         <q-input
@@ -128,7 +127,7 @@
         </q-input>
       </div>
 
-      <!-- Row 5: Hospital + Section -->
+      <!-- Row 5: Section + Status -->
       <div class="form-row">
         <q-select
           v-model="form.sectionId"
@@ -142,6 +141,7 @@
           dense
           bg-color="white"
           class="form-field"
+          :disable="!form.hospitalId"
         />
         <q-select
           v-model="form.status"
@@ -178,6 +178,7 @@
 import { reactive, watch, computed, ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useToolsStore } from 'src/stores/tools';
+import { useAuthStore } from 'src/stores/auth';
 import type { MedicalTool, ToolStatus } from 'src/types';
 
 const props = withDefaults(
@@ -196,6 +197,7 @@ const emit = defineEmits<{
 }>();
 
 const toolsStore = useToolsStore();
+const authStore = useAuthStore();
 const $q = useQuasar();
 const isSaving = ref(false);
 
@@ -214,7 +216,7 @@ function emptyForm() {
     lastCalibrationDate: '',
     location: '',
     department: '',
-    hospitalId: null as number | null,
+    hospitalId: authStore.user?.hospitalId || null,
     sectionId: null as number | null,
     status: 'พร้อมใช้งาน' as ToolStatus,
   };
@@ -250,7 +252,7 @@ watch(
         calibrationCycle: t.calibrationCycle.replace(/[^\d]/g, ''),
         dueDate: t.dueDate,
         location: t.location,
-        hospitalId: t.hospitalId || null,
+        hospitalId: t.hospitalId || authStore.user?.hospitalId || null,
         sectionId: t.sectionId || null,
         status: t.status,
       });
@@ -263,7 +265,7 @@ watch(
 
 async function onSave() {
   isSaving.value = true;
-  const data: Omit<MedicalTool, 'id'> = {
+  const data: Omit<MedicalTool, 'id'> & { asset_code: string } = {
     name: form.name,
     company: form.company,
     model: form.model,
@@ -279,6 +281,7 @@ async function onSave() {
     hospitalId: form.hospitalId,
     sectionId: form.sectionId,
     status: form.status,
+    asset_code: form.id,
   };
   try {
     if (props.tool) {
