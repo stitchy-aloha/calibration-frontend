@@ -173,13 +173,19 @@ const activeCerData = computed((): CerData => {
     remark2: t.checklistRemarks?.find((r) => r.category?.name?.includes('ปลอดภัย'))?.text || '',
     remark3: t.checklistRemarks?.find((r) => r.category?.name?.includes('บำรุงรักษา'))?.text || '',
     overallResult: t.overall_result?.toLowerCase() === 'pass' ? 'pass' : 'fail',
-    qualitatives:
-      t.checklistResults?.map((r) => ({
-        item_name: r.item?.description || '-',
-        result: r.status,
-        category_id: r.item?.category_id,
-        display_order: r.item?.display_order,
-      })) || [],
+    qualitatives: (t.certificate_data as Record<string, unknown>)?.pmChecklist
+      ? ((t.certificate_data as Record<string, unknown>).pmChecklist as { description: string; status: 'Pass' | 'Fail' | 'NA'; category_id: number; display_order: number }[]).map((r) => ({
+          item_name: r.description || '-',
+          result: r.status,
+          category_id: r.category_id,
+          display_order: r.display_order,
+        }))
+      : t.checklistResults?.map((r) => ({
+          item_name: r.item?.description || '-',
+          result: r.status,
+          category_id: r.item?.category_id,
+          display_order: r.item?.display_order,
+        })) || [],
     technician: t
       ? {
           name: t.certificate_data?.technician?.name || t.technician?.name || '-',

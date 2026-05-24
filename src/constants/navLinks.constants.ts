@@ -58,6 +58,12 @@ export const ALL_NAV_LINKS: EssentialLinkProps[] = [
         icon: 'app:expense',
         link: '/tools/manage?tab=cost',
       },
+      {
+        title: 'รายการตรวจ PM',
+        caption: 'PM Checklist Items',
+        icon: 'checklist',
+        link: '/tools/pm-checklist',
+      },
     ],
   },
   { title: 'หน่วยงาน', caption: 'Departments', icon: 'business', link: '/departments' },

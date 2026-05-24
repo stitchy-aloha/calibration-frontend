@@ -5,7 +5,7 @@
       <div class="cer-header">
         <div class="header-logo-area">
           <img
-            :src="getImageUrl(data.hospital?.logoUrl) || 'public/image/logo.png'"
+            :src="getImageUrl(data.hospital?.logoUrl) || '/image/logo.png'"
             alt="Hospital Logo"
             class="hospital-logo"
           />
@@ -454,7 +454,7 @@ const props = withDefaults(defineProps<Props>(), {
     apprDate: 'Thursday, February 1',
     hospital: {
       name: 'Bang Saphan Hospital',
-      logoUrl: 'public/image/logo.png',
+      logoUrl: '/image/logo.png',
       address: 'Kamnoet Nopphakhun , Bang Saphan',
       district: 'Bang Saphan',
       province: 'Prachuap Khiri Khan',

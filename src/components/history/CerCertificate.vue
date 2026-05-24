@@ -4,7 +4,7 @@
       <!-- ===== HEADER ===== -->
       <div class="cer-header">
         <div class="header-logo-area">
-          <img :src="getImageUrl(data.hospital?.logoUrl) || 'public/image/logo.png'" alt="Hospital Logo" class="hospital-logo" />
+          <img :src="getImageUrl(data.hospital?.logoUrl) || '/image/logo.png'" alt="Hospital Logo" class="hospital-logo" />
           <div class="hospital-info">
             <div class="hospital-name">{{ data.hospital?.name || 'Hospital Name' }}</div>
             <div class="hospital-address">
@@ -319,7 +319,7 @@ const props = withDefaults(defineProps<Props>(), {
     qualitatives: [],
     hospital: {
       name: 'Bang Saphan Hospital',
-      logoUrl: 'public/image/logo.png',
+      logoUrl: '/image/logo.png',
       address: 'Kamnoet Nopphakhun , Bang Saphan',
       district: 'Bang Saphan',
       province: 'Prachuap Khiri Khan',
@@ -366,54 +366,84 @@ function getDone(sectionIdx: number, itemIdx: number): boolean {
 }
 
 // ---------- Section 1 items ----------
-const section1Items = computed((): CheckItem[] => [
-  { code: '1.1', name: 'สภาพภายนอก /โครงสร้าง', status: getStatus(0, 0) },
-  { code: '1.2', name: 'ฝีมือการติดตั้ง/ยึดโยง', status: getStatus(0, 1) },
-  { code: '1.3', name: 'การขับเคลื่อน/เบรค', status: getStatus(0, 2) },
-  { code: '1.4', name: 'สายไฟ AC ปลั๊ก', status: getStatus(0, 3) },
-  { code: '1.5', name: 'สายสัญญาณ', status: getStatus(0, 4) },
-  { code: '1.6', name: 'ความตึงหย่อน/ความหนาแน่น', status: getStatus(0, 5) },
-  { code: '1.7', name: 'เบรกเกอร์/ฟิวส์', status: getStatus(0, 6) },
-  { code: '1.8', name: 'หลอด ท่อ/วัสดุห่อหุ้ม', status: getStatus(0, 7) },
-  { code: '1.9', name: 'สายเคเบิล', status: getStatus(0, 8) },
-  { code: '1.10', name: 'ข้อต่อ/จุดต่อต่างๆ', status: getStatus(0, 9) },
-  { code: '1.11', name: 'Electrodes/Transducers', status: getStatus(0, 10) },
-  { code: '1.12', name: 'ฟิลเตอร์', status: getStatus(0, 11) },
-  { code: '1.13', name: 'สวิทช์/การควบคุม', status: getStatus(0, 12) },
-  { code: '1.14', name: 'อินเตอร์', status: getStatus(0, 13) },
-  { code: '1.15', name: 'มอเตอร์/ปั๊ม/พัดลม', status: getStatus(0, 14) },
-  { code: '1.16', name: 'ระดับ/ของเหลว', status: getStatus(0, 15) },
-  { code: '1.17', name: 'แบตเตอรี/การชาร์จประจุ', status: getStatus(0, 16) },
-  { code: '1.18', name: 'การแสดงผล', status: getStatus(0, 17) },
-  { code: '1.19', name: 'Self Test', status: getStatus(0, 18) },
-  { code: '1.20', name: 'สัญญาณเตือน', status: getStatus(0, 19) },
-  { code: '1.21', name: 'สัญญาณแสดงการทำงาน', status: getStatus(0, 20) },
-  { code: '1.22', name: 'ฉลาก/เครื่องหมาย', status: getStatus(0, 21) },
-  { code: '1.23', name: 'อุปกรณ์ประกอบ', status: getStatus(0, 22) },
-]);
+const section1Items = computed((): CheckItem[] => {
+  const section = groupedQualitatives.value[0];
+  if (!section || section.length === 0) {
+    return [
+      { code: '1.1', name: 'สภาพภายนอก /โครงสร้าง', status: getStatus(0, 0) },
+      { code: '1.2', name: 'ฝีมือการติดตั้ง/ยึดโยง', status: getStatus(0, 1) },
+      { code: '1.3', name: 'การขับเคลื่อน/เบรค', status: getStatus(0, 2) },
+      { code: '1.4', name: 'สายไฟ AC ปลั๊ก', status: getStatus(0, 3) },
+      { code: '1.5', name: 'สายสัญญาณ', status: getStatus(0, 4) },
+      { code: '1.6', name: 'ความตึงหย่อน/ความหนาแน่น', status: getStatus(0, 5) },
+      { code: '1.7', name: 'เบรกเกอร์/ฟิวส์', status: getStatus(0, 6) },
+      { code: '1.8', name: 'หลอด ท่อ/วัสดุห่อหุ้ม', status: getStatus(0, 7) },
+      { code: '1.9', name: 'สายเคเบิล', status: getStatus(0, 8) },
+      { code: '1.10', name: 'ข้อต่อ/จุดต่อต่างๆ', status: getStatus(0, 9) },
+      { code: '1.11', name: 'Electrodes/Transducers', status: getStatus(0, 10) },
+      { code: '1.12', name: 'ฟิลเตอร์', status: getStatus(0, 11) },
+      { code: '1.13', name: 'สวิทช์/การควบคุม', status: getStatus(0, 12) },
+      { code: '1.14', name: 'อินเตอร์', status: getStatus(0, 13) },
+      { code: '1.15', name: 'มอเตอร์/ปั๊ม/พัดลม', status: getStatus(0, 14) },
+      { code: '1.16', name: 'ระดับ/ของเหลว', status: getStatus(0, 15) },
+      { code: '1.17', name: 'แบตเตอรี/การชาร์จประจุ', status: getStatus(0, 16) },
+      { code: '1.18', name: 'การแสดงผล', status: getStatus(0, 17) },
+      { code: '1.19', name: 'Self Test', status: getStatus(0, 18) },
+      { code: '1.20', name: 'สัญญาณเตือน', status: getStatus(0, 19) },
+      { code: '1.21', name: 'สัญญาณแสดงการทำงาน', status: getStatus(0, 20) },
+      { code: '1.22', name: 'ฉลาก/เครื่องหมาย', status: getStatus(0, 21) },
+      { code: '1.23', name: 'อุปกรณ์ประกอบ', status: getStatus(0, 22) },
+    ];
+  }
+  return section.map((q, idx) => ({
+    code: `1.${idx + 1}`,
+    name: q.item_name,
+    status: q.result.toUpperCase() === 'PASS' ? 'normal' : q.result.toUpperCase() === 'FAIL' ? 'abnormal' : 'na'
+  }));
+});
 
 // ---------- Section 2 items ----------
-const section2Items = computed((): CheckItem[] => [
-  { code: '2.1', name: 'ระบบกราวด์ (0.5 OHM)', status: getStatus(1, 0) },
-  { code: '2.2', name: 'การรั่วของกระแสไฟฟ้า', status: getStatus(1, 1) },
-]);
+const section2Items = computed((): CheckItem[] => {
+  const section = groupedQualitatives.value[1];
+  if (!section || section.length === 0) {
+    return [
+      { code: '2.1', name: 'ระบบกราวด์ (0.5 OHM)', status: getStatus(1, 0) },
+      { code: '2.2', name: 'การรั่วของกระแสไฟฟ้า', status: getStatus(1, 1) },
+    ];
+  }
+  return section.map((q, idx) => ({
+    code: `2.${idx + 1}`,
+    name: q.item_name,
+    status: q.result.toUpperCase() === 'PASS' ? 'normal' : q.result.toUpperCase() === 'FAIL' ? 'abnormal' : 'na'
+  }));
+});
 
 // ---------- Section 3 items ----------
-const section3Items = computed((): MaintenanceItem[] => [
-  {
-    code: '3.1',
-    name: 'ทำความสะอาดตัวเครื่อง,สายประกอบภายนอกและภายใน',
-    done: getDone(2, 0),
-  },
-  { code: '3.2', name: 'การหล่อลื่นจุดสัมผัสกลไกต่างๆ', done: getDone(2, 1) },
-  {
-    code: '3.3',
-    name: 'ปรับเทียบค่ามาตรฐาน/ปรับจูนแก้ไข กลไกต่างๆ',
-    done: getDone(2, 2),
-  },
-  { code: '3.4', name: 'เปลี่ยนวัสดุตามอายุงาน ฟิลเตอร์/แปงถ่าน', done: getDone(2, 3) },
-  { code: '3.5', name: 'เปลี่ยนถ่ายของเหลวในกระเปาะ', done: getDone(2, 4) },
-]);
+const section3Items = computed((): MaintenanceItem[] => {
+  const section = groupedQualitatives.value[2];
+  if (!section || section.length === 0) {
+    return [
+      {
+        code: '3.1',
+        name: 'ทำความสะอาดตัวเครื่อง,สายประกอบภายนอกและภายใน',
+        done: getDone(2, 0),
+      },
+      { code: '3.2', name: 'การหล่อลื่นจุดสัมผัสกลไกต่างๆ', done: getDone(2, 1) },
+      {
+        code: '3.3',
+        name: 'ปรับเทียบค่ามาตรฐาน/ปรับจูนแก้ไข กลไกต่างๆ',
+        done: getDone(2, 2),
+      },
+      { code: '3.4', name: 'เปลี่ยนวัสดุตามอายุงาน ฟิลเตอร์/แปงถ่าน', done: getDone(2, 3) },
+      { code: '3.5', name: 'เปลี่ยนถ่ายของเหลวในกระเปาะ', done: getDone(2, 4) },
+    ];
+  }
+  return section.map((q, idx) => ({
+    code: `3.${idx + 1}`,
+    name: q.item_name,
+    done: q.result.toUpperCase() === 'PASS'
+  }));
+});
 
 // ---------- Print ----------
 </script>

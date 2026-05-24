@@ -52,6 +52,11 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/StandardToolsPage.vue') }],
   },
   {
+    path: '/tools/pm-checklist',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('pages/PmChecklistPage.vue') }],
+  },
+  {
     path: '/tools/config/:name',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/ToolConfigPage.vue') }],
