@@ -71,31 +71,7 @@
     <!-- Custom body cells -->
     <template #body="props">
       <q-tr :props="props" class="param-row" @click="toggleActiveRow(props.rowIndex)">
-        <!-- ช่วง: double-click to edit inline (only shown when showRange is true) -->
-        <q-td
-          v-if="showRange"
-          key="range"
-          :props="props"
-          class="text-center"
-          @dblclick.stop="props.row.isNew && startEdit(props.rowIndex, 'range')"
-        >
-          <q-input
-            v-if="editingCell?.index === props.rowIndex && editingCell?.col === 'range'"
-            v-model="props.row.range"
-            dense
-            outlined
-            autofocus
-            input-class="text-center"
-            style="min-width: 80px"
-            @blur="editingCell = null"
-            @keyup.enter="editingCell = null"
-            @click.stop
-          />
-          <span v-else class="cursor-pointer" style="user-select: none">
-            {{ props.row.range }}
-            <q-tooltip>ดับเบิ้ลคลิกเพื่อแก้ไข</q-tooltip>
-          </span>
-        </q-td>
+
 
         <!-- ค่ามาตรฐาน: double-click to edit inline (Only when NOT Mode 4) -->
         <q-td
@@ -322,7 +298,6 @@ const emit = defineEmits<{
   (e: 'update:resolution', value: string): void;
 }>();
 
-const showRange = computed(() => props.showRange !== false);
 
 const isMode4 = computed(() => {
   return (
@@ -338,14 +313,6 @@ const allColumns = computed<QTableProps['columns']>(() => {
     (props.stdType?.includes('UUC') || props.stdType?.includes('STD'));
 
   const cols: QTableProps['columns'] = [];
-
-  // Add range if shown
-  cols.push({
-    name: 'range',
-    label: 'ช่วง',
-    field: 'range',
-    align: 'center',
-  });
 
   if (isMode4.value) {
     cols.push(
@@ -395,9 +362,7 @@ const allColumns = computed<QTableProps['columns']>(() => {
   return cols;
 });
 
-const visibleColumns = computed(() =>
-  showRange.value ? allColumns.value : allColumns.value?.filter((c) => c.name !== 'range'),
-);
+const visibleColumns = computed(() => allColumns.value);
 
 const rows = ref<TestRow[]>([]);
 const editingCell = ref<{ index: number; col: string } | null>(null);

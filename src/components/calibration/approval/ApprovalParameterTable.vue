@@ -48,10 +48,7 @@
     <!-- Custom body cells (read-only) -->
     <template #body="bodyProps">
       <q-tr :props="bodyProps">
-        <!-- ช่วง -->
-        <q-td v-if="showRange" key="range" :props="bodyProps" class="text-center text-grey-8">
-          {{ bodyProps.row.range }}
-        </q-td>
+
 
         <!-- ค่ามาตรฐาน -->
         <q-td v-if="!isMode4" key="standard" :bodyProps="bodyProps" class="text-center text-grey-8">
@@ -159,7 +156,6 @@ watch(
   { immediate: true },
 );
 
-const showRange = computed(() => props.showRange !== false);
 
 const isMode4 = computed(() => {
   return (
@@ -175,8 +171,6 @@ const allColumns = computed<QTableProps['columns']>(() => {
     (props.stdType?.includes('UUC') || props.stdType?.includes('STD'));
 
   const cols: QTableProps['columns'] = [];
-
-  cols.push({ name: 'range', label: 'ช่วง', field: 'range', align: 'center' });
 
   if (isMode4.value) {
     cols.push(
@@ -226,9 +220,7 @@ const allColumns = computed<QTableProps['columns']>(() => {
   return cols;
 });
 
-const visibleColumns = computed(() =>
-  showRange.value ? allColumns.value : allColumns.value?.filter((c) => c.name !== 'range'),
-);
+const visibleColumns = computed(() => allColumns.value);
 
 const errorClass = (error: number | null): string => {
   if (error === null) return '';
