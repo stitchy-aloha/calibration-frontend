@@ -79,7 +79,7 @@
           key="standard"
           :props="props"
           class="text-center"
-          @dblclick.stop="props.row.isNew && startEdit(props.rowIndex, 'standard')"
+          @dblclick.stop="startEdit(props.rowIndex, 'standard')"
         >
           <q-input
             v-if="editingCell?.index === props.rowIndex && editingCell?.col === 'standard'"

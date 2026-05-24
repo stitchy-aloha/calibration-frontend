@@ -38,8 +38,10 @@
           <q-input
             v-model.number="store.environment.temperature"
             type="number"
+            step="0.1"
             outlined
             bg-color="white"
+            @blur="sanitizeEnvironment"
           >
             <template #append>
               <span class="unit-text">°C</span>
@@ -51,8 +53,10 @@
           <q-input
             v-model.number="store.environment.humidity"
             type="number"
+            step="0.1"
             outlined
             bg-color="white"
+            @blur="sanitizeEnvironment"
           >
             <template #append>
               <span class="unit-text">%Rh</span>
@@ -83,9 +87,35 @@ const props = withDefaults(
 
 const store = useCalibrationRecordStore();
 
+const sanitizeEnvironment = () => {
+  if (store.environment.temperature !== null && store.environment.temperature !== undefined) {
+    const parsed = parseFloat(String(store.environment.temperature));
+    if (!isNaN(parsed)) {
+      store.environment.temperature = Math.round(parsed * 10) / 10;
+    }
+  }
+  if (store.environment.humidity !== null && store.environment.humidity !== undefined) {
+    const parsed = parseFloat(String(store.environment.humidity));
+    if (!isNaN(parsed)) {
+      store.environment.humidity = Math.round(parsed * 10) / 10;
+    }
+  }
+};
+
 // Use prop data if provided (Approval mode), otherwise use store (Recording mode)
-const displayTemp = computed(() => props.envData?.temperature ?? store.environment.temperature);
-const displayHumidity = computed(() => props.envData?.humidity ?? store.environment.humidity);
+const displayTemp = computed(() => {
+  const t = props.envData?.temperature ?? store.environment.temperature;
+  if (t === null || t === undefined || (t as unknown) === '') return '-';
+  const num = Number(t);
+  return isNaN(num) ? String(t) : num.toFixed(1);
+});
+
+const displayHumidity = computed(() => {
+  const h = props.envData?.humidity ?? store.environment.humidity;
+  if (h === null || h === undefined || (h as unknown) === '') return '-';
+  const num = Number(h);
+  return isNaN(num) ? String(h) : num.toFixed(1);
+});
 </script>
 
 <style scoped lang="scss">

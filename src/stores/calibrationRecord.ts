@@ -215,8 +215,8 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
 
     // 1. Environment
     environment.value = {
-      temperature: 24.5 + Math.random(),
-      humidity: 45 + Math.random() * 10,
+      temperature: Math.round((24.5 + Math.random()) * 10) / 10,
+      humidity: Math.round((45 + Math.random() * 10) * 10) / 10,
     };
 
     // 2. Standard Tools (Use categories from configuration to pick physical tools)

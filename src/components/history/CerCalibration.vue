@@ -521,6 +521,11 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
     const mpe = setting?.tolerance || first?.range?.toString() || '1.0';
     const uncertainty = setting?.resolution || first?.resolution || '0.1';
 
+    const isM4 =
+      first?.std_type?.includes('4') ||
+      first?.std_type?.includes('3 UUC') ||
+      first?.std_type?.includes('3 UUC : 3 STD');
+
     const parsedRows = items.map((item) => {
       const getVal = (key: string): unknown => {
         const d = item.data;
@@ -532,7 +537,7 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
 
       return {
         ...item,
-        standard_value: getVal('standard_value'),
+        standard_value: isM4 ? (getVal('average_standard') ?? getVal('standard_value')) : getVal('standard_value'),
         reading_1: getVal('reading_1'),
         reading_2: getVal('reading_2'),
         reading_3: getVal('reading_3'),
@@ -556,12 +561,9 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
   });
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const isMode4 = (group: GroupedParameter) => {
-  return (
-    group.std_type?.includes('4') ||
-    group.std_type?.includes('3 UUC') ||
-    group.std_type?.includes('3 UUC : 3 STD')
-  );
+  return false;
 };
 
 const getCol2Header = (group: GroupedParameter) => {
