@@ -146,7 +146,7 @@ export const useInspectionStore = defineStore('inspection', () => {
       let eq = task.equipment;
       const [categoriesRes] = await Promise.all([
         pmService.getPmForm(task.equipment_id),
-        !eq ? pmService.getEquipment(task.equipment_id).then(r => r.data) : Promise.resolve(null)
+        !eq ? pmService.getEquipment(task.equipment_id).then((r) => r.data) : Promise.resolve(null),
       ]);
 
       if (!eq && categoriesRes) {
@@ -224,7 +224,7 @@ export const useInspectionStore = defineStore('inspection', () => {
     pmByPosition.value = '';
     error.value = null;
   }
-    
+
   function fillMockData() {
     sections.value.forEach((section) => {
       section.items.forEach((item) => {

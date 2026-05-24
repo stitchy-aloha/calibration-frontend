@@ -29,7 +29,11 @@
     </q-item>
 
     <!-- EXPANDED mode: custom expandable item (no q-expansion-item to avoid Quasar internal spacing) -->
-    <div v-else class="custom-expansion link-item" :class="{ 'link-item--active': isChildActive && !isOpen }">
+    <div
+      v-else
+      class="custom-expansion link-item"
+      :class="{ 'link-item--active': isChildActive && !isOpen }"
+    >
       <!-- Header row -->
       <q-item
         clickable
@@ -164,7 +168,9 @@ const navigateTo = (link?: string) => {
     const rawQuery = parts[1];
     void router.push({
       path,
-      ...(rawQuery ? { query: Object.fromEntries(new URLSearchParams(rawQuery)) as LocationQueryRaw } : {}),
+      ...(rawQuery
+        ? { query: Object.fromEntries(new URLSearchParams(rawQuery)) as LocationQueryRaw }
+        : {}),
     });
   }
 };
@@ -207,7 +213,13 @@ const isChildActive = computed(() => {
 });
 
 // Sync open state when child route becomes active (e.g. direct URL navigation)
-watch(isChildActive, (active) => { if (active) isOpen.value = true; }, { immediate: true });
+watch(
+  isChildActive,
+  (active) => {
+    if (active) isOpen.value = true;
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped lang="scss">

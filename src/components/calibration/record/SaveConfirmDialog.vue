@@ -9,8 +9,12 @@
 
       <q-card-section class="q-pa-lg text-center">
         <q-icon name="check_circle" color="primary" size="4rem" class="q-mb-md" />
-        <div class="text-subtitle1 text-grey-9">คุณแน่ใจหรือไม่ว่าต้องการบันทึกข้อมูลการทดสอบนี้?</div>
-        <div class="text-caption text-grey-6 q-mt-sm">กรุณาตรวจสอบความถูกต้องของข้อมูลก่อนกดยืนยัน</div>
+        <div class="text-subtitle1 text-grey-9">
+          คุณแน่ใจหรือไม่ว่าต้องการบันทึกข้อมูลการทดสอบนี้?
+        </div>
+        <div class="text-caption text-grey-6 q-mt-sm">
+          กรุณาตรวจสอบความถูกต้องของข้อมูลก่อนกดยืนยัน
+        </div>
       </q-card-section>
 
       <q-card-actions align="center" class="q-pb-lg q-px-lg">

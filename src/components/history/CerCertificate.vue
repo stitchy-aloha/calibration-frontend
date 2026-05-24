@@ -4,7 +4,11 @@
       <!-- ===== HEADER ===== -->
       <div class="cer-header">
         <div class="header-logo-area">
-          <img :src="getImageUrl(data.hospital?.logoUrl) || '/image/logo.png'" alt="Hospital Logo" class="hospital-logo" />
+          <img
+            :src="getImageUrl(data.hospital?.logoUrl) || '/image/logo.png'"
+            alt="Hospital Logo"
+            class="hospital-logo"
+          />
           <div class="hospital-info">
             <div class="hospital-name">{{ data.hospital?.name || 'Hospital Name' }}</div>
             <div class="hospital-address">
@@ -191,7 +195,10 @@
             <div class="signature-area">
               <div class="signature-wrapper">
                 <div v-if="data.technician?.signatureUrl" class="signature-img">
-                  <img :src="getImageUrl(data.technician.signatureUrl)" alt="Technician Signature" />
+                  <img
+                    :src="getImageUrl(data.technician.signatureUrl)"
+                    alt="Technician Signature"
+                  />
                 </div>
                 <div v-else class="signature-placeholder"></div>
                 <div class="dots-line">....................................................</div>
@@ -398,7 +405,12 @@ const section1Items = computed((): CheckItem[] => {
   return section.map((q, idx) => ({
     code: `1.${idx + 1}`,
     name: q.item_name,
-    status: q.result.toUpperCase() === 'PASS' ? 'normal' : q.result.toUpperCase() === 'FAIL' ? 'abnormal' : 'na'
+    status:
+      q.result.toUpperCase() === 'PASS'
+        ? 'normal'
+        : q.result.toUpperCase() === 'FAIL'
+          ? 'abnormal'
+          : 'na',
   }));
 });
 
@@ -414,7 +426,12 @@ const section2Items = computed((): CheckItem[] => {
   return section.map((q, idx) => ({
     code: `2.${idx + 1}`,
     name: q.item_name,
-    status: q.result.toUpperCase() === 'PASS' ? 'normal' : q.result.toUpperCase() === 'FAIL' ? 'abnormal' : 'na'
+    status:
+      q.result.toUpperCase() === 'PASS'
+        ? 'normal'
+        : q.result.toUpperCase() === 'FAIL'
+          ? 'abnormal'
+          : 'na',
   }));
 });
 
@@ -441,7 +458,7 @@ const section3Items = computed((): MaintenanceItem[] => {
   return section.map((q, idx) => ({
     code: `3.${idx + 1}`,
     name: q.item_name,
-    done: q.result.toUpperCase() === 'PASS'
+    done: q.result.toUpperCase() === 'PASS',
   }));
 });
 

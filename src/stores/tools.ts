@@ -136,7 +136,10 @@ export const useToolsStore = defineStore('tools', () => {
     await fetchTools();
   }
 
-  async function updateTool(id: string, data: Partial<MedicalTool> & { asset_code?: string }): Promise<void> {
+  async function updateTool(
+    id: string,
+    data: Partial<MedicalTool> & { asset_code?: string },
+  ): Promise<void> {
     const target = tools.value.find((t) => t.id === id);
     const backendId = target?.backendId ?? Number(id);
     await ToolService.update(backendId, {
@@ -304,7 +307,10 @@ export const useToolsStore = defineStore('tools', () => {
     return res.data;
   }
 
-  async function updateStandardTool(id: number, data: Partial<BackendStandardTool>): Promise<BackendStandardTool> {
+  async function updateStandardTool(
+    id: number,
+    data: Partial<BackendStandardTool>,
+  ): Promise<BackendStandardTool> {
     const res = await StandardToolService.update(id, data);
     await fetchStandardTools();
     return res.data;

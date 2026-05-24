@@ -1,6 +1,10 @@
 <template>
-  <q-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" persistent>
-    <q-card class="tool-dialog-card" style="width: 700px; max-width: 90vw;">
+  <q-dialog
+    :model-value="modelValue"
+    @update:model-value="emit('update:modelValue', $event)"
+    persistent
+  >
+    <q-card class="tool-dialog-card" style="width: 700px; max-width: 90vw">
       <!-- Header -->
       <q-card-section class="dialog-header text-white bg-primary q-py-md">
         <div class="row items-center no-wrap justify-between">
@@ -37,7 +41,7 @@
                 outlined
                 dense
                 bg-color="white"
-                :rules="[val => !!val || 'กรุณากรอกชื่อเครื่องมือมาตรฐาน']"
+                :rules="[(val) => !!val || 'กรุณากรอกชื่อเครื่องมือมาตรฐาน']"
               />
             </div>
 
@@ -157,8 +161,11 @@
                   <q-icon name="attach_file" />
                 </template>
               </q-file>
-              <div v-if="form.path_pdf && !pdfFile" class="text-caption text-primary q-mt-xs text-truncate">
-                ไฟล์ปัจจุบัน: 
+              <div
+                v-if="form.path_pdf && !pdfFile"
+                class="text-caption text-primary q-mt-xs text-truncate"
+              >
+                ไฟล์ปัจจุบัน:
                 <a :href="getFileUrl(form.path_pdf)" target="_blank" class="text-underline">
                   เปิดดูไฟล์
                 </a>
@@ -170,12 +177,7 @@
 
       <!-- Action Buttons -->
       <q-card-actions align="right" class="q-px-lg q-pb-lg q-pt-none">
-        <q-btn
-          flat
-          label="ยกเลิก"
-          class="btn-cancel"
-          v-close-popup
-        />
+        <q-btn flat label="ยกเลิก" class="btn-cancel" v-close-popup />
         <q-btn
           unelevated
           label="บันทึกข้อมูล"
@@ -200,7 +202,7 @@ const props = withDefaults(
     modelValue: boolean;
     tool?: BackendStandardTool | null;
   }>(),
-  { tool: null }
+  { tool: null },
 );
 
 const emit = defineEmits<{
@@ -267,7 +269,7 @@ watch(
       pdfFile.value = null;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function getFileUrl(path: string): string {
@@ -316,7 +318,9 @@ async function onSubmit() {
     emit('saved');
     emit('update:modelValue', false);
   } catch (err: unknown) {
-    const errorMsg = (err as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'บันทึกข้อมูลล้มเหลว';
+    const errorMsg =
+      (err as { response?: { data?: { message?: string } } }).response?.data?.message ??
+      'บันทึกข้อมูลล้มเหลว';
     $q.notify({
       type: 'negative',
       message: errorMsg,

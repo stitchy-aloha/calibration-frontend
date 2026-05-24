@@ -48,8 +48,6 @@
     <!-- Custom body cells (read-only) -->
     <template #body="bodyProps">
       <q-tr :props="bodyProps">
-
-
         <!-- ค่ามาตรฐาน -->
         <q-td v-if="!isMode4" key="standard" :bodyProps="bodyProps" class="text-center text-grey-8">
           {{ bodyProps.row.standard !== null ? bodyProps.row.standard : '-' }}
@@ -62,7 +60,11 @@
 
         <!-- STD 1 (Only in Mode 4) -->
         <q-td v-if="isMode4" key="stdVal1" :props="bodyProps" class="text-center">
-          {{ bodyProps.row.stdVal1 !== null && bodyProps.row.stdVal1 !== undefined ? bodyProps.row.stdVal1 : '-' }}
+          {{
+            bodyProps.row.stdVal1 !== null && bodyProps.row.stdVal1 !== undefined
+              ? bodyProps.row.stdVal1
+              : '-'
+          }}
         </q-td>
 
         <!-- ครั้งที่ 2 -->
@@ -72,7 +74,11 @@
 
         <!-- STD 2 (Only in Mode 4) -->
         <q-td v-if="isMode4" key="stdVal2" :props="bodyProps" class="text-center">
-          {{ bodyProps.row.stdVal2 !== null && bodyProps.row.stdVal2 !== undefined ? bodyProps.row.stdVal2 : '-' }}
+          {{
+            bodyProps.row.stdVal2 !== null && bodyProps.row.stdVal2 !== undefined
+              ? bodyProps.row.stdVal2
+              : '-'
+          }}
         </q-td>
 
         <!-- ครั้งที่ 3 -->
@@ -82,7 +88,11 @@
 
         <!-- STD 3 (Only in Mode 4) -->
         <q-td v-if="isMode4" key="stdVal3" :props="bodyProps" class="text-center">
-          {{ bodyProps.row.stdVal3 !== null && bodyProps.row.stdVal3 !== undefined ? bodyProps.row.stdVal3 : '-' }}
+          {{
+            bodyProps.row.stdVal3 !== null && bodyProps.row.stdVal3 !== undefined
+              ? bodyProps.row.stdVal3
+              : '-'
+          }}
         </q-td>
 
         <!-- ค่าเฉลี่ย -->
@@ -91,8 +101,17 @@
         </q-td>
 
         <!-- ค่าเฉลี่ยมาตรฐาน (Mean-S) (Only in Mode 4) -->
-        <q-td v-if="isMode4" key="averageStd" :props="bodyProps" class="text-center text-weight-bold">
-          {{ bodyProps.row.averageStd !== null && bodyProps.row.averageStd !== undefined ? bodyProps.row.averageStd : '-' }}
+        <q-td
+          v-if="isMode4"
+          key="averageStd"
+          :props="bodyProps"
+          class="text-center text-weight-bold"
+        >
+          {{
+            bodyProps.row.averageStd !== null && bodyProps.row.averageStd !== undefined
+              ? bodyProps.row.averageStd
+              : '-'
+          }}
         </q-td>
 
         <!-- ค่าความคาดเคลื่อน -->
@@ -155,7 +174,6 @@ watch(
   },
   { immediate: true },
 );
-
 
 const isMode4 = computed(() => {
   return (

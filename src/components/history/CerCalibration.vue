@@ -151,7 +151,9 @@
                     <td>{{ formatValue(m.std_reading_1) }}</td>
                     <td>{{ formatValue(m.std_reading_2) }}</td>
                     <td>{{ formatValue(m.std_reading_3) }}</td>
-                    <td class="text-weight-bold text-italic">{{ formatValue(m.average_standard) }}</td>
+                    <td class="text-weight-bold text-italic">
+                      {{ formatValue(m.average_standard) }}
+                    </td>
                     <td>{{ formatValue(m.reading_1) }}</td>
                     <td>{{ formatValue(m.reading_2) }}</td>
                     <td>{{ formatValue(m.reading_3) }}</td>
@@ -537,7 +539,9 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
 
       return {
         ...item,
-        standard_value: isM4 ? (getVal('average_standard') ?? getVal('standard_value')) : getVal('standard_value'),
+        standard_value: isM4
+          ? (getVal('average_standard') ?? getVal('standard_value'))
+          : getVal('standard_value'),
         reading_1: getVal('reading_1'),
         reading_2: getVal('reading_2'),
         reading_3: getVal('reading_3'),

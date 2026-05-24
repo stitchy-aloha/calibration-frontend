@@ -1,35 +1,37 @@
 <template>
   <q-card class="shadow-1 result-gauge-card full-height flex flex-center">
-      <div class="column flex-center">
-           <div style="position: relative; width: 120px; height: 120px;">
-              <svg viewBox="0 0 36 36" class="circular-chart green">
-                <path class="circle-bg"
-                  d="M18 2.0845
+    <div class="column flex-center">
+      <div style="position: relative; width: 120px; height: 120px">
+        <svg viewBox="0 0 36 36" class="circular-chart green">
+          <path
+            class="circle-bg"
+            d="M18 2.0845
                     a 15.9155 15.9155 0 0 1 0 31.831
                     a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                <path class="circle"
-                  stroke-dasharray="92, 100"
-                  d="M18 2.0845
+          />
+          <path
+            class="circle"
+            stroke-dasharray="92, 100"
+            d="M18 2.0845
                     a 15.9155 15.9155 0 0 1 0 31.831
                     a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              <div class="absolute-center text-center">
-                  <div class="text-h5 text-weight-bold text-grey-9">92%</div>
-              </div>
-           </div>
-           
-           <div class="text-center q-mt-md">
-               <div class="text-subtitle2 text-weight-bold">ผลการทดสอบ</div>
-               <div class="row items-center justify-center q-mt-xs">
-                   <div class="row items-center q-mr-md">
-                       <span class="dot bg-green q-mr-xs"></span>
-                       <span class="text-caption">ผ่าน (Pass)</span>
-                   </div>
-               </div>
-           </div>
+          />
+        </svg>
+        <div class="absolute-center text-center">
+          <div class="text-h5 text-weight-bold text-grey-9">92%</div>
+        </div>
       </div>
+
+      <div class="text-center q-mt-md">
+        <div class="text-subtitle2 text-weight-bold">ผลการทดสอบ</div>
+        <div class="row items-center justify-center q-mt-xs">
+          <div class="row items-center q-mr-md">
+            <span class="dot bg-green q-mr-xs"></span>
+            <span class="text-caption">ผ่าน (Pass)</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </q-card>
 </template>
 
@@ -65,12 +67,14 @@
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
 @keyframes progress {
-  0% { stroke-dasharray: 0 100; }
+  0% {
+    stroke-dasharray: 0 100;
+  }
 }
 </style>

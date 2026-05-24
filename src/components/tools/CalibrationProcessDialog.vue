@@ -96,7 +96,7 @@ const form = reactive({
   parameter_name: props.process?.parameter_name ?? '',
   procedure: props.process?.procedure ?? '',
   unit: props.process?.unit ?? '',
-  standard_tool_id: props.process?.standard_tool_id ?? null as number | null,
+  standard_tool_id: props.process?.standard_tool_id ?? (null as number | null),
 });
 
 const standardTools = ref<BackendStandardTool[]>([]);

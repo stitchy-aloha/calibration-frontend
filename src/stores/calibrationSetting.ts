@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { CalibrationSettingService, type CalibrationSetting } from '../services/calibration-setting.service';
+import {
+  CalibrationSettingService,
+  type CalibrationSetting,
+} from '../services/calibration-setting.service';
 
 function normalizeEquipmentName(name: string | null | undefined) {
   if (!name) return '';

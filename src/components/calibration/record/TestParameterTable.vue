@@ -7,10 +7,10 @@
   <div class="row items-center q-mb-sm full-width" style="padding-left: 14px">
     <!-- Parameter Metadata: Display Type and Resolution -->
     <div
-      v-if="displayType !== undefined || resolution !== undefined"
+      v-if="displayType || resolution"
       class="row items-center q-gutter-x-md text-grey-7 text-caption"
     >
-      <div class="row items-center no-wrap">
+      <div v-if="displayType" class="row items-center no-wrap">
         <span class="q-mr-xs">Display Type:</span>
         <q-input
           :model-value="displayType"
@@ -22,7 +22,7 @@
           style="width: 80px"
         />
       </div>
-      <div class="row items-center no-wrap">
+      <div v-if="resolution" class="row items-center no-wrap">
         <span class="q-mr-xs">Resolution:</span>
         <q-input
           :model-value="resolution"
@@ -71,8 +71,6 @@
     <!-- Custom body cells -->
     <template #body="props">
       <q-tr :props="props" class="param-row" @click="toggleActiveRow(props.rowIndex)">
-
-
         <!-- ค่ามาตรฐาน: double-click to edit inline (Only when NOT Mode 4) -->
         <q-td
           v-if="!isMode4"
@@ -298,7 +296,6 @@ const emit = defineEmits<{
   (e: 'update:resolution', value: string): void;
 }>();
 
-
 const isMode4 = computed(() => {
   return (
     props.stdType?.includes('4') ||
@@ -430,8 +427,20 @@ const calculate = (index: number) => {
   const s3 = row.stdVal3;
 
   if (isMode4.value) {
-    const hasUUC = v1 !== null && v1 !== undefined && v2 !== null && v2 !== undefined && v3 !== null && v3 !== undefined;
-    const hasSTD = s1 !== null && s1 !== undefined && s2 !== null && s2 !== undefined && s3 !== null && s3 !== undefined;
+    const hasUUC =
+      v1 !== null &&
+      v1 !== undefined &&
+      v2 !== null &&
+      v2 !== undefined &&
+      v3 !== null &&
+      v3 !== undefined;
+    const hasSTD =
+      s1 !== null &&
+      s1 !== undefined &&
+      s2 !== null &&
+      s2 !== undefined &&
+      s3 !== null &&
+      s3 !== undefined;
 
     if (hasUUC) {
       row.average = Number(((v1 + v2 + v3) / 3).toFixed(1));
@@ -467,7 +476,14 @@ const calculate = (index: number) => {
       row.status = null;
     }
   } else {
-    if (v1 !== null && v1 !== undefined && v2 !== null && v2 !== undefined && v3 !== null && v3 !== undefined) {
+    if (
+      v1 !== null &&
+      v1 !== undefined &&
+      v2 !== null &&
+      v2 !== undefined &&
+      v3 !== null &&
+      v3 !== undefined
+    ) {
       const avg = (v1 + v2 + v3) / 3;
       row.average = Number(avg.toFixed(1));
 

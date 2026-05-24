@@ -12,7 +12,7 @@ export const useDashboardStore = defineStore('dashboard', {
         icon: 'assignment',
         iconColor: 'blue-1',
         iconTextColor: 'blue-7',
-        status: 'normal'
+        status: 'normal',
       },
       {
         id: 2,
@@ -23,7 +23,7 @@ export const useDashboardStore = defineStore('dashboard', {
         icon: 'priority_high', // Changed from warning to priority_high for a cleaner look
         iconColor: 'red-1',
         iconTextColor: 'red-7',
-        status: 'urgent' // Used to conditionally show the exclamation mark icon if needed
+        status: 'urgent', // Used to conditionally show the exclamation mark icon if needed
       },
       {
         id: 3,
@@ -34,7 +34,7 @@ export const useDashboardStore = defineStore('dashboard', {
         icon: 'build',
         iconColor: 'orange-1',
         iconTextColor: 'orange-7',
-        status: 'warning'
+        status: 'warning',
       },
       {
         id: 4,
@@ -45,7 +45,7 @@ export const useDashboardStore = defineStore('dashboard', {
         icon: 'playlist_add_check',
         iconColor: 'deep-purple-1',
         iconTextColor: 'deep-purple-7',
-        status: 'normal'
+        status: 'normal',
       },
     ],
     urgentWork: [
@@ -104,7 +104,7 @@ export const useDashboardStore = defineStore('dashboard', {
         statusColor: 'orange-8',
         dueDate: '27 ต.ค.',
       },
-       {
+      {
         id: 'EQ-2212-042',
         name: 'เครื่องจี้ไฟฟ้า (Electrosurgical Unit)',
         model: 'Covidien Force FX',

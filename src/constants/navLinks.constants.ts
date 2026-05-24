@@ -32,12 +32,12 @@ export const ALL_NAV_LINKS: EssentialLinkProps[] = [
     caption: 'Config Tools',
     icon: 'app:config',
     children: [
-      { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'vaccines', link: '/tools' },
+      { title: 'เครื่องมือแพทย์', caption: 'Medical Tools', icon: 'app:tools', link: '/tools' },
 
       {
         title: 'เครื่องมือมาตรฐาน',
         caption: 'Standard Tools',
-        icon: 'app:container',
+        icon: 'vaccines',
         link: '/tools/standard',
       },
       {
@@ -59,7 +59,7 @@ export const ALL_NAV_LINKS: EssentialLinkProps[] = [
         link: '/tools/manage?tab=cost',
       },
       {
-        title: 'รายการตรวจ PM',
+        title: 'รายการตรวจภายนอก',
         caption: 'PM Checklist Items',
         icon: 'checklist',
         link: '/tools/pm-checklist',

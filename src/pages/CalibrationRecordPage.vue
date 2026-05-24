@@ -164,10 +164,11 @@ const goBack = () => {
   if (store.isDirty) {
     $q.dialog({
       title: 'ข้อมูลยังไม่ได้บันทึก',
-      message: 'คุณมีข้อมูลที่ยังไม่ได้บันทึก หากออกจากหน้านี้ข้อมูลจะหายไปทั้งหมด ต้องการออกหรือไม่?',
+      message:
+        'คุณมีข้อมูลที่ยังไม่ได้บันทึก หากออกจากหน้านี้ข้อมูลจะหายไปทั้งหมด ต้องการออกหรือไม่?',
       persistent: true,
       ok: { label: 'ออกโดยไม่บันทึก', color: 'negative', flat: true },
-      cancel: { label: 'ยกเลิก', color: 'primary' }
+      cancel: { label: 'ยกเลิก', color: 'primary' },
     }).onOk(() => {
       void router.push('/calibration');
     });
@@ -184,12 +185,14 @@ onBeforeRouteLeave((to, from, next) => {
       message: 'ข้อมูลการสอบเทียบที่กรอกไว้จะหายไปหากคุณไมกดบันทึก ต้องการออกหรือไม่?',
       persistent: true,
       ok: { label: 'ออกจากหน้านี้', color: 'negative', flat: true },
-      cancel: { label: 'ยกเลิก', color: 'primary' }
-    }).onOk(() => {
-      next();
-    }).onCancel(() => {
-      next(false);
-    });
+      cancel: { label: 'ยกเลิก', color: 'primary' },
+    })
+      .onOk(() => {
+        next();
+      })
+      .onCancel(() => {
+        next(false);
+      });
   } else {
     next();
   }

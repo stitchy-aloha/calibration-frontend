@@ -122,6 +122,7 @@ const displayOptions = ['Digital', 'Analog'];
               :options="displayOptions"
               outlined
               dense
+              clearable
               class="param-input col-7"
             />
           </div>

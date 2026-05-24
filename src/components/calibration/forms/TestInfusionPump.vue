@@ -57,7 +57,6 @@
       title="Flow Rate"
       v-model="flowRate.data"
       :show-range="false"
-
       v-model:display-type="flowRate.displayType"
       v-model:resolution="flowRate.resolution"
       :error-limit="2.2"
@@ -68,7 +67,6 @@
       title="Volume"
       v-model="volume.data"
       :show-range="false"
-
       v-model:display-type="volume.displayType"
       v-model:resolution="volume.resolution"
       :error-limit="2.2"
@@ -241,7 +239,7 @@ const overallPassed = computed(() => checklist.value.every((item) => item.passed
 
 function fillLocalMockData() {
   occlusion.value.alarm = 'Pass';
-  
+
   const fillRows = (rows: TestRow[]) => {
     rows.forEach((row) => {
       const stdVal = row.standard ?? 0;
@@ -309,12 +307,7 @@ watch(
         flowRate.value.displayType,
         flowRate.value.resolution,
       ),
-      ...mapRows(
-        volume.value.data,
-        'Volume',
-        volume.value.displayType,
-        volume.value.resolution,
-      ),
+      ...mapRows(volume.value.data, 'Volume', volume.value.displayType, volume.value.resolution),
     ];
 
     store.overallResult = overallPassed.value ? 'Pass' : 'Fail';

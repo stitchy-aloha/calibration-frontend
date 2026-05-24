@@ -25,7 +25,6 @@
 
     <!-- 1. Specific Parameters (e.g., for Infusion Pump) -->
     <div v-if="task?.specificParameters?.length" class="q-mb-xl">
-      <div class="occlusion-section-title q-mb-md">พารามิเตอร์เฉพาะ (Specific Parameters)</div>
       <q-card flat bordered class="q-pa-lg">
         <div class="row q-col-gutter-lg">
           <div v-for="sp in task.specificParameters" :key="sp.id" class="col-12 col-sm-6 col-md-3">
@@ -60,7 +59,6 @@
           :show-range="rows.some((r) => !!r.range)"
           :display-type="getMetadata(String(name)).displayType"
           :resolution="getMetadata(String(name)).resolution"
-
           :std-type="rows[0]?.std_type || ''"
         />
       </div>
@@ -174,7 +172,6 @@ const getMetadata = (name: string) => {
     resolution: item?.resolution || '',
   };
 };
-
 
 const checklistItems = computed(() => {
   const items: { label: string; icon: string; passed: boolean }[] = [];

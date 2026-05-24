@@ -13,7 +13,12 @@
 
       <q-toolbar-title>
         <div class="header-app-title">
-          <q-icon name="medical_services" size="28px" class="q-mr-sm gt-xs" style="margin-right: 25px" />
+          <q-icon
+            name="medical_services"
+            size="28px"
+            class="q-mr-sm gt-xs"
+            style="margin-right: 25px"
+          />
           <div class="column">
             <span class="text-subtitle1 text-weight-bold" style="font-size: clamp(14px, 4vw, 16px)">
               ระบบบริหารจัดการสอบเทียบเครื่องมือแพทย์
@@ -31,13 +36,18 @@
         <q-badge floating color="red" rounded />
       </q-btn>
 
-      <div class="q-separator-vertical q-my-sm bg-white opacity-20 q-mr-md gt-xs" style="width: 1px" />
+      <div
+        class="q-separator-vertical q-my-sm bg-white opacity-20 q-mr-md gt-xs"
+        style="width: 1px"
+      />
 
       <ProfileCard :name="auth.user?.fullName ?? ''" :role="auth.user?.role ?? ''">
         <div class="row items-center">
           <div class="column text-right q-mr-sm gt-xs">
             <span class="text-weight-bold text-caption">{{ auth.user?.fullName }}</span>
-            <span class="text-caption" style="font-size: 10px; opacity: 0.8">{{ auth.user?.role }}</span>
+            <span class="text-caption" style="font-size: 10px; opacity: 0.8">{{
+              auth.user?.role
+            }}</span>
           </div>
           <q-avatar size="36px" class="header-avatar">
             <img :src="profileImage" alt="User Avatar" />

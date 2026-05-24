@@ -213,8 +213,7 @@ export const pmService = {
   savePmForm: (payload: SavePmPayload) =>
     api.post<{ success: boolean; task_id: number }>('/pm-save', payload),
 
-  getCategories: () =>
-    api.get<ChecklistCategoryApi[]>('/checklist-categories').then((r) => r.data),
+  getCategories: () => api.get<ChecklistCategoryApi[]>('/checklist-categories').then((r) => r.data),
 
   createCategory: (data: { name: string; display_order?: number }) =>
     api.post<ChecklistCategoryApi>('/checklist-categories', data).then((r) => r.data),
@@ -228,8 +227,10 @@ export const pmService = {
   createItem: (data: { category_id: number; description: string; display_order?: number }) =>
     api.post<ChecklistItemApi>('/checklist-items', data).then((r) => r.data),
 
-  updateItem: (id: number, data: { category_id?: number; description?: string; display_order?: number }) =>
-    api.patch<ChecklistItemApi>(`/checklist-items/${id}`, data).then((r) => r.data),
+  updateItem: (
+    id: number,
+    data: { category_id?: number; description?: string; display_order?: number },
+  ) => api.patch<ChecklistItemApi>(`/checklist-items/${id}`, data).then((r) => r.data),
 
   deleteItem: (id: number) =>
     api.delete<{ success: boolean }>(`/checklist-items/${id}`).then((r) => r.data),

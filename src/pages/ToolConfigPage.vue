@@ -70,8 +70,8 @@ onMounted(async () => {
           unit: s.unit || '',
           tolerance: s.tolerance || '1.0',
           stdType: s.std_type || '1 - แบบอ้างอิงเครื่องมือมาตรฐาน',
-          display: s.display_type || 'Digital',
-          uncertainty: s.resolution || '0', // mapped resolution to uncertainty in UI
+          display: s.display_type || '',
+          uncertainty: s.resolution || '', // mapped resolution to uncertainty in UI
           testValues: s.test_values || [],
         }));
 
@@ -91,7 +91,7 @@ onMounted(async () => {
 
 function confirmAddCategory() {
   if (selectedCategoryToAdd.value) {
-    if (!selectedCategories.value.find(c => c.id === selectedCategoryToAdd.value?.id)) {
+    if (!selectedCategories.value.find((c) => c.id === selectedCategoryToAdd.value?.id)) {
       selectedCategories.value.push(selectedCategoryToAdd.value);
     }
     selectedCategoryToAdd.value = null;
@@ -109,8 +109,8 @@ function addQuantitative() {
     unit: '',
     tolerance: '1.0',
     stdType: '1 - แบบอ้างอิงเครื่องมือมาตรฐาน',
-    display: 'Digital',
-    uncertainty: '0',
+    display: '',
+    uncertainty: '',
     testValues: [
       { label: 'ค่าทดสอบที่ 1', value: 0 },
       { label: 'ค่าทดสอบที่ 2', value: 0 },
@@ -227,17 +227,12 @@ async function saveConfig() {
 
           <!-- First empty slot only: show add card -->
           <template v-else-if="slot - 1 === selectedCategories.length">
-            <div
-              class="add-tool-card cursor-pointer"
-              @click="showAddCategoryDialog = true"
-            >
+            <div class="add-tool-card cursor-pointer" @click="showAddCategoryDialog = true">
               <div class="column items-center">
                 <div class="add-icon-circle q-mb-sm">
                   <q-icon name="add" size="32px" color="white" />
                 </div>
-                <span class="text-caption text-weight-bold text-grey-6"
-                  >เพิ่มประเภทเครื่องมือ</span
-                >
+                <span class="text-caption text-weight-bold text-grey-6">เพิ่มประเภทเครื่องมือ</span>
               </div>
             </div>
           </template>

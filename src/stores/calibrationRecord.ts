@@ -221,16 +221,16 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
 
     // 2. Standard Tools (Use categories from configuration to pick physical tools)
     const allowedCategoryIds = settingStore.settings
-      .flatMap(s => s.category_ids || [])
-      .filter(id => !!id)
-      .map(id => Number(id));
-    
+      .flatMap((s) => s.category_ids || [])
+      .filter((id) => !!id)
+      .map((id) => Number(id));
+
     if (allowedCategoryIds.length > 0) {
       const toolStore = useStandardToolStore();
-      const matchingTools = toolStore.tools.filter(t => 
-        t.category_id && allowedCategoryIds.includes(Number(t.category_id))
+      const matchingTools = toolStore.tools.filter(
+        (t) => t.category_id && allowedCategoryIds.includes(Number(t.category_id)),
       );
-      standardToolIds.value = matchingTools.map(t => t.id).slice(0, 2);
+      standardToolIds.value = matchingTools.map((t) => t.id).slice(0, 2);
     } else {
       standardToolIds.value = [1];
     }
@@ -240,7 +240,10 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       .filter((s) => s.type === 'quantitative')
       .map((s) => {
         const stdVal = s.test_values?.[0]?.value ?? 100;
-        const isMode4 = s.std_type?.includes('4') || s.std_type?.includes('3 UUC') || s.std_type?.includes('3 UUC : 3 STD');
+        const isMode4 =
+          s.std_type?.includes('4') ||
+          s.std_type?.includes('3 UUC') ||
+          s.std_type?.includes('3 UUC : 3 STD');
         if (isMode4) {
           const std1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
           const std2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
@@ -305,26 +308,33 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
   }
 
   const isEnvironmentValid = computed(() => {
-    return environment.value.temperature !== null && 
-           environment.value.temperature !== undefined &&
-           environment.value.humidity !== null &&
-           environment.value.humidity !== undefined;
+    return (
+      environment.value.temperature !== null &&
+      environment.value.temperature !== undefined &&
+      environment.value.humidity !== null &&
+      environment.value.humidity !== undefined
+    );
   });
 
   const isStandardToolsValid = computed(() => standardToolIds.value.length > 0);
 
   const isTestsValid = computed(() => {
     const settingStore = useCalibrationSettingStore();
-    const hasQuantSettings = settingStore.settings.some(s => s.type === 'quantitative');
-    const hasQualSettings = settingStore.settings.some(s => s.type === 'qualitative');
+    const hasQuantSettings = settingStore.settings.some((s) => s.type === 'quantitative');
+    const hasQualSettings = settingStore.settings.some((s) => s.type === 'qualitative');
 
     // 1. Check Quantitative (must have all 3 readings for each record)
     if (hasQuantSettings) {
       if (measurements.value.length === 0) return false;
       for (const m of measurements.value) {
-        if (m.reading_1 === null || m.reading_1 === undefined ||
-            m.reading_2 === null || m.reading_2 === undefined ||
-            m.reading_3 === null || m.reading_3 === undefined) {
+        if (
+          m.reading_1 === null ||
+          m.reading_1 === undefined ||
+          m.reading_2 === null ||
+          m.reading_2 === undefined ||
+          m.reading_3 === null ||
+          m.reading_3 === undefined
+        ) {
           return false;
         }
       }
@@ -342,9 +352,7 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
   });
 
   const canSubmit = computed(() => {
-    return isEnvironmentValid.value && 
-           isStandardToolsValid.value && 
-           isTestsValid.value;
+    return isEnvironmentValid.value && isStandardToolsValid.value && isTestsValid.value;
   });
 
   function resetStore() {

@@ -1,6 +1,10 @@
 import { api } from 'src/boot/axios';
 import type { TaskApi } from './pm.service';
-import type { MeasurementRecord, QualitativeRecord, SpecificParameter } from 'src/stores/calibrationRecord';
+import type {
+  MeasurementRecord,
+  QualitativeRecord,
+  SpecificParameter,
+} from 'src/stores/calibrationRecord';
 
 export interface SubmitTaskPayload {
   ambient_temp?: number | null | undefined;

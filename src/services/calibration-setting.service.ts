@@ -27,12 +27,15 @@ export const CalibrationSettingService = {
   getAll: () => api.get<CalibrationSetting[]>('/calibration-setting'),
 
   /** Get settings for a specific equipment */
-  findByEquipment: (name: string) => 
+  findByEquipment: (name: string) =>
     api.get<CalibrationSetting[]>(`/calibration-setting/${encodeURIComponent(name)}`),
 
   /** Save batch of settings for an equipment */
   batchSave: (name: string, settings: CalibrationSetting[]) =>
-    api.post<CalibrationSetting[]>(`/calibration-setting/batch/${encodeURIComponent(name)}`, settings),
+    api.post<CalibrationSetting[]>(
+      `/calibration-setting/batch/${encodeURIComponent(name)}`,
+      settings,
+    ),
 
   /** Delete all settings for an equipment */
   deleteByEquipment: (name: string) =>

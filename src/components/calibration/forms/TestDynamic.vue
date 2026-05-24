@@ -16,13 +16,7 @@
           <div class="row q-col-gutter-md">
             <div class="col-12 col-sm-6">
               <div class="text-caption text-grey-8 q-mb-xs text-weight-medium">IV Set:</div>
-              <q-input
-                v-model="ivSet"
-                outlined
-                dense
-                bg-color="white"
-                placeholder="e.g. Covex"
-              />
+              <q-input v-model="ivSet" outlined dense bg-color="white" placeholder="e.g. Covex" />
             </div>
             <div class="col-12 col-sm-6">
               <div class="text-caption text-grey-8 q-mb-xs text-weight-medium">Drop Rate:</div>
@@ -54,7 +48,9 @@
               />
             </div>
             <div class="col-12 col-sm-6">
-              <div class="text-caption text-grey-8 q-mb-xs text-weight-medium">Occlusion Pressure:</div>
+              <div class="text-caption text-grey-8 q-mb-xs text-weight-medium">
+                Occlusion Pressure:
+              </div>
               <q-input
                 v-model="occlusionPressure"
                 outlined
@@ -149,7 +145,7 @@ watch(
       { name: 'Occlusion Pressure', value: occlusionPressure.value, unit: 'mmHg' },
     ];
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 
 // Initialize data when settings are available or change
@@ -186,8 +182,8 @@ function initializeData() {
   });
 
   paramMetadata.value = quantitativeParams.value.map((param) => ({
-    displayType: param.display_type || 'Digital',
-    resolution: param.resolution || '0.1',
+    displayType: param.display_type || '',
+    resolution: param.resolution || '',
   }));
 
   // 2. Initialize Qualitative
@@ -221,7 +217,8 @@ function initializeData() {
     if (savedIvSet !== undefined && savedIvSet !== null) ivSet.value = savedIvSet;
     if (savedDropRate !== undefined && savedDropRate !== null) dropRate.value = savedDropRate;
     if (savedAir !== undefined && savedAir !== null) air.value = savedAir;
-    if (savedPressure !== undefined && savedPressure !== null) occlusionPressure.value = savedPressure;
+    if (savedPressure !== undefined && savedPressure !== null)
+      occlusionPressure.value = savedPressure;
   }
 }
 
@@ -229,7 +226,10 @@ function fillLocalMockData() {
   // 1. Quantitative
   paramValues.value = paramValues.value.map((rows, i) => {
     const param = quantitativeParams.value[i];
-    const isMode4 = param?.std_type?.includes('4') || param?.std_type?.includes('3 UUC') || param?.std_type?.includes('3 UUC : 3 STD');
+    const isMode4 =
+      param?.std_type?.includes('4') ||
+      param?.std_type?.includes('3 UUC') ||
+      param?.std_type?.includes('3 UUC : 3 STD');
     return rows.map((row) => {
       const stdVal = typeof row.standard === 'number' ? row.standard : 0;
       if (isMode4) {
@@ -301,7 +301,6 @@ watch(
     }
   },
 );
-
 
 const groupedQualitatives = computed(() => qualValues.value);
 

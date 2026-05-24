@@ -6,10 +6,28 @@
           <div class="text-caption text-grey-7 q-mb-xs">{{ title }}</div>
           <div class="text-h4 text-weight-bold q-mb-sm">{{ count }}</div>
           <div class="row items-center">
-            <q-icon v-if="status === 'urgent'" name="warning" color="red" size="xs" class="q-mr-xs" />
-             <q-icon v-else-if="status === 'normal' && isPositiveTrend" name="trending_up" :color="trendColor.split('-')[0]" size="xs" class="q-mr-xs" />
-             <q-icon v-else-if="status === 'warning'" name="schedule" :color="trendColor.split('-')[0]" size="xs" class="q-mr-xs" />
-            
+            <q-icon
+              v-if="status === 'urgent'"
+              name="warning"
+              color="red"
+              size="xs"
+              class="q-mr-xs"
+            />
+            <q-icon
+              v-else-if="status === 'normal' && isPositiveTrend"
+              name="trending_up"
+              :color="trendColor.split('-')[0]"
+              size="xs"
+              class="q-mr-xs"
+            />
+            <q-icon
+              v-else-if="status === 'warning'"
+              name="schedule"
+              :color="trendColor.split('-')[0]"
+              size="xs"
+              class="q-mr-xs"
+            />
+
             <div :class="`text-caption text-weight-medium text-${trendColor}`">
               {{ trend }}
             </div>
@@ -38,7 +56,7 @@ const props = defineProps<{
 }>();
 
 const isPositiveTrend = computed(() => {
-    return props.trend.includes('+');
+  return props.trend.includes('+');
 });
 </script>
 
@@ -51,7 +69,7 @@ const isPositiveTrend = computed(() => {
 
 .summary-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
 }
 
 .icon-box {

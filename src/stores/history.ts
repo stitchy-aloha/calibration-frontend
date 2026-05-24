@@ -43,8 +43,16 @@ export const useHistoryStore = defineStore('history', () => {
           date: String((task.createdAt || '').split('T')[0]),
           deviceName: String(task.equipment?.name || 'Unknown'),
           deviceCode: String(task.equipment?.asset_code || '-'),
-          inspector: String(task.certificate_data?.technician?.name || task.technician?.name || '-'),
-          result: (resVal === 'pass' ? 'pass' : resVal === 'fail' ? 'fail' : resVal === 'na' ? 'na' : 'fail') as CalibrationResult,
+          inspector: String(
+            task.certificate_data?.technician?.name || task.technician?.name || '-',
+          ),
+          result: (resVal === 'pass'
+            ? 'pass'
+            : resVal === 'fail'
+              ? 'fail'
+              : resVal === 'na'
+                ? 'na'
+                : 'fail') as CalibrationResult,
           pathPdfCer: task.path_pdf_cer || null,
         };
       });

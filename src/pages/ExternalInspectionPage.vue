@@ -122,10 +122,10 @@ async function onSubmit() {
       position: 'bottom',
       timeout: 3000,
     });
-    
+
     // Clear form data
     store.resetAll();
-    
+
     if (result === 'ไม่ผ่าน') {
       void router.push('/calibration');
     } else {

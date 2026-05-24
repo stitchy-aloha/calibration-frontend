@@ -1,10 +1,6 @@
 <template>
   <div class="row q-col-gutter-md q-mb-lg">
-    <div
-      v-for="(param, index) in localParameters"
-      :key="index"
-      class="col-12 col-sm-6 col-md-3"
-    >
+    <div v-for="(param, index) in localParameters" :key="index" class="col-12 col-sm-6 col-md-3">
       <q-card flat bordered class="param-box">
         <div class="q-pa-sm">
           <div class="text-caption text-grey-7 q-mb-xs">{{ param.name }}</div>
@@ -50,9 +46,13 @@ onMounted(() => {
 });
 
 // Watch for store changes (e.g., when fetching new record)
-watch(() => store.specificParameters, () => {
-  initParameters();
-}, { deep: true });
+watch(
+  () => store.specificParameters,
+  () => {
+    initParameters();
+  },
+  { deep: true },
+);
 
 const updateStore = () => {
   // Sync local changes back to store

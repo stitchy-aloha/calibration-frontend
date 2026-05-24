@@ -33,7 +33,12 @@
       <!-- Custom header -->
       <template #header="props">
         <q-tr :props="props" class="table-header-row">
-          <q-th v-for="col in props.cols" :key="col.name" :props="props" class="table-th text-weight-bold">
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="table-th text-weight-bold"
+          >
             {{ col.label }}
           </q-th>
         </q-tr>
@@ -58,7 +63,9 @@
             {{ props.row.serial_number || '-' }}
           </q-td>
           <q-td key="calibration_date_last" :props="props" class="text-center">
-            {{ props.row.calibration_date_last ? formatDate(props.row.calibration_date_last) : '-' }}
+            {{
+              props.row.calibration_date_last ? formatDate(props.row.calibration_date_last) : '-'
+            }}
           </q-td>
           <q-td key="actions" :props="props" class="text-center">
             <!-- View Certificate PDF -->
@@ -109,11 +116,7 @@
     </q-table>
 
     <!-- Add/Edit Form Dialog -->
-    <StandardToolDialog
-      v-model="dialogOpen"
-      :tool="selectedTool"
-      @saved="onSaved"
-    />
+    <StandardToolDialog v-model="dialogOpen" :tool="selectedTool" @saved="onSaved" />
 
     <!-- Confirm Delete Dialog -->
     <ConfirmDeleteDialog
@@ -150,12 +153,30 @@ onMounted(async () => {
 
 // Table columns setup
 const columns = [
-  { name: 'asset_code', label: 'รหัส', field: 'asset_code', align: 'center' as const, style: 'width: 100px' },
+  {
+    name: 'asset_code',
+    label: 'รหัส',
+    field: 'asset_code',
+    align: 'center' as const,
+    style: 'width: 100px',
+  },
   { name: 'name', label: 'เครื่องมือมาตรฐาน', field: 'name', align: 'left' as const },
   { name: 'manufacturer', label: 'บริษัท', field: 'manufacturer', align: 'left' as const },
   { name: 'model', label: 'รุ่น', field: 'model', align: 'left' as const },
-  { name: 'serial_number', label: 'หมายเลขเครื่อง', field: 'serial_number', align: 'center' as const, style: 'width: 120px' },
-  { name: 'calibration_date_last', label: 'วันที่สอบเทียบ', field: 'calibration_date_last', align: 'center' as const, style: 'width: 120px' },
+  {
+    name: 'serial_number',
+    label: 'หมายเลขเครื่อง',
+    field: 'serial_number',
+    align: 'center' as const,
+    style: 'width: 120px',
+  },
+  {
+    name: 'calibration_date_last',
+    label: 'วันที่สอบเทียบ',
+    field: 'calibration_date_last',
+    align: 'center' as const,
+    style: 'width: 120px',
+  },
   { name: 'actions', label: '', field: 'id', align: 'center' as const, style: 'width: 120px' },
 ];
 
@@ -199,7 +220,9 @@ async function onDeleteConfirm() {
       position: 'top-right',
     });
   } catch (err: unknown) {
-    const errorMsg = (err as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'ลบข้อมูลล้มเหลว';
+    const errorMsg =
+      (err as { response?: { data?: { message?: string } } }).response?.data?.message ??
+      'ลบข้อมูลล้มเหลว';
     $q.notify({
       type: 'negative',
       message: errorMsg,

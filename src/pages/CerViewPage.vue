@@ -81,16 +81,30 @@
             :measurements="task?.measurements || []"
             :settings="settingStore.settings"
             :specific-parameters="task?.specificParameters || []"
-            :technician="task ? { 
-              name: task.certificate_data?.technician?.name || task.technician?.name || '-', 
-              position: task.technician?.role?.description || 'นายช่างไฟฟ้า', 
-              signatureUrl: task.certificate_data?.technician?.signatureUrl || task.technician?.signatureUrl || null 
-            } : null"
-            :approver="task ? { 
-              name: task.certificate_data?.approver?.name || task.approver?.name || '-', 
-              position: task.approver?.role?.description || 'หัวหน้างาน', 
-              signatureUrl: task.certificate_data?.approver?.signatureUrl || task.approver?.signatureUrl || null, 
-            } : null"
+            :technician="
+              task
+                ? {
+                    name: task.certificate_data?.technician?.name || task.technician?.name || '-',
+                    position: task.technician?.role?.description || 'นายช่างไฟฟ้า',
+                    signatureUrl:
+                      task.certificate_data?.technician?.signatureUrl ||
+                      task.technician?.signatureUrl ||
+                      null,
+                  }
+                : null
+            "
+            :approver="
+              task
+                ? {
+                    name: task.certificate_data?.approver?.name || task.approver?.name || '-',
+                    position: task.approver?.role?.description || 'หัวหน้างาน',
+                    signatureUrl:
+                      task.certificate_data?.approver?.signatureUrl ||
+                      task.approver?.signatureUrl ||
+                      null,
+                  }
+                : null
+            "
             :alarms="alarmsData"
             :standards="standardsData"
           />
@@ -154,13 +168,23 @@ const activeCerData = computed((): CerData => {
     model: t.equipment?.model || '-',
     serialNo: t.equipment?.serial_number || '-',
     idNo: t.equipment?.asset_code || '-',
-    department: t.certificate_data?.hospital?.name || t.equipment?.section?.hospital?.name || t.equipment?.location || 'Hospital',
-    address: t.certificate_data?.hospital?.district 
-      ? [t.certificate_data.hospital.district, t.certificate_data.hospital.province].filter(Boolean).join(' ') 
-      : [t.equipment?.section?.hospital?.district, t.equipment?.section?.hospital?.province].filter(Boolean).join(' ') || '-',
-    section: t.certificate_data?.department?.name 
+    department:
+      t.certificate_data?.hospital?.name ||
+      t.equipment?.section?.hospital?.name ||
+      t.equipment?.location ||
+      'Hospital',
+    address: t.certificate_data?.hospital?.district
+      ? [t.certificate_data.hospital.district, t.certificate_data.hospital.province]
+          .filter(Boolean)
+          .join(' ')
+      : [t.equipment?.section?.hospital?.district, t.equipment?.section?.hospital?.province]
+          .filter(Boolean)
+          .join(' ') || '-',
+    section: t.certificate_data?.department?.name
       ? `${t.certificate_data.department.name} - ${t.equipment?.section?.description || ''}`
-      : t.equipment?.section ? `${t.equipment.section.name} - ${t.equipment.section.description}` : (t.equipment?.department || '-'),
+      : t.equipment?.section
+        ? `${t.equipment.section.name} - ${t.equipment.section.description}`
+        : t.equipment?.department || '-',
     pmDate: t.createdAt
       ? new Date(t.createdAt).toLocaleDateString('en-US', {
           weekday: 'long',
@@ -174,7 +198,14 @@ const activeCerData = computed((): CerData => {
     remark3: t.checklistRemarks?.find((r) => r.category?.name?.includes('บำรุงรักษา'))?.text || '',
     overallResult: t.overall_result?.toLowerCase() === 'pass' ? 'pass' : 'fail',
     qualitatives: (t.certificate_data as Record<string, unknown>)?.pmChecklist
-      ? ((t.certificate_data as Record<string, unknown>).pmChecklist as { description: string; status: 'Pass' | 'Fail' | 'NA'; category_id: number; display_order: number }[]).map((r) => ({
+      ? (
+          (t.certificate_data as Record<string, unknown>).pmChecklist as {
+            description: string;
+            status: 'Pass' | 'Fail' | 'NA';
+            category_id: number;
+            display_order: number;
+          }[]
+        ).map((r) => ({
           item_name: r.description || '-',
           result: r.status,
           category_id: r.category_id,
@@ -189,7 +220,8 @@ const activeCerData = computed((): CerData => {
     technician: t
       ? {
           name: t.certificate_data?.technician?.name || t.technician?.name || '-',
-          signatureUrl: t.certificate_data?.technician?.signatureUrl || t.technician?.signatureUrl || null,
+          signatureUrl:
+            t.certificate_data?.technician?.signatureUrl || t.technician?.signatureUrl || null,
           role: {
             description: t.technician?.role?.description || '-',
           },
@@ -236,9 +268,15 @@ const calibrationCertData = computed((): CerCalibrationData => {
     model: t?.equipment?.model || '-',
     serialNo: t?.equipment?.serial_number || '-',
     idNo: t?.equipment?.asset_code || '-',
-    department: t?.certificate_data?.hospital?.name || t?.equipment?.section?.hospital?.name || t?.equipment?.location || 'Hospital',
+    department:
+      t?.certificate_data?.hospital?.name ||
+      t?.equipment?.section?.hospital?.name ||
+      t?.equipment?.location ||
+      'Hospital',
     address: t?.certificate_data?.hospital?.district
-      ? [t.certificate_data.hospital.district, t.certificate_data.hospital.province].filter(Boolean).join(' ')
+      ? [t.certificate_data.hospital.district, t.certificate_data.hospital.province]
+          .filter(Boolean)
+          .join(' ')
       : [t?.equipment?.section?.hospital?.district, t?.equipment?.section?.hospital?.province]
           .filter(Boolean)
           .join(' ') || '-',
@@ -247,12 +285,16 @@ const calibrationCertData = computed((): CerCalibrationData => {
       : t?.equipment?.section
         ? `${t.equipment.section.name} - ${t.equipment.section.description}`
         : t?.equipment?.department || '-',
-    temperature: t?.environments?.[0]?.ambient_temp !== undefined && t?.environments?.[0]?.ambient_temp !== null
-      ? Number(t.environments[0].ambient_temp).toFixed(1)
-      : '25.0',
-    humidity: t?.environments?.[0]?.ambient_humidity !== undefined && t?.environments?.[0]?.ambient_humidity !== null
-      ? Number(t.environments[0].ambient_humidity).toFixed(1)
-      : '45.0',
+    temperature:
+      t?.environments?.[0]?.ambient_temp !== undefined &&
+      t?.environments?.[0]?.ambient_temp !== null
+        ? Number(t.environments[0].ambient_temp).toFixed(1)
+        : '25.0',
+    humidity:
+      t?.environments?.[0]?.ambient_humidity !== undefined &&
+      t?.environments?.[0]?.ambient_humidity !== null
+        ? Number(t.environments[0].ambient_humidity).toFixed(1)
+        : '45.0',
     calDate: t?.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB') : '-',
     apprDate: t?.approvedAt ? new Date(t.approvedAt).toLocaleDateString('en-GB') : '-',
     hospital: t?.certificate_data?.hospital?.name
@@ -461,7 +503,7 @@ async function downloadPdf() {
 
   try {
     const blob = await html2pdf().set(opt).from(cerRef.value).output('blob');
-    
+
     // Save locally for the user
     void html2pdf().set(opt).from(cerRef.value).save();
 
@@ -474,7 +516,7 @@ async function downloadPdf() {
         position: 'top',
       });
       // Update local task state to reflect it's saved (optional)
-      task.value.path_pdf_cer = 'uploaded'; 
+      task.value.path_pdf_cer = 'uploaded';
     }
   } catch (error) {
     console.error('PDF Generation/Upload Error:', error);

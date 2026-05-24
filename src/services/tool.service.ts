@@ -53,7 +53,6 @@ export interface Section {
   hospital?: Hospital;
 }
 
-
 export const SectionService = {
   getAll: () => api.get<Section[]>('/section'),
   getByHospital: (hospitalId: number) => api.get<Section[]>(`/section?hospitalId=${hospitalId}`),

@@ -13,9 +13,7 @@
       </div>
 
       <!-- Right Column: Current Date Events -->
-      <div
-        class="col-12 col-md-5 col-lg-4 flex column relative-position schedule-col"
-      >
+      <div class="col-12 col-md-5 col-lg-4 flex column relative-position schedule-col">
         <!-- Purple Rounded Header Box -->
         <div
           class="bg-secondary text-white q-pa-lg shadow-1 q-mb-md"

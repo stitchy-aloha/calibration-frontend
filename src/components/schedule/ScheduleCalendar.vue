@@ -6,7 +6,9 @@
       <div class="text-subtitle1 text-weight-bold q-mx-sm">{{ monthYearString }}</div>
       <q-btn flat round dense icon="chevron_right" color="grey-8" @click="nextMonth" />
       <q-space />
-      <div class="text-grey-6 text-caption hide-on-mobile">แสดง {{ totalEventsInMonth }} รายการ</div>
+      <div class="text-grey-6 text-caption hide-on-mobile">
+        แสดง {{ totalEventsInMonth }} รายการ
+      </div>
     </div>
 
     <q-separator />
@@ -40,12 +42,17 @@
           <div class="day-content column items-center full-width">
             <div
               class="date-number"
-              :class="{ 'today-ring': isToday(date), 'text-primary text-weight-bolder': isSelected(date) }"
+              :class="{
+                'today-ring': isToday(date),
+                'text-primary text-weight-bolder': isSelected(date),
+              }"
             >
               {{ date }}
             </div>
 
-            <div class="calendar-badges column items-center q-gutter-y-xs full-width q-px-xs q-mt-xs">
+            <div
+              class="calendar-badges column items-center q-gutter-y-xs full-width q-px-xs q-mt-xs"
+            >
               <div v-if="getOtherEventCount(date) > 0" class="date-badge badge-other">
                 {{ getOtherEventCount(date) }} เครื่อง
               </div>
@@ -61,7 +68,9 @@
     <q-separator />
 
     <!-- Footer Legend -->
-    <div class="calendar-footer row items-center q-px-md q-py-sm q-gutter-x-md no-wrap overflow-hidden">
+    <div
+      class="calendar-footer row items-center q-px-md q-py-sm q-gutter-x-md no-wrap overflow-hidden"
+    >
       <div class="legend-item flex items-center no-wrap">
         <div class="legend-dot bg-grey-4 q-mr-xs"></div>
         <span class="text-caption text-grey-8 no-wrap">งานทั้งหมด</span>
@@ -85,13 +94,27 @@ const currentYear = ref(currentDate.getFullYear());
 const currentMonth = ref(currentDate.getMonth());
 
 const thaiMonths = [
-  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+  'มกราคม',
+  'กุมภาพันธ์',
+  'มีนาคม',
+  'เมษายน',
+  'พฤษภาคม',
+  'มิถุนายน',
+  'กรกฎาคม',
+  'สิงหาคม',
+  'กันยายน',
+  'ตุลาคม',
+  'พฤศจิกายน',
+  'ธันวาคม',
 ];
 
-const monthYearString = computed(() => `${thaiMonths[currentMonth.value]} ${currentYear.value + 543}`);
+const monthYearString = computed(
+  () => `${thaiMonths[currentMonth.value]} ${currentYear.value + 543}`,
+);
 
-const daysInMonth = computed(() => new Date(currentYear.value, currentMonth.value + 1, 0).getDate());
+const daysInMonth = computed(() =>
+  new Date(currentYear.value, currentMonth.value + 1, 0).getDate(),
+);
 const blankDays = computed(() => new Date(currentYear.value, currentMonth.value, 1).getDay());
 
 const totalEventsInMonth = computed(() => {
@@ -110,12 +133,14 @@ function getDateStr(day: number) {
 
 function getMyEventCount(day: number) {
   const dateStr = getDateStr(day);
-  return store.events.filter(e => e.dueDate === dateStr && e.assignedTo === store.currentUserName).length;
+  return store.events.filter((e) => e.dueDate === dateStr && e.assignedTo === store.currentUserName)
+    .length;
 }
 
 function getOtherEventCount(day: number) {
   const dateStr = getDateStr(day);
-  return store.events.filter(e => e.dueDate === dateStr && e.assignedTo !== store.currentUserName).length;
+  return store.events.filter((e) => e.dueDate === dateStr && e.assignedTo !== store.currentUserName)
+    .length;
 }
 
 function isSelected(day: number) {
@@ -124,7 +149,11 @@ function isSelected(day: number) {
 
 function isToday(day: number) {
   const d = new Date();
-  return d.getDate() === day && d.getMonth() === currentMonth.value && d.getFullYear() === currentYear.value;
+  return (
+    d.getDate() === day &&
+    d.getMonth() === currentMonth.value &&
+    d.getFullYear() === currentYear.value
+  );
 }
 
 function selectDate(day: number) {
