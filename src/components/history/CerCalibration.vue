@@ -502,14 +502,14 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
 });
 
 const getCol2Header = (group: GroupedParameter) => {
-  const isUut = group.std_type?.includes('2') && group.std_type?.includes('UUT');
-  const label = isUut ? 'UUC Setting' : 'STD Setting';
+  const isUUC = group.std_type?.includes('2') && group.std_type?.includes('UUC');
+  const label = isUUC ? 'UUC Setting' : 'STD Setting';
   return group.unit ? `${label} (${group.unit})` : label;
 };
 
 const getCol3Header = (group: GroupedParameter) => {
-  const isUut = group.std_type?.includes('2') && group.std_type?.includes('UUT');
-  const label = isUut ? 'STD Reading' : 'UUC Reading';
+  const isUUC = group.std_type?.includes('2') && group.std_type?.includes('UUC');
+  const label = isUUC ? 'STD Reading' : 'UUC Reading';
   return group.unit ? `${label} (${group.unit})` : label;
 };
 

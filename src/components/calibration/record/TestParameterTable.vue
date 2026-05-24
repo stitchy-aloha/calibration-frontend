@@ -270,34 +270,35 @@ const emit = defineEmits<{
 const showRange = computed(() => props.showRange !== false);
 
 const allColumns = computed<QTableProps['columns']>(() => {
-  // Flexible detection: look for '2' and 'UUT'/'STD' keywords
-  const isMode2 = props.stdType?.includes('2') && 
-                 (props.stdType?.includes('UUT') || props.stdType?.includes('STD'));
-  
+  // Flexible detection: look for '2' and 'UUC'/'STD' keywords
+  const isMode2 =
+    props.stdType?.includes('2') &&
+    (props.stdType?.includes('UUC') || props.stdType?.includes('STD'));
+
   return [
-    { 
-      name: 'standard', 
-      label: isMode2 ? 'UUC Setting' : 'STD Setting', 
-      field: 'standard', 
-      align: 'center' 
+    {
+      name: 'standard',
+      label: isMode2 ? 'UUC Setting' : 'STD Setting',
+      field: 'standard',
+      align: 'center',
     },
-    { 
-      name: 'val1', 
-      label: isMode2 ? 'STD-1' : 'UUC-1', 
-      field: 'val1', 
-      align: 'center' 
+    {
+      name: 'val1',
+      label: isMode2 ? 'STD-1' : 'UUC-1',
+      field: 'val1',
+      align: 'center',
     },
-    { 
-      name: 'val2', 
-      label: isMode2 ? 'STD-2' : 'UUC-2', 
-      field: 'val2', 
-      align: 'center' 
+    {
+      name: 'val2',
+      label: isMode2 ? 'STD-2' : 'UUC-2',
+      field: 'val2',
+      align: 'center',
     },
-    { 
-      name: 'val3', 
-      label: isMode2 ? 'STD-3' : 'UUC-3', 
-      field: 'val3', 
-      align: 'center' 
+    {
+      name: 'val3',
+      label: isMode2 ? 'STD-3' : 'UUC-3',
+      field: 'val3',
+      align: 'center',
     },
     { name: 'average', label: 'Mean', field: 'average', align: 'center' },
     { name: 'error', label: 'Error', field: 'error', align: 'center' },

@@ -35,8 +35,17 @@
         />
       </div>
 
-      <!-- Row 2: Model + Type -->
+      <!-- Row 2: Manufacturer + Model -->
       <div class="form-row">
+        <q-input
+          v-model="form.company"
+          label="ผู้ผลิต / Manufacturer"
+          placeholder="ระบุผู้ผลิต (เช่น Omron, Philips)"
+          outlined
+          dense
+          bg-color="white"
+          class="form-field"
+        />
         <q-input
           v-model="form.model"
           label="ชื่อรุ่น / Model"
@@ -46,6 +55,10 @@
           bg-color="white"
           class="form-field"
         />
+      </div>
+
+      <!-- Row 3: Type + Serial Number -->
+      <div class="form-row">
         <q-select
           v-model="form.equipment_type_id"
           :options="toolsStore.equipmentTypes"
@@ -59,9 +72,18 @@
           bg-color="white"
           class="form-field"
         />
+        <q-input
+          v-model="form.serialNumber"
+          label="หมายเลขเครื่อง (Serial No.)"
+          placeholder="ระบุ S/N"
+          outlined
+          dense
+          bg-color="white"
+          class="form-field"
+        />
       </div>
 
-      <!-- Row 3: Risk Level + Serial Number -->
+      <!-- Row 4: Risk Level + Calibration Cycle -->
       <div class="form-row">
         <q-select
           v-model="form.riskLevel"
@@ -79,19 +101,6 @@
           class="form-field"
         />
         <q-input
-          v-model="form.serialNumber"
-          label="หมายเลขเครื่อง (Serial No.)"
-          placeholder="ระบุ S/N"
-          outlined
-          dense
-          bg-color="white"
-          class="form-field"
-        />
-      </div>
-
-      <!-- Row 4: Calibration Cycle + Due Date -->
-      <div class="form-row">
-        <q-input
           v-model="form.calibrationCycle"
           label="รอบสอบเทียบ *"
           outlined
@@ -103,6 +112,10 @@
             <span class="text-grey-6" style="font-size: 13px">เดือน</span>
           </template>
         </q-input>
+      </div>
+
+      <!-- Row 5: Due Date + Section -->
+      <div class="form-row">
         <q-input
           v-model="form.dueDate"
           label="ครบกำหนด (Due Date)"
@@ -125,10 +138,6 @@
             </q-icon>
           </template>
         </q-input>
-      </div>
-
-      <!-- Row 5: Section + Status -->
-      <div class="form-row">
         <q-select
           v-model="form.sectionId"
           :options="filteredSections"
@@ -143,6 +152,10 @@
           class="form-field"
           :disable="!form.hospitalId"
         />
+      </div>
+
+      <!-- Row 6: Status -->
+      <div class="form-row">
         <q-select
           v-model="form.status"
           :options="toolsStore.statusOptions"
@@ -156,6 +169,7 @@
           bg-color="white"
           class="form-field"
         />
+        <div class="form-field"></div>
       </div>
     </div>
 
@@ -244,6 +258,7 @@ watch(
       Object.assign(form, {
         id: t.id,
         name: t.name,
+        company: t.company,
         model: t.model,
         type: t.type,
         equipment_type_id: t.equipment_type_id ?? null,

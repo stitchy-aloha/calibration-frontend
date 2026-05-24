@@ -60,6 +60,7 @@
         <q-tr :props="props" class="table-body-row">
           <q-td key="id" :props="props" class="col-id">{{ props.row.id }}</q-td>
           <q-td key="name" :props="props" class="col-name">{{ props.row.name }}</q-td>
+          <q-td key="company" :props="props">{{ props.row.company }}</q-td>
           <q-td key="model" :props="props">{{ props.row.model }}</q-td>
           <q-td key="type" :props="props">{{ props.row.type }}</q-td>
           <q-td key="riskLevel" :props="props" class="text-center">
@@ -211,6 +212,14 @@ const baseColumns: QTableProps['columns'] = [
     align: 'left',
     sortable: true,
     style: 'width: 200px; min-width: 160px',
+  },
+  {
+    name: 'company',
+    label: 'ผู้ผลิต',
+    field: 'company',
+    align: 'left',
+    sortable: true,
+    style: 'width: 130px; min-width: 100px',
   },
   {
     name: 'model',
