@@ -228,8 +228,8 @@ function fillLocalMockData() {
     const param = quantitativeParams.value[i];
     const isMode4 =
       param?.std_type?.includes('4') ||
-      param?.std_type?.includes('3 UUC') ||
-      param?.std_type?.includes('3 UUC : 3 STD');
+      param?.std_type?.includes('3 UUC : 3 STD') ||
+      (param?.std_type?.includes('3 UUC') && !param?.std_type?.includes('1 STD'));
     return rows.map((row) => {
       const stdVal = typeof row.standard === 'number' ? row.standard : 0;
       if (isMode4) {

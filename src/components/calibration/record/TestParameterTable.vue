@@ -299,8 +299,8 @@ const emit = defineEmits<{
 const isMode4 = computed(() => {
   return (
     props.stdType?.includes('4') ||
-    props.stdType?.includes('3 UUC') ||
-    props.stdType?.includes('3 UUC : 3 STD')
+    props.stdType?.includes('3 UUC : 3 STD') ||
+    (props.stdType?.includes('3 UUC') && !props.stdType?.includes('1 STD'))
   );
 });
 
@@ -308,6 +308,7 @@ const allColumns = computed<QTableProps['columns']>(() => {
   const isMode2 =
     props.stdType?.includes('2') &&
     (props.stdType?.includes('UUC') || props.stdType?.includes('STD'));
+  const isUUT = props.stdType?.includes('UUT');
 
   const cols: QTableProps['columns'] = [];
 
@@ -328,30 +329,30 @@ const allColumns = computed<QTableProps['columns']>(() => {
     cols.push(
       {
         name: 'standard',
-        label: isMode2 ? 'UUC Setting' : 'STD Setting',
+        label: isUUT ? 'STD Setting' : isMode2 ? 'UUC Setting' : 'STD Setting',
         field: 'standard',
         align: 'center',
       },
       {
         name: 'val1',
-        label: isMode2 ? 'STD-1' : 'UUC-1',
+        label: isUUT ? 'UUT-1' : isMode2 ? 'STD-1' : 'UUC-1',
         field: 'val1',
         align: 'center',
       },
       {
         name: 'val2',
-        label: isMode2 ? 'STD-2' : 'UUC-2',
+        label: isUUT ? 'UUT-2' : isMode2 ? 'STD-2' : 'UUC-2',
         field: 'val2',
         align: 'center',
       },
       {
         name: 'val3',
-        label: isMode2 ? 'STD-3' : 'UUC-3',
+        label: isUUT ? 'UUT-3' : isMode2 ? 'STD-3' : 'UUC-3',
         field: 'val3',
         align: 'center',
       },
       { name: 'average', label: 'Mean', field: 'average', align: 'center' },
-      { name: 'error', label: 'Error', field: 'error', align: 'center' },
+      { name: 'error', label: isUUT ? 'Err' : 'Error', field: 'error', align: 'center' },
       { name: 'status', label: 'Result', field: 'status', align: 'center' },
     );
   }

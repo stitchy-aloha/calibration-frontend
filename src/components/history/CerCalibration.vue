@@ -525,8 +525,8 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
 
     const isM4 =
       first?.std_type?.includes('4') ||
-      first?.std_type?.includes('3 UUC') ||
-      first?.std_type?.includes('3 UUC : 3 STD');
+      first?.std_type?.includes('3 UUC : 3 STD') ||
+      (first?.std_type?.includes('3 UUC') && !first?.std_type?.includes('1 STD'));
 
     const parsedRows = items.map((item) => {
       const getVal = (key: string): unknown => {
@@ -572,13 +572,15 @@ const isMode4 = (group: GroupedParameter) => {
 
 const getCol2Header = (group: GroupedParameter) => {
   const isUUC = group.std_type?.includes('2') && group.std_type?.includes('UUC');
-  const label = isUUC ? 'UUC Setting' : 'STD Setting';
+  const isUUT = group.std_type?.includes('UUT');
+  const label = isUUC ? 'UUC Setting' : (isUUT ? 'STD' : 'STD Setting');
   return group.unit ? `${label} (${group.unit})` : label;
 };
 
 const getCol3Header = (group: GroupedParameter) => {
   const isUUC = group.std_type?.includes('2') && group.std_type?.includes('UUC');
-  const label = isUUC ? 'STD Reading' : 'UUC Reading';
+  const isUUT = group.std_type?.includes('UUT');
+  const label = isUUC ? 'STD Reading' : (isUUT ? 'UUT Reading' : 'UUC Reading');
   return group.unit ? `${label} (${group.unit})` : label;
 };
 

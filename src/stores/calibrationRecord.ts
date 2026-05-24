@@ -242,8 +242,8 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
         const stdVal = s.test_values?.[0]?.value ?? 100;
         const isMode4 =
           s.std_type?.includes('4') ||
-          s.std_type?.includes('3 UUC') ||
-          s.std_type?.includes('3 UUC : 3 STD');
+          s.std_type?.includes('3 UUC : 3 STD') ||
+          (s.std_type?.includes('3 UUC') && !s.std_type?.includes('1 STD'));
         if (isMode4) {
           const std1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
           const std2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
