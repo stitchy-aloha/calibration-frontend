@@ -121,26 +121,70 @@
           <tbody>
             <template v-if="groupedMeasurements.length > 0">
               <template v-for="(group, gIdx) in groupedMeasurements" :key="gIdx">
-                <!-- Parameter Header Row -->
-                <tr class="param-header-row">
-                  <td class="text-left label-col param-title">
-                    <u>{{ group.parameter_name }}</u>
-                  </td>
-                  <td class="text-weight-bold">{{ getCol2Header(group) }}</td>
-                  <td class="text-weight-bold">{{ getCol3Header(group) }}</td>
-                  <td class="text-weight-bold">Error ({{ group.unit }})</td>
-                  <td class="text-weight-bold">Uncertaintry (± {{ group.unit }})</td>
-                  <td class="text-weight-bold">MPE (± {{ group.unit }})</td>
-                </tr>
-                <!-- Parameter Data Rows -->
-                <tr v-for="(m, mIdx) in group.rows" :key="mIdx" class="param-data-row">
-                  <td class="text-left"></td>
-                  <td>{{ formatValue(m.standard_value) }}</td>
-                  <td class="text-weight-bold">{{ formatValue(m.average_value) }}</td>
-                  <td>{{ formatValue(m.error_value) }}</td>
-                  <td>{{ formatValue(group.uncertainty) }}</td>
-                  <td>{{ formatValue(group.mpe) }}</td>
-                </tr>
+                <!-- Mode 4 Template (3 UUC : 3 STD) -->
+                <template v-if="isMode4(group)">
+                  <!-- Parameter Header Row 1 -->
+                  <tr class="param-header-row">
+                    <td class="text-left label-col param-title" rowspan="2">
+                      <u>{{ group.parameter_name }}</u>
+                    </td>
+                    <td class="text-weight-bold" colspan="4">Standard Readings (STD)</td>
+                    <td class="text-weight-bold" colspan="4">UUC Readings</td>
+                    <td class="text-weight-bold" rowspan="2">Error ({{ group.unit }})</td>
+                    <td class="text-weight-bold" rowspan="2">Uncertaintry (± {{ group.unit }})</td>
+                    <td class="text-weight-bold" rowspan="2">MPE (± {{ group.unit }})</td>
+                  </tr>
+                  <!-- Parameter Header Row 2 -->
+                  <tr class="param-header-row">
+                    <td class="text-weight-bold">STD-1</td>
+                    <td class="text-weight-bold">STD-2</td>
+                    <td class="text-weight-bold">STD-3</td>
+                    <td class="text-weight-bold text-italic">Mean-S</td>
+                    <td class="text-weight-bold">UUC-1</td>
+                    <td class="text-weight-bold">UUC-2</td>
+                    <td class="text-weight-bold">UUC-3</td>
+                    <td class="text-weight-bold text-italic">Mean-U</td>
+                  </tr>
+                  <!-- Parameter Data Rows -->
+                  <tr v-for="(m, mIdx) in group.rows" :key="'m4-' + mIdx" class="param-data-row">
+                    <td class="text-left"></td>
+                    <td>{{ formatValue(m.std_reading_1) }}</td>
+                    <td>{{ formatValue(m.std_reading_2) }}</td>
+                    <td>{{ formatValue(m.std_reading_3) }}</td>
+                    <td class="text-weight-bold text-italic">{{ formatValue(m.average_standard) }}</td>
+                    <td>{{ formatValue(m.reading_1) }}</td>
+                    <td>{{ formatValue(m.reading_2) }}</td>
+                    <td>{{ formatValue(m.reading_3) }}</td>
+                    <td class="text-weight-bold text-italic">{{ formatValue(m.average_value) }}</td>
+                    <td>{{ formatValue(m.error_value) }}</td>
+                    <td>{{ formatValue(group.uncertainty) }}</td>
+                    <td>{{ formatValue(group.mpe) }}</td>
+                  </tr>
+                </template>
+
+                <!-- Standard Calibration Modes Template -->
+                <template v-else>
+                  <!-- Parameter Header Row -->
+                  <tr class="param-header-row">
+                    <td class="text-left label-col param-title">
+                      <u>{{ group.parameter_name }}</u>
+                    </td>
+                    <td class="text-weight-bold">{{ getCol2Header(group) }}</td>
+                    <td class="text-weight-bold">{{ getCol3Header(group) }}</td>
+                    <td class="text-weight-bold">Error ({{ group.unit }})</td>
+                    <td class="text-weight-bold">Uncertaintry (± {{ group.unit }})</td>
+                    <td class="text-weight-bold">MPE (± {{ group.unit }})</td>
+                  </tr>
+                  <!-- Parameter Data Rows -->
+                  <tr v-for="(m, mIdx) in group.rows" :key="mIdx" class="param-data-row">
+                    <td class="text-left"></td>
+                    <td>{{ formatValue(m.standard_value) }}</td>
+                    <td class="text-weight-bold">{{ formatValue(m.average_value) }}</td>
+                    <td>{{ formatValue(m.error_value) }}</td>
+                    <td>{{ formatValue(group.uncertainty) }}</td>
+                    <td>{{ formatValue(group.mpe) }}</td>
+                  </tr>
+                </template>
               </template>
             </template>
             <template v-else>
@@ -296,7 +340,11 @@ export interface MeasurementApi {
   reading_1: number;
   reading_2: number;
   reading_3: number;
+  std_reading_1?: number;
+  std_reading_2?: number;
+  std_reading_3?: number;
   average_value: number;
+  average_standard?: number;
   error_value: number;
   result: 'PASS' | 'FAIL';
   display_type?: string;
@@ -476,7 +524,7 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
     const parsedRows = items.map((item) => {
       const getVal = (key: string): unknown => {
         const d = item.data;
-        if (d && typeof d === 'object' && key in d) {
+        if (d && typeof d === 'object' && d !== null && key in d) {
           return d[key];
         }
         return (item as unknown as Record<string, unknown>)[key];
@@ -485,7 +533,14 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
       return {
         ...item,
         standard_value: getVal('standard_value'),
+        reading_1: getVal('reading_1'),
+        reading_2: getVal('reading_2'),
+        reading_3: getVal('reading_3'),
+        std_reading_1: getVal('std_reading_1'),
+        std_reading_2: getVal('std_reading_2'),
+        std_reading_3: getVal('std_reading_3'),
         average_value: getVal('average_value'),
+        average_standard: getVal('average_standard'),
         error_value: getVal('error_value'),
       } as unknown as MeasurementApi;
     });
@@ -500,6 +555,14 @@ const groupedMeasurements = computed((): GroupedParameter[] => {
     };
   });
 });
+
+const isMode4 = (group: GroupedParameter) => {
+  return (
+    group.std_type?.includes('4') ||
+    group.std_type?.includes('3 UUC') ||
+    group.std_type?.includes('3 UUC : 3 STD')
+  );
+};
 
 const getCol2Header = (group: GroupedParameter) => {
   const isUUC = group.std_type?.includes('2') && group.std_type?.includes('UUC');

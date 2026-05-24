@@ -55,6 +55,7 @@ const stdTypeOptions = [
   '1 - แบบอ้างอิงเครื่องมาตรฐาน (1 STD : 3 UUC)',
   '2 - แบบอ้างอิงเครื่องถูกสอบ (1 UUC : 3 STD)',
   '3 - แบบจับคู่วัดหลายตำแหน่ง (Multi-Point)',
+  '4 - แบบจับคู่วัดสามตำแหน่ง (3 UUC : 3 STD)',
 ];
 const displayOptions = ['Digital', 'Analog'];
 </script>

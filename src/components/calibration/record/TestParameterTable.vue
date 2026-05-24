@@ -97,8 +97,9 @@
           </span>
         </q-td>
 
-        <!-- ค่ามาตรฐาน: double-click to edit inline -->
+        <!-- ค่ามาตรฐาน: double-click to edit inline (Only when NOT Mode 4) -->
         <q-td
+          v-if="!isMode4"
           key="standard"
           :props="props"
           class="text-center"
@@ -139,10 +140,40 @@
           />
         </q-td>
 
+        <!-- STD 1 (Only in Mode 4) -->
+        <q-td v-if="isMode4" key="stdVal1" :props="props">
+          <q-input
+            v-model.number="props.row.stdVal1"
+            type="number"
+            outlined
+            dense
+            bg-color="white"
+            input-class="text-center"
+            style="min-width: 70px"
+            @click.stop
+            @update:model-value="calculate(props.rowIndex)"
+          />
+        </q-td>
+
         <!-- ครั้งที่ 2 -->
         <q-td key="val2" :props="props">
           <q-input
             v-model.number="props.row.val2"
+            type="number"
+            outlined
+            dense
+            bg-color="white"
+            input-class="text-center"
+            style="min-width: 70px"
+            @click.stop
+            @update:model-value="calculate(props.rowIndex)"
+          />
+        </q-td>
+
+        <!-- STD 2 (Only in Mode 4) -->
+        <q-td v-if="isMode4" key="stdVal2" :props="props">
+          <q-input
+            v-model.number="props.row.stdVal2"
             type="number"
             outlined
             dense
@@ -169,9 +200,29 @@
           />
         </q-td>
 
+        <!-- STD 3 (Only in Mode 4) -->
+        <q-td v-if="isMode4" key="stdVal3" :props="props">
+          <q-input
+            v-model.number="props.row.stdVal3"
+            type="number"
+            outlined
+            dense
+            bg-color="white"
+            input-class="text-center"
+            style="min-width: 70px"
+            @click.stop
+            @update:model-value="calculate(props.rowIndex)"
+          />
+        </q-td>
+
         <!-- ค่าเฉลี่ย -->
         <q-td key="average" :props="props" class="text-center text-weight-bold">
           {{ props.row.average !== null ? props.row.average : '-' }}
+        </q-td>
+
+        <!-- ค่าเฉลี่ยมาตรฐาน (Mean-S) (Only in Mode 4) -->
+        <q-td v-if="isMode4" key="averageStd" :props="props" class="text-center text-weight-bold">
+          {{ props.row.averageStd !== null ? props.row.averageStd : '-' }}
         </q-td>
 
         <!-- ค่าความคาดเคลื่อน -->
@@ -226,7 +277,11 @@ export interface TestRow {
   val1: number | null;
   val2: number | null;
   val3: number | null;
+  stdVal1?: number | null;
+  stdVal2?: number | null;
+  stdVal3?: number | null;
   average: number | null;
+  averageStd?: number | null;
   error: number | null;
   status: 'pass' | 'fail' | null;
   std_type?: string | undefined;
@@ -269,41 +324,75 @@ const emit = defineEmits<{
 
 const showRange = computed(() => props.showRange !== false);
 
+const isMode4 = computed(() => {
+  return (
+    props.stdType?.includes('4') ||
+    props.stdType?.includes('3 UUC') ||
+    props.stdType?.includes('3 UUC : 3 STD')
+  );
+});
+
 const allColumns = computed<QTableProps['columns']>(() => {
-  // Flexible detection: look for '2' and 'UUC'/'STD' keywords
   const isMode2 =
     props.stdType?.includes('2') &&
     (props.stdType?.includes('UUC') || props.stdType?.includes('STD'));
 
-  return [
-    {
-      name: 'standard',
-      label: isMode2 ? 'UUC Setting' : 'STD Setting',
-      field: 'standard',
-      align: 'center',
-    },
-    {
-      name: 'val1',
-      label: isMode2 ? 'STD-1' : 'UUC-1',
-      field: 'val1',
-      align: 'center',
-    },
-    {
-      name: 'val2',
-      label: isMode2 ? 'STD-2' : 'UUC-2',
-      field: 'val2',
-      align: 'center',
-    },
-    {
-      name: 'val3',
-      label: isMode2 ? 'STD-3' : 'UUC-3',
-      field: 'val3',
-      align: 'center',
-    },
-    { name: 'average', label: 'Mean', field: 'average', align: 'center' },
-    { name: 'error', label: 'Error', field: 'error', align: 'center' },
-    { name: 'status', label: 'Result', field: 'status', align: 'center' },
-  ];
+  const cols: QTableProps['columns'] = [];
+
+  // Add range if shown
+  cols.push({
+    name: 'range',
+    label: 'ช่วง',
+    field: 'range',
+    align: 'center',
+  });
+
+  if (isMode4.value) {
+    cols.push(
+      { name: 'val1', label: 'UUC-1', field: 'val1', align: 'center' },
+      { name: 'stdVal1', label: 'STD-1', field: 'stdVal1', align: 'center' },
+      { name: 'val2', label: 'UUC-2', field: 'val2', align: 'center' },
+      { name: 'stdVal2', label: 'STD-2', field: 'stdVal2', align: 'center' },
+      { name: 'val3', label: 'UUC-3', field: 'val3', align: 'center' },
+      { name: 'stdVal3', label: 'STD-3', field: 'stdVal3', align: 'center' },
+      { name: 'average', label: 'Mean-U', field: 'average', align: 'center' },
+      { name: 'averageStd', label: 'Mean-S', field: 'averageStd', align: 'center' },
+      { name: 'error', label: 'Error', field: 'error', align: 'center' },
+      { name: 'status', label: 'Result', field: 'status', align: 'center' },
+    );
+  } else {
+    cols.push(
+      {
+        name: 'standard',
+        label: isMode2 ? 'UUC Setting' : 'STD Setting',
+        field: 'standard',
+        align: 'center',
+      },
+      {
+        name: 'val1',
+        label: isMode2 ? 'STD-1' : 'UUC-1',
+        field: 'val1',
+        align: 'center',
+      },
+      {
+        name: 'val2',
+        label: isMode2 ? 'STD-2' : 'UUC-2',
+        field: 'val2',
+        align: 'center',
+      },
+      {
+        name: 'val3',
+        label: isMode2 ? 'STD-3' : 'UUC-3',
+        field: 'val3',
+        align: 'center',
+      },
+      { name: 'average', label: 'Mean', field: 'average', align: 'center' },
+      { name: 'error', label: 'Error', field: 'error', align: 'center' },
+      { name: 'status', label: 'Result', field: 'status', align: 'center' },
+    );
+  }
+
+  return cols;
 });
 
 const visibleColumns = computed(() =>
@@ -368,37 +457,83 @@ const calculate = (index: number) => {
   const row = rows.value[index];
   if (!row) return;
 
-  if (row.val1 !== null && row.val2 !== null && row.val3 !== null) {
-    const avg = (row.val1 + row.val2 + row.val3) / 3;
-    row.average = Number(avg.toFixed(1));
+  const v1 = row.val1;
+  const v2 = row.val2;
+  const v3 = row.val3;
+  const s1 = row.stdVal1;
+  const s2 = row.stdVal2;
+  const s3 = row.stdVal3;
 
-    if (row.standard !== null && row.standard !== 0) {
+  if (isMode4.value) {
+    const hasUUC = v1 !== null && v1 !== undefined && v2 !== null && v2 !== undefined && v3 !== null && v3 !== undefined;
+    const hasSTD = s1 !== null && s1 !== undefined && s2 !== null && s2 !== undefined && s3 !== null && s3 !== undefined;
+
+    if (hasUUC) {
+      row.average = Number(((v1 + v2 + v3) / 3).toFixed(1));
+    } else {
+      row.average = null;
+    }
+
+    if (hasSTD) {
+      row.averageStd = Number(((s1 + s2 + s3) / 3).toFixed(1));
+    } else {
+      row.averageStd = null;
+    }
+
+    if (row.average !== null && row.averageStd !== null) {
       const type = props.errorType || 'absolute';
       const limit = props.errorLimit !== undefined ? props.errorLimit : 2;
 
       if (type === 'percent') {
-        const err = ((row.average - row.standard) / row.standard) * 100;
-        row.error = Number(err.toFixed(1));
+        if (row.averageStd !== 0) {
+          const err = ((row.average - row.averageStd) / row.averageStd) * 100;
+          row.error = Number(err.toFixed(1));
+        } else {
+          row.error = Number((row.average - row.averageStd).toFixed(1));
+        }
       } else {
-        const err = row.average - row.standard;
+        const err = row.average - row.averageStd;
         row.error = Number(err.toFixed(1));
       }
 
-      row.status = Math.abs(row.error) <= limit ? 'pass' : 'fail';
-    } else if (row.standard === 0) {
-      // Avoid division by zero for percent type
-      const err = row.average - row.standard;
-      row.error = Number(err.toFixed(1));
-      const limit = props.errorLimit !== undefined ? props.errorLimit : 2;
       row.status = Math.abs(row.error) <= limit ? 'pass' : 'fail';
     } else {
       row.error = null;
       row.status = null;
     }
   } else {
-    row.average = null;
-    row.error = null;
-    row.status = null;
+    if (v1 !== null && v1 !== undefined && v2 !== null && v2 !== undefined && v3 !== null && v3 !== undefined) {
+      const avg = (v1 + v2 + v3) / 3;
+      row.average = Number(avg.toFixed(1));
+
+      if (row.standard !== null && row.standard !== undefined && row.standard !== 0) {
+        const type = props.errorType || 'absolute';
+        const limit = props.errorLimit !== undefined ? props.errorLimit : 2;
+
+        if (type === 'percent') {
+          const err = ((row.average - row.standard) / row.standard) * 100;
+          row.error = Number(err.toFixed(1));
+        } else {
+          const err = row.average - row.standard;
+          row.error = Number(err.toFixed(1));
+        }
+
+        row.status = Math.abs(row.error) <= limit ? 'pass' : 'fail';
+      } else if (row.standard === 0) {
+        // Avoid division by zero for percent type
+        const err = row.average - row.standard;
+        row.error = Number(err.toFixed(1));
+        const limit = props.errorLimit !== undefined ? props.errorLimit : 2;
+        row.status = Math.abs(row.error) <= limit ? 'pass' : 'fail';
+      } else {
+        row.error = null;
+        row.status = null;
+      }
+    } else {
+      row.average = null;
+      row.error = null;
+      row.status = null;
+    }
   }
 };
 
@@ -410,7 +545,11 @@ const addRow = () => {
     val1: null,
     val2: null,
     val3: null,
+    stdVal1: null,
+    stdVal2: null,
+    stdVal3: null,
     average: null,
+    averageStd: null,
     error: null,
     status: null,
   });

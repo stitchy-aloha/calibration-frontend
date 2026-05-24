@@ -82,7 +82,7 @@
         v-model:resolution="paramMetadata[i].resolution"
         :show-range="true"
         :error-limit="parseFloat(param.tolerance || '2.0')"
-        :stdType="param.std_type || (param as any).stdType"
+        :std-type="param.std_type || (param as any).stdType"
       />
     </div>
 
@@ -175,7 +175,11 @@ function initializeData() {
       val1: null,
       val2: null,
       val3: null,
+      stdVal1: null,
+      stdVal2: null,
+      stdVal3: null,
       average: null,
+      averageStd: null,
       error: null,
       status: null,
     }));
@@ -223,24 +227,53 @@ function initializeData() {
 
 function fillLocalMockData() {
   // 1. Quantitative
-  paramValues.value = paramValues.value.map((rows) => {
+  paramValues.value = paramValues.value.map((rows, i) => {
+    const param = quantitativeParams.value[i];
+    const isMode4 = param?.std_type?.includes('4') || param?.std_type?.includes('3 UUC') || param?.std_type?.includes('3 UUC : 3 STD');
     return rows.map((row) => {
       const stdVal = typeof row.standard === 'number' ? row.standard : 0;
-      const r1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
-      const r2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
-      const r3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
-      const avg = (r1 + r2 + r3) / 3;
-      const err = avg - stdVal;
+      if (isMode4) {
+        const std1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const std2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const std3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const avgStd = (std1 + std2 + std3) / 3;
 
-      return {
-        ...row,
-        val1: Number(r1.toFixed(2)),
-        val2: Number(r2.toFixed(2)),
-        val3: Number(r3.toFixed(2)),
-        average: Number(avg.toFixed(2)),
-        error: Number(err.toFixed(2)),
-        status: 'pass',
-      };
+        const r1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const r2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const r3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const avg = (r1 + r2 + r3) / 3;
+        const err = avg - avgStd;
+
+        return {
+          ...row,
+          stdVal1: Number(std1.toFixed(2)),
+          stdVal2: Number(std2.toFixed(2)),
+          stdVal3: Number(std3.toFixed(2)),
+          val1: Number(r1.toFixed(2)),
+          val2: Number(r2.toFixed(2)),
+          val3: Number(r3.toFixed(2)),
+          average: Number(avg.toFixed(2)),
+          averageStd: Number(avgStd.toFixed(2)),
+          error: Number(err.toFixed(2)),
+          status: 'pass',
+        };
+      } else {
+        const r1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const r2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const r3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+        const avg = (r1 + r2 + r3) / 3;
+        const err = avg - stdVal;
+
+        return {
+          ...row,
+          val1: Number(r1.toFixed(2)),
+          val2: Number(r2.toFixed(2)),
+          val3: Number(r3.toFixed(2)),
+          average: Number(avg.toFixed(2)),
+          error: Number(err.toFixed(2)),
+          status: 'pass',
+        };
+      }
     });
   });
 
@@ -345,7 +378,11 @@ watch(
           reading_1: r.val1 ?? undefined,
           reading_2: r.val2 ?? undefined,
           reading_3: r.val3 ?? undefined,
+          std_reading_1: r.stdVal1 ?? undefined,
+          std_reading_2: r.stdVal2 ?? undefined,
+          std_reading_3: r.stdVal3 ?? undefined,
           average_value: r.average ?? undefined,
+          average_standard: r.averageStd ?? undefined,
           error_value: r.error ?? undefined,
           display_type: meta.displayType,
           resolution: meta.resolution,

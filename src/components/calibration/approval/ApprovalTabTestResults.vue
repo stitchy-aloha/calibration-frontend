@@ -96,7 +96,11 @@ interface TestRow {
   val1: number | null;
   val2: number | null;
   val3: number | null;
+  stdVal1?: number | null;
+  stdVal2?: number | null;
+  stdVal3?: number | null;
   average: number | null;
+  averageStd?: number | null;
   error: number | null;
   status: 'pass' | 'fail' | null;
   std_type?: string | undefined;
@@ -145,7 +149,11 @@ const groupedMeasurements = computed(() => {
       val1: getValue('reading_1') as number | null,
       val2: getValue('reading_2') as number | null,
       val3: getValue('reading_3') as number | null,
+      stdVal1: getValue('std_reading_1') as number | null,
+      stdVal2: getValue('std_reading_2') as number | null,
+      stdVal3: getValue('std_reading_3') as number | null,
       average: getValue('average_value') as number | null,
+      averageStd: getValue('average_standard') as number | null,
       error: getValue('error_value') as number | null,
       status:
         m.result?.toUpperCase() === 'PASS'

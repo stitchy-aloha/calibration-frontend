@@ -51,7 +51,11 @@ export interface MeasurementRecord {
   reading_1?: number | null | undefined;
   reading_2?: number | null | undefined;
   reading_3?: number | null | undefined;
+  std_reading_1?: number | null | undefined;
+  std_reading_2?: number | null | undefined;
+  std_reading_3?: number | null | undefined;
   average_value?: number | null | undefined;
+  average_standard?: number | null | undefined;
   error_value?: number | null | undefined;
   result: 'PASS' | 'FAIL';
   display_type?: string | null | undefined;
@@ -236,24 +240,57 @@ export const useCalibrationRecordStore = defineStore('calibrationRecord', () => 
       .filter((s) => s.type === 'quantitative')
       .map((s) => {
         const stdVal = s.test_values?.[0]?.value ?? 100;
-        const r1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
-        const r2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
-        const r3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
-        const avg = (r1 + r2 + r3) / 3;
-        const err = avg - stdVal;
+        const isMode4 = s.std_type?.includes('4') || s.std_type?.includes('3 UUC') || s.std_type?.includes('3 UUC : 3 STD');
+        if (isMode4) {
+          const std1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const std2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const std3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const avgStd = (std1 + std2 + std3) / 3;
 
-        return {
-          parameter_name: s.parameter_name,
-          standard_value: stdVal,
-          reading_1: Number(r1.toFixed(2)),
-          reading_2: Number(r2.toFixed(2)),
-          reading_3: Number(r3.toFixed(2)),
-          average_value: Number(avg.toFixed(2)),
-          error_value: Number(err.toFixed(2)),
-          result: 'PASS',
-          display_type: s.display_type,
-          resolution: s.resolution,
-        };
+          const r1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const r2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const r3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const avg = (r1 + r2 + r3) / 3;
+          const err = avg - avgStd;
+
+          return {
+            parameter_name: s.parameter_name,
+            standard_value: stdVal,
+            reading_1: Number(r1.toFixed(2)),
+            reading_2: Number(r2.toFixed(2)),
+            reading_3: Number(r3.toFixed(2)),
+            std_reading_1: Number(std1.toFixed(2)),
+            std_reading_2: Number(std2.toFixed(2)),
+            std_reading_3: Number(std3.toFixed(2)),
+            average_value: Number(avg.toFixed(2)),
+            average_standard: Number(avgStd.toFixed(2)),
+            error_value: Number(err.toFixed(2)),
+            result: 'PASS' as const,
+            display_type: s.display_type,
+            resolution: s.resolution,
+            std_type: s.std_type,
+          };
+        } else {
+          const r1 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const r2 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const r3 = stdVal + (Math.random() - 0.5) * (stdVal * 0.005);
+          const avg = (r1 + r2 + r3) / 3;
+          const err = avg - stdVal;
+
+          return {
+            parameter_name: s.parameter_name,
+            standard_value: stdVal,
+            reading_1: Number(r1.toFixed(2)),
+            reading_2: Number(r2.toFixed(2)),
+            reading_3: Number(r3.toFixed(2)),
+            average_value: Number(avg.toFixed(2)),
+            error_value: Number(err.toFixed(2)),
+            result: 'PASS' as const,
+            display_type: s.display_type,
+            resolution: s.resolution,
+            std_type: s.std_type,
+          };
+        }
       });
 
     // 4. Qualitatives

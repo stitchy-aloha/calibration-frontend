@@ -54,7 +54,7 @@
         </q-td>
 
         <!-- ค่ามาตรฐาน -->
-        <q-td key="standard" :props="bodyProps" class="text-center text-grey-8">
+        <q-td v-if="!isMode4" key="standard" :bodyProps="bodyProps" class="text-center text-grey-8">
           {{ bodyProps.row.standard !== null ? bodyProps.row.standard : '-' }}
         </q-td>
 
@@ -63,9 +63,19 @@
           {{ bodyProps.row.val1 !== null ? bodyProps.row.val1 : '-' }}
         </q-td>
 
+        <!-- STD 1 (Only in Mode 4) -->
+        <q-td v-if="isMode4" key="stdVal1" :props="bodyProps" class="text-center">
+          {{ bodyProps.row.stdVal1 !== null && bodyProps.row.stdVal1 !== undefined ? bodyProps.row.stdVal1 : '-' }}
+        </q-td>
+
         <!-- ครั้งที่ 2 -->
         <q-td key="val2" :props="bodyProps" class="text-center">
           {{ bodyProps.row.val2 !== null ? bodyProps.row.val2 : '-' }}
+        </q-td>
+
+        <!-- STD 2 (Only in Mode 4) -->
+        <q-td v-if="isMode4" key="stdVal2" :props="bodyProps" class="text-center">
+          {{ bodyProps.row.stdVal2 !== null && bodyProps.row.stdVal2 !== undefined ? bodyProps.row.stdVal2 : '-' }}
         </q-td>
 
         <!-- ครั้งที่ 3 -->
@@ -73,9 +83,19 @@
           {{ bodyProps.row.val3 !== null ? bodyProps.row.val3 : '-' }}
         </q-td>
 
+        <!-- STD 3 (Only in Mode 4) -->
+        <q-td v-if="isMode4" key="stdVal3" :props="bodyProps" class="text-center">
+          {{ bodyProps.row.stdVal3 !== null && bodyProps.row.stdVal3 !== undefined ? bodyProps.row.stdVal3 : '-' }}
+        </q-td>
+
         <!-- ค่าเฉลี่ย -->
         <q-td key="average" :props="bodyProps" class="text-center text-weight-bold">
           {{ bodyProps.row.average !== null ? bodyProps.row.average : '-' }}
+        </q-td>
+
+        <!-- ค่าเฉลี่ยมาตรฐาน (Mean-S) (Only in Mode 4) -->
+        <q-td v-if="isMode4" key="averageStd" :props="bodyProps" class="text-center text-weight-bold">
+          {{ bodyProps.row.averageStd !== null && bodyProps.row.averageStd !== undefined ? bodyProps.row.averageStd : '-' }}
         </q-td>
 
         <!-- ค่าความคาดเคลื่อน -->
@@ -112,7 +132,11 @@ interface TestRow {
   val1: number | null;
   val2: number | null;
   val3: number | null;
+  stdVal1?: number | null;
+  stdVal2?: number | null;
+  stdVal3?: number | null;
   average: number | null;
+  averageStd?: number | null;
   error: number | null;
   status: 'pass' | 'fail' | null;
   std_type?: string | undefined;
@@ -137,42 +161,69 @@ watch(
 
 const showRange = computed(() => props.showRange !== false);
 
+const isMode4 = computed(() => {
+  return (
+    props.stdType?.includes('4') ||
+    props.stdType?.includes('3 UUC') ||
+    props.stdType?.includes('3 UUC : 3 STD')
+  );
+});
+
 const allColumns = computed<QTableProps['columns']>(() => {
-  // Flexible detection: look for '2' and 'UUC'/'STD' keywords
   const isMode2 =
     props.stdType?.includes('2') &&
     (props.stdType?.includes('UUC') || props.stdType?.includes('STD'));
 
-  return [
-    { name: 'range', label: 'ช่วง', field: 'range', align: 'center' },
-    {
-      name: 'standard',
-      label: isMode2 ? 'UUC Setting' : 'STD Setting',
-      field: 'standard',
-      align: 'center',
-    },
-    {
-      name: 'val1',
-      label: isMode2 ? 'STD-1' : 'UUC-1',
-      field: 'val1',
-      align: 'center',
-    },
-    {
-      name: 'val2',
-      label: isMode2 ? 'STD-2' : 'UUC-2',
-      field: 'val2',
-      align: 'center',
-    },
-    {
-      name: 'val3',
-      label: isMode2 ? 'STD-3' : 'UUC-3',
-      field: 'val3',
-      align: 'center',
-    },
-    { name: 'average', label: 'Mean', field: 'average', align: 'center' },
-    { name: 'error', label: 'Error', field: 'error', align: 'center' },
-    { name: 'status', label: 'Result', field: 'status', align: 'center' },
-  ];
+  const cols: QTableProps['columns'] = [];
+
+  cols.push({ name: 'range', label: 'ช่วง', field: 'range', align: 'center' });
+
+  if (isMode4.value) {
+    cols.push(
+      { name: 'val1', label: 'UUC-1', field: 'val1', align: 'center' },
+      { name: 'stdVal1', label: 'STD-1', field: 'stdVal1', align: 'center' },
+      { name: 'val2', label: 'UUC-2', field: 'val2', align: 'center' },
+      { name: 'stdVal2', label: 'STD-2', field: 'stdVal2', align: 'center' },
+      { name: 'val3', label: 'UUC-3', field: 'val3', align: 'center' },
+      { name: 'stdVal3', label: 'STD-3', field: 'stdVal3', align: 'center' },
+      { name: 'average', label: 'Mean-U', field: 'average', align: 'center' },
+      { name: 'averageStd', label: 'Mean-S', field: 'averageStd', align: 'center' },
+      { name: 'error', label: 'Error', field: 'error', align: 'center' },
+      { name: 'status', label: 'Result', field: 'status', align: 'center' },
+    );
+  } else {
+    cols.push(
+      {
+        name: 'standard',
+        label: isMode2 ? 'UUC Setting' : 'STD Setting',
+        field: 'standard',
+        align: 'center',
+      },
+      {
+        name: 'val1',
+        label: isMode2 ? 'STD-1' : 'UUC-1',
+        field: 'val1',
+        align: 'center',
+      },
+      {
+        name: 'val2',
+        label: isMode2 ? 'STD-2' : 'UUC-2',
+        field: 'val2',
+        align: 'center',
+      },
+      {
+        name: 'val3',
+        label: isMode2 ? 'STD-3' : 'UUC-3',
+        field: 'val3',
+        align: 'center',
+      },
+      { name: 'average', label: 'Mean', field: 'average', align: 'center' },
+      { name: 'error', label: 'Error', field: 'error', align: 'center' },
+      { name: 'status', label: 'Result', field: 'status', align: 'center' },
+    );
+  }
+
+  return cols;
 });
 
 const visibleColumns = computed(() =>
