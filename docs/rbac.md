@@ -17,6 +17,7 @@
 ## 2. การควบคุมสิทธิ์บนหน้าเว็บ (UI Level / Client-Side)
 
 ### 2.1 Custom Composable (`useRoleAccess`)
+
 เราใช้ Composable ในการรับมือกับการตรวจสอบความถูกต้องของสิทธิ์ผู้ใช้ เพื่อให้สามารถเรียกใช้ได้สม่ำเสมอในทุก ๆ คอมโพเนนต์:
 
 ```typescript
@@ -38,12 +39,13 @@ export function useRoleAccess() {
   }
 
   return {
-    hasRole
+    hasRole,
   };
 }
 ```
 
 ### 2.2 การนำไปประยุกต์ใช้งานในเทมเพลต (Template Integration)
+
 ซ่อน/แสดง หรือปิดการใช้งาน (Disable) ปุ่ม/ข้อมูล ตามบทบาทของผู้ใช้ปัจจุบัน:
 
 ```html
@@ -68,9 +70,9 @@ export function useRoleAccess() {
 </template>
 
 <script setup lang="ts">
-import { useRoleAccess } from 'src/composables/useRoleAccess';
+  import { useRoleAccess } from 'src/composables/useRoleAccess';
 
-const { hasRole } = useRoleAccess();
+  const { hasRole } = useRoleAccess();
 </script>
 ```
 
@@ -80,5 +82,5 @@ const { hasRole } = useRoleAccess();
 
 > [!WARNING]
 > การซ่อนองค์ประกอบในหน้าจอ UI เป็นเพียงความสะดวกในการใช้งานเท่านั้น (UX) **คุณต้องป้องกันการเข้าถึงข้อมูลที่ปลายทาง (API Backend) เสมอ**
-> 
+>
 > ห้ามให้ API เปิดสาธารณะโดยไม่มี `@Roles` และ `@UseGuards(JwtAuthGuard, RolesGuard)` คอยป้องกันหลังบ้านเด็ดขาด
