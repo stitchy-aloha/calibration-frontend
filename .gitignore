@@ -44,3 +44,7 @@ GEMINI.md
 /context
 .tmp
 
+.agent/
+openspec/
+
+
