@@ -245,14 +245,14 @@ const baseColumns: QTableProps['columns'] = [
     sortable: true,
     style: 'width: 90px; min-width: 80px',
   },
-  {
-    name: 'calibrationCycle',
-    label: 'รอบสอบเทียบ',
-    field: 'calibrationCycle',
-    align: 'center',
-    sortable: false,
-    style: 'width: 110px; min-width: 90px',
-  },
+  // {
+  //   name: 'calibrationCycle',
+  //   label: 'รอบสอบเทียบ',
+  //   field: 'calibrationCycle',
+  //   align: 'center',
+  //   sortable: false,
+  //   style: 'width: 110px; min-width: 90px',
+  // },
   {
     name: 'dueDate',
     label: 'ครบกำหนด',
